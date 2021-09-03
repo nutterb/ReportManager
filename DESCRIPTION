@@ -1,0 +1,27 @@
+Package: ReportManager
+Title: R Application To Manage Parameterized Reports
+Version: 0.8.5
+Authors@R: c(person("Benjamin", "Nutter", email = "benjamin.nutter@gmail.com", role = c("aut", "cre")))
+Description: This package provides a shiny application framework for managing 
+  an organization's standardized reports. The application provides the infrastructure to 
+  manage report reviews, approval, and submission to internal and external clients. 
+Depends:
+  R (>= 3.1.2)
+Imports:
+  checkmate (>= 1.8.0),
+  DBI,
+  odbc,
+  shiny
+Suggests:
+  DT,
+  knitr,
+  rmarkdown,
+  shinydashboard,
+  testthat
+License: MIT + file LICENSE
+LazyData: true
+VignetteBuilder: knitr
+URL: https://github.com/nutterb/ReportManager
+BugReports: https://github.com/nutterb/ReportManager/issues
+RoxygenNote: 7.1.1
+NeedsCompilation: no
