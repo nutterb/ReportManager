@@ -43,9 +43,7 @@ dashboardPage(
         "tab_userRoles"
       ), 
       
-      tabItem(
-        "tab_users"
-      )
+      tabItem("tab_users", UI_TAB_USERS)
     )
   )
 )
