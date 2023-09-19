@@ -1,0 +1,51 @@
+dashboardPage(
+  title = "Report Manager",
+  # Dashboard Header ------------------------------------------------
+  dashboardHeader(
+    title = "Report Manager", 
+    titleWidth = 250
+  ), 
+  
+  # Dashboard Sidebar -----------------------------------------------
+  dashboardSidebar(
+    width = 250, 
+    UI_SIDEBAR_MENU # Defined in Application/R/ui-sidebar-menu.R
+  ), 
+  
+  # Dashboard Body --------------------------------------------------
+  dashboardBody(
+    # Styles and javascript -----------------------------------------
+    UI_STYLES_AND_SCRIPTS, # Defined in Application/R/ui-styles-scripts.R
+    
+    # Modals --------------------------------------------------------
+    
+    # Menu Pages ----------------------------------------------------
+    
+    # Generate a Report ---------------------------------------------
+    tabItems(
+      tabItem(
+        "tab_generateReport" 
+      ), 
+      
+      tabItem(
+        "tab_reportTemplate"
+      ), 
+      
+      tabItem(
+        "tab_scheduleManagement"
+      ), 
+      
+      tabItem(
+        "tab_disclaimerFooter"
+      ), 
+      
+      tabItem(
+        "tab_userRoles"
+      ), 
+      
+      tabItem(
+        "tab_users"
+      )
+    )
+  )
+)

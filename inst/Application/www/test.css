@@ -1,0 +1,75 @@
+body {
+  margin:10px;
+  padding:10px;
+  background-color:rgb(149, 55, 52);
+}
+
+.well {
+  background-color:rgb(177, 190, 207);
+}
+
+pre{
+  background-color:rgb(216, 222, 231);
+}
+
+.tabbable > .nav > li[class = active] > a {
+  background-color:rgb(88, 161, 221);
+  color:#DCDCDC;
+  font-weight:bold;
+}
+
+.tabbable > .nav > li > a {
+  background-color:rgb(63, 117, 161);
+  color:rgb(32, 31, 53);
+  font-weight:bold;
+}
+
+.tabs-above > .nav > li[class = active] > a {
+  background-color:rgb(88, 161, 221);
+  color:#DCDCDC;
+  font-weight:bold;
+}
+
+.tabs-above > .nav > li > a {
+  background-color:rgb(63, 117, 161);
+  color:rgb(32, 31, 53);
+  font-weight:bold;
+}
+
+.btn {
+  background-color:rgb(119, 136, 153);
+  color:rgb(235, 240, 255)
+}
+
+caption {
+  color:#262626;
+  font-style:italic
+}
+
+th {
+  background-color:rgb(234,238,242);
+  font-weight:bold;
+}
+
+tr:nth-child(even) {
+  background-color:rgb(255,255,255)
+}
+
+tr:nth-child(odd) {
+  background-color:rgb(234,238,242);
+}
+
+table, th, td {
+  border: 1px solid #AFAFAF;
+  border-collapse: separate;
+  padding: 3px;
+}
+
+caption {
+  color:#262626;
+  font-style:italic
+}
+
+textarea:-ms-input-placeholder {
+  color:#AAAAAA;
+}
