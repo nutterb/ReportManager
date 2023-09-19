@@ -4,14 +4,14 @@ Version: 0.0.1
 Authors@R: person("Benjamin", "Nutter", , "benjamin.nutter@gmail.com", role = c("aut", "cre"))
 Description: Shiny application for managing BGCAPP Laboratory Reports. 
 Depends:
-    R (>= 3.2.0)
+  R (>= 3.2.0)
 Imports:
-    checkmate,
-    DBI
+  checkmate,
+  DBI
 Suggests:
-    shinydashboard,
-    shinyjs,
-    testthat (>= 3.0.0)
+  shinydashboard,
+  shinyjs,
+  testthat (>= 3.0.0)
 License: file LICENSE
 LazyData: true
 Roxygen: list(markdown = TRUE)
