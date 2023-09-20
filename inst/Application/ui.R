@@ -19,6 +19,8 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    MODAL_REPORT_USER,
+    
     # Menu Pages ----------------------------------------------------
     
     # Generate a Report ---------------------------------------------
@@ -43,7 +45,7 @@ dashboardPage(
         "tab_userRoles"
       ), 
       
-      tabItem("tab_users", UI_TAB_USERS)
+      tabItem("tab_users", UI_TAB_REPORT_USER)
     )
   )
 )

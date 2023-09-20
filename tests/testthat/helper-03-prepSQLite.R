@@ -1,15 +1,15 @@
-if (SQL_SERVER_READY){
+if (SQLITE_READY){
   # Drop Existing Tables --------------------------------------------
-  options(RM_sql_flavor = "sql_server")
-  
+  require(RSQLite)
+  options(RM_sql_flavor = "sqlite")
   conn <- connectToReportManager()
   
   dropTable <- function(table, conn){
-    tables <- DBI::dbListTables(conn, schema = "dbo")
+    tables <- DBI::dbListTables(conn)
     
     if (table %in% tables){
       result <- DBI::dbSendStatement(conn, 
-                                     sprintf("DROP TABLE dbo.%s", 
+                                     sprintf("DROP TABLE %s", 
                                              table))
       DBI::dbClearResult(result)
     }
@@ -22,6 +22,7 @@ if (SQL_SERVER_READY){
   
   # Rebuild the Database --------------------------------------------
   
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
+  initializeReportManagerDatabase(system.file("Sql/SQLite.sql", 
                                               package = "ReportManager"))
+  
 }

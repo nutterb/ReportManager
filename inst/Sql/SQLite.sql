@@ -1,35 +1,34 @@
 /* ReportUser Table  ***********************************************/
 
 CREATE TABLE ReportUser(
-  OID INT IDENTITY(1, 1) NOT NULL, 
-  UserName VARCHAR(100) NOT NULL, 
+  OID INTEGER PRIMARY KEY, 
+  LastName VARCHAR(50) NOT NULL, 
+  FirstName VARCHAR(50) NOT NULL,
   LoginId VARCHAR(50) NOT NULL, 
   EmailAddress VARCHAR(100) NULL, 
   IsInternal BIT NOT NULL DEFAULT 1, 
-  IsActive BIT NOT NULL DEFAULT 1, 
-  
-  PRIMARY KEY (OID)
+  IsActive BIT NOT NULL DEFAULT 1
 );
 
 /* ReportUserEvent Table *******************************************/
 
 CREATE TABLE ReportUserEvent(
-  OID INT IDENTITY(1, 1)  NOT NULL, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportUser INT NOT NULL, 
   EventReportUser INT NOT NULL, 
   EventType VARCHAR(50) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
   NewValue VARCHAR(200) NULL, 
   
-  PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportUser) REFERENCES ReportUser(OID), 
   FOREIGN KEY (EventReportUser) REFERENCES ReportUser(OID), 
   CONSTRAINT chk_ReportUserEventType CHECK (EventType IN ('SetInternalTrue', 
                                                           'SetInternalFalse', 
                                                           'EditEmailAddress', 
-                                                          'EditUserName', 
+                                                          'EditLastName',
+                                                          'EditFirstName',
                                                           'EditLoginId', 
-                                                          'Deactive', 
+                                                          'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
 );

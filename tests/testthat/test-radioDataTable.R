@@ -60,13 +60,13 @@ test_that(
                                 id_variable = "id", 
                                 element_name = "rdo_name", 
                                 checked = TRUE), 
-                 "'checked': One of the following must apply")
+                 "One of the following must apply")
     
     expect_error(radioDataTable(data = TestingData, 
                                 id_variable = "id", 
                                 element_name = "rdo_name", 
                                 checked = 1:2), 
-                 "'checked': One of the following must apply")
+                 "One of the following must apply")
   }
 )
     

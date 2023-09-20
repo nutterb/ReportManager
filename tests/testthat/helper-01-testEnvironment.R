@@ -26,3 +26,12 @@ options(
   RM_sqlServer_server = keyring::key_get("ReportManager", "SqlServerServer", "ReportManager"), 
   RM_sqlServer_database = keyring::key_get("ReportManager", "SqlServerDatabase", "ReportManager")
 )
+
+SQL_SERVER_READY <- TRUE
+invisible(tryCatch(connectToReportManager_sqlServer(), 
+                   error = function(cond) SQL_SERVER_READY <<- FALSE))
+SQL_SERVER_READY_MESSAGE <- "The SQL Server Database connection could not be established for testing."
+
+
+SQLITE_READY <- requireNamespace("RSQLite", quietly=TRUE)
+SQLITE_READY_MESSAGE <- "`RSQLite` is required to test SQLite connections."

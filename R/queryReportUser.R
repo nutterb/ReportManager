@@ -9,10 +9,11 @@ queryReportUser <- function(){
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
-  query <- switch(class(conn), 
-                  "SQLiteConnection" = .queryReportUser_sqlite, 
-                  stop(sprintf("Query not defined for connection type %s", 
-                               paste0(class(conn), collapse = ", "))))
+  query <- switch(getOption("RM_sql_flavor"), 
+                  "sqlite" = .queryReportUser_sqlite, 
+                  "sql_server" = .queryReportUser_sqlServer,
+                  stop(sprintf("Query not defined for SQL flavor '%s'", 
+                               getOption("RM_sql_flavor"))))
   
   DBI::dbGetQuery(conn, query) 
 }

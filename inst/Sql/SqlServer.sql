@@ -2,7 +2,8 @@
 
 CREATE TABLE dbo.ReportUser(
   OID INT IDENTITY(1, 1) NOT NULL, 
-  UserName VARCHAR(100) NOT NULL, 
+  LastName VARCHAR(50) NOT NULL, 
+  FirstName VARCHAR(50) NOT NULL,
   LoginId VARCHAR(50) NOT NULL, 
   EmailAddress VARCHAR(100) NULL, 
   IsInternal BIT NOT NULL DEFAULT 1, 
@@ -27,9 +28,10 @@ CREATE TABLE dbo.ReportUserEvent(
   CONSTRAINT chk_ReportUserEventType CHECK (EventType IN ('SetInternalTrue', 
                                                           'SetInternalFalse', 
                                                           'EditEmailAddress', 
-                                                          'EditUserName', 
+                                                          'EditLastName',
+                                                          'EditFirstName',
                                                           'EditLoginId', 
-                                                          'Deactive', 
+                                                          'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
 );

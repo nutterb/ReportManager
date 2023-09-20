@@ -1,0 +1,22 @@
+MODAL_REPORT_USER <- bsModal(
+  id = "modal_reportUser_addEdit", 
+  title = textOutput("title_addEditReportUser"), 
+  size = "large", 
+  trigger = "trg_none", 
+  textInput(inputId = "txt_userRole_lastName", 
+            label = "Last Name"), 
+  textInput(inputId = "txt_userRole_FirstName", 
+            label = "First Name"), 
+  textInput(inputId = "txt_userRole_loginId", 
+            label = "Login ID"), 
+  textInput(inputId = "txt_userRole_emailAddress", 
+            label = "E-mail Address"), 
+  checkboxInput(inputId = "chk_userRole_isInternal", 
+                label = "Is Internal User", 
+                value = FALSE), 
+  checkboxInput(inputId = "chk_userRole_isActive", 
+                label = "Is Active", 
+                value = TRUE), 
+  actionButton(inputId = "btn_userRole_addEditUserRole", 
+               label = "Save")
+)

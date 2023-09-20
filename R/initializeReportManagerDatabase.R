@@ -28,7 +28,7 @@ initializeReportManagerDatabase <- function(filename){
   # Functionality ---------------------------------------------------
 
   conn <- connectToReportManager()
-  
+
   on.exit({ DBI::dbDisconnect(conn) })
   
   
