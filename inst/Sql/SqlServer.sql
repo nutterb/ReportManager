@@ -5,7 +5,7 @@ CREATE TABLE dbo.ReportUser(
   UserName VARCHAR(100) NOT NULL, 
   LoginId VARCHAR(50) NOT NULL, 
   EmailAddress VARCHAR(100) NULL, 
-  IsInternval BIT NOT NULL DEFAULT 1, 
+  IsInternal BIT NOT NULL DEFAULT 1, 
   IsActive BIT NOT NULL DEFAULT 1, 
   
   PRIMARY KEY (OID)
