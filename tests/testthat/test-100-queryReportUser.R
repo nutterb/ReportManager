@@ -11,7 +11,7 @@ test_that(
     ReportUser <- queryReportUser()
     
     expect_data_frame(ReportUser, 
-                      ncols = 6)
+                      ncols = 7)
   }
 )
 
@@ -29,6 +29,6 @@ test_that(
     ReportUser <- queryReportUser()
     
     expect_data_frame(ReportUser, 
-                      ncols = 6)
+                      ncols = 7)
   }
 )

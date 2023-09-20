@@ -22,7 +22,8 @@ queryReportUser <- function(){
 
 .queryReportUser_sqlite <- 
   "SELECT OID, 
-      UserName, 
+      LastName,
+      FirstName,
       LoginId,
       EmailAddress, 
       IsInternal, 
@@ -31,7 +32,8 @@ queryReportUser <- function(){
 
 .queryReportUser_sqlServer <- 
   "SELECT OID, 
-      UserName, 
+      LastName, 
+      FirstName, 
       LoginId,
       EmailAddress, 
       IsInternal, 
