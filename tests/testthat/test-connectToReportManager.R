@@ -1,6 +1,7 @@
 # SQLite Connection -------------------------------------------------
 
 require(RSQLite)
+connectToReportManager <- connectToReportManager_sqlite
 
 test_that(
   "Return an error when database_file is not character(1)", 

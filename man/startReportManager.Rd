@@ -13,7 +13,7 @@ sent in accordance with the configurations in the database. When
 \code{"off"}, no e-mails are sent. If the user provides an e-mail address,
 all e-mails will be sent to the address provided.}
 
-\item{...}{Arguments to pass to \verb{[shiny::runApp()]}, such as
+\item{...}{Arguments to pass to \code{\link[shiny:runApp]{shiny::runApp()}}, such as
 \code{launch.browser} or \code{port}.}
 }
 \description{

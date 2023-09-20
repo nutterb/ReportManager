@@ -8,7 +8,7 @@
 #' 
 #' @param outputId `character(1)` The name of the output created using 
 #'   [DT::renderDataTable()].
-#' @param radioId `character(1)} Should match the `element_name`
+#' @param radioId `character(1)` Should match the `element_name`
 #'   argument of the call to `makeRadioDataTable`
 #' @param height `character(1)` The height of the element.
 #' @param width `character(1)` The width of the element.

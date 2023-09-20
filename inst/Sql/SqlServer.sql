@@ -1,4 +1,4 @@
-/* User Table  *****************************************************/
+/* ReportUser Table  ***********************************************/
 
 CREATE TABLE dbo.ReportUser(
   OID INT IDENTITY(1, 1) NOT NULL, 
@@ -9,7 +9,9 @@ CREATE TABLE dbo.ReportUser(
   IsActive BIT NOT NULL DEFAULT 1, 
   
   PRIMARY KEY (OID)
-)
+);
+
+/* ReportUserEvent Table *******************************************/
 
 CREATE TABLE dbo.ReportUserEvent(
   OID INT IDENTITY(1, 1)  NOT NULL, 
@@ -30,4 +32,4 @@ CREATE TABLE dbo.ReportUserEvent(
                                                           'Deactive', 
                                                           'Activate', 
                                                           'Add'))
-)
+);

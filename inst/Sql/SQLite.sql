@@ -1,4 +1,4 @@
-/* User Table  *****************************************************/
+/* ReportUser Table  ***********************************************/
 
 CREATE TABLE ReportUser(
   OID INT IDENTITY(1, 1) NOT NULL, 
@@ -9,7 +9,9 @@ CREATE TABLE ReportUser(
   IsActive BIT NOT NULL DEFAULT 1, 
   
   PRIMARY KEY (OID)
-)
+);
+
+/* ReportUserEvent Table *******************************************/
 
 CREATE TABLE ReportUserEvent(
   OID INT IDENTITY(1, 1)  NOT NULL, 
@@ -30,4 +32,4 @@ CREATE TABLE ReportUserEvent(
                                                           'Deactive', 
                                                           'Activate', 
                                                           'Add'))
-)
+);
