@@ -3,16 +3,7 @@
 #' 
 #' @description Establish a Connection to the Report Manager Database. 
 #' 
-#' @param flavor `character(1)`. The flavor of SQL used. This will determine
-#'   the SQL engine used. One of `c("sql_server", "sqlite")`.
-#' @param database_file `character(1)`. For SQLite connections, the file 
-#'   containing the database.
-#' @param driver `character(1)`. For SQL Server connections, the driver to 
-#'   use when connecting to the database.
-#' @param server `character(1)`. For SQL Server connections, the server
-#'   to connect to.
-#' @param database `character(1)`. For SQL Server connections, the database 
-#'   to connect to.
+#' @inheritParams configureReportManager
 #' @param ... Arguments for establishing the connection via the `DBI` package.
 #' 
 #' @export

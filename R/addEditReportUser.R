@@ -21,7 +21,7 @@
 #' @param is_active `logical(1)`. When `TRUE`, the user has access to the 
 #'   application and may receive e-mails with distributed reports. When 
 #'   `FALSE`, access is denied and no e-mails may be sent to the user.
-#' @param event_user `logical(1)`. The ReportUser.OID of the user performing
+#' @param event_user `integerish(1)`. The ReportUser.OID of the user performing
 #'   the action.
 #'   
 #' @export
@@ -66,6 +66,10 @@ addEditReportUser <- function(oid         = numeric(0),
                            len = 1, 
                            add = coll)
   
+  checkmate::assertIntegerish(x = event_user, 
+                              len = 1, 
+                              add = coll)
+  
   checkmate::reportAssertions(coll)
   
   # Functionality ---------------------------------------------------
@@ -84,7 +88,7 @@ addEditReportUser <- function(oid         = numeric(0),
                              "EditLoginId", 
                              "EditEmailAddress", 
                              if (is_internal) "SetInternalTrue" else "SetInternalFalse", 
-                             if (is_active) "Activate", "Deactivate"), 
+                             if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(event_time, 7), 
                NewValue = c("", 
                             last_name, 
@@ -106,9 +110,20 @@ addEditReportUser <- function(oid         = numeric(0),
     EventList$ParentReportUser <- rep(OID$OID, 
                                       nrow(EventList))
   } else {
+    EventList <- .addEditReportUser_editedEventList(EventList = EventList,
+                                                    oid       = oid,
+                                                    conn      = conn)
     
+    .addEditReportUser_editUser(oid         = oid, 
+                                last_name   = last_name, 
+                                first_name  = first_name, 
+                                login_id    = login_id, 
+                                email       = email, 
+                                is_internal = is_internal, 
+                                is_active   = is_active, 
+                                conn        = conn)
   }
-  
+
   .addEditReportUser_addUserEvents(EventList, 
                                    conn)
 }
@@ -152,19 +167,48 @@ addEditReportUser <- function(oid         = numeric(0),
   Inserted
 }
 
+.addEditReportUser_editUser <- function(oid, 
+                                        last_name, 
+                                        first_name, 
+                                        login_id, 
+                                        email, 
+                                        is_internal, 
+                                        is_active, 
+                                        conn){
+  statement <- 
+    switch(getOption("RM_sql_flavor"), 
+           "sqlite" = .addEditReportUser_editReportUserStatement_sqlite, 
+           "sql_server" = .addEditReportUser_editReportUserStatement_sqlServer)
+  
+  result <- 
+    DBI::dbSendStatement(
+      conn, 
+      statement, 
+      list(last_name, 
+           first_name, 
+           login_id, 
+           email, 
+           as.numeric(is_internal), 
+           as.numeric(is_active), 
+           oid)
+    )
+  
+  DBI::dbClearResult(result)
+}
+
 .addEditReportUser_addUserEvents <- function(EventList, 
                                              conn){
   statement <- 
     switch(getOption("RM_sql_flavor"), 
            "sqlite" = .addEditReportUser_addEventStatement_sqlite, 
            "sql_server" = .addEditReportUser_addEventStatement_sqlServer)
-  
-  for (i in seq_along(nrow(EventList))){
+
+  for (i in seq_len(nrow(EventList))){
     result <- 
       DBI::dbSendStatement(
         conn, 
         statement, 
-        list(EventList$ParentReportuser[i], 
+        list(EventList$ParentReportUser[i], 
              EventList$EventReportUser[i], 
              EventList$EventType[i], 
              format(EventList$EventDate[i], 
@@ -173,6 +217,24 @@ addEditReportUser <- function(oid         = numeric(0),
       )
     DBI::dbClearResult(result)
   }
+}
+
+.addEditReportUser_editedEventList <- function(EventList, 
+                                               oid,
+                                               conn){
+  EventList$ParentReportUser <- rep(oid, 
+                                    nrow(EventList))
+  EventList <- EventList[!EventList$EventType == "Add", ]
+  ThisReportUser <- queryReportUser(oid)
+  
+  EventList$CurrentValue <- c(ThisReportUser$LastName, 
+                              ThisReportUser$FirstName, 
+                              ThisReportUser$LoginId, 
+                              ThisReportUser$EmailAddress, 
+                              ThisReportUser$IsInternal, 
+                              ThisReportUser$IsActive)
+  
+  EventList[EventList$CurrentValue != EventList$NewValue, ]
 }
 
 # Add ReportUser Statements -----------------------------------------
@@ -190,6 +252,28 @@ addEditReportUser <- function(oid         = numeric(0),
    VALUES
    (?,        ?,         ?,       ?,            ?,          ?)"
 
+# Update ReportUser Statement ---------------------------------------
+
+.addEditReportUser_editReportUserStatement_sqlServer <- 
+  "UPDATE dbo.ReportUser
+   SET LastName = ?, 
+       FirstName = ?, 
+       LoginId = ?, 
+       EmailAddress = ?, 
+       IsInternal = ?, 
+       IsActive = ?
+   WHERE OID = ?"
+
+.addEditReportUser_editReportUserStatement_sqlite <- 
+  "UPDATE ReportUser
+   SET LastName = ?, 
+       FirstName = ?, 
+       LoginId = ?, 
+       EmailAddress = ?, 
+       IsInternal = ?, 
+       IsActive = ?
+   WHERE OID = ?"
+
 # Add Event Statements ----------------------------------------------
 
 .addEditReportUser_addEventStatement_sqlServer <- 
@@ -199,7 +283,7 @@ addEditReportUser <- function(oid         = numeric(0),
    (?,                ?,               ?,         ?,             ?)"
 
 .addEditReportUser_addEventStatement_sqlite <- 
-  "INSERT INTO dbo.ReportUserEvent
+  "INSERT INTO ReportUserEvent
    (ParentReportUser, EventReportUser, EventType, EventDateTime, NewValue)
    VALUES
    (?,                ?,               ?,         ?,             ?)"
