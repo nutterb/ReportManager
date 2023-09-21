@@ -207,6 +207,9 @@ configureReportManager(sql_flavor = "sql_server")
 test_that(
   "Add a ReportUser in SQL Server", 
   {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
     addEditReportUser(last_name = "Doe", 
                       first_name = "Jane", 
                       login_id = "jdoe", 
@@ -234,6 +237,9 @@ test_that(
 test_that(
   "Edit a ReportUser in SQLite", 
   {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
     addEditReportUser(oid = 2, 
                       last_name = "Duck", 
                       first_name = "John", 

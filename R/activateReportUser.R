@@ -38,7 +38,7 @@ activateReportUser <- function(oid,
   current_value <- queryReportUser(oid)$IsActive
   
   if (current_value == active){
-    return(NULL)
+    return(invisible())
   }
   
   statement <- switch(getOption("RM_sql_flavor"), 

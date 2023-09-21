@@ -1,3 +1,5 @@
+# Modal - reportUser_addEdit ----------------------------------------
+
 MODAL_REPORT_USER <- bsModal(
   id = "modal_reportUser_addEdit", 
   title = textOutput("title_addEditReportUser"), 
