@@ -2,30 +2,13 @@
 % Please edit documentation in R/connectToReportManager.R
 \name{connectToReportManager}
 \alias{connectToReportManager}
-\alias{connectToReportManager_sqlite}
 \title{Connect to the Report Manager Database}
 \usage{
-connectToReportManager_sqlite(database_file = getOption("RM_sqlite_file"))
-
-connectToReportManager(
-  driver = getOption("RM_sqlServer_driver"),
-  server = getOption("RM_sqlServer_server"),
-  database = getOption("RM_sqlServer_database"),
-  ...
-)
+connectToReportManager(flavor = getOption("RM_sql_flavor"))
 }
 \arguments{
-\item{database_file}{\code{character(1)}. For SQLite connections, the file
-containing the database.}
-
-\item{driver}{\code{character(1)}. For SQL Server connections, the driver to
-use when connecting to the database.}
-
-\item{server}{\code{character(1)}. For SQL Server connections, the server
-to connect to.}
-
-\item{database}{\code{character(1)}. For SQL Server connections, the database
-to connect to.}
+\item{flavor}{\code{character(1)}. The flavor of SQL used. This will
+determine the SQL engine used. One of \code{c("sql_server", "sqlite")}.}
 
 \item{...}{Arguments for establishing the connection via the \code{DBI} package.}
 }

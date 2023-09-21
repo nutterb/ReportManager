@@ -9,6 +9,10 @@ Imports:
   checkmate,
   DBI
 Suggests:
+  DT,
+  magrittr,
+  shiny,
+  shinyBS,
   shinydashboard,
   shinyjs,
   testthat (>= 3.0.0)

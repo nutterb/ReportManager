@@ -31,9 +31,37 @@ shinyServer(function(input, output, session){
   observe({
     toggleState(id = "btn_reportUser_add", 
                 condition = USER_IS_USER_ADMIN())
+    
+    toggleState(id = "btn_reportUser_edit", 
+                condition = USER_IS_USER_ADMIN() &&
+                  length(input$rdo_reportUser) > 0)
+  })
+  
+  observe({
+    req(rv_ReportUser$SelectedReportUser)
+
+    toggleState(id = "btn_reportUser_activate", 
+                condition = USER_IS_USER_ADMIN() &&
+                  length(input$rdo_reportUser) > 0 &&
+                  isFALSE(rv_ReportUser$SelectedReportUser$IsActive))
+    
+    toggleState(id = "btn_reportUser_deactivate", 
+                condition = USER_IS_USER_ADMIN() &&
+                  length(input$rdo_reportUser) > 0 &&
+                  isTRUE(rv_ReportUser$SelectedReportUser$IsActive))
   })
   
   # ReportUser - Event Observer -------------------------------------
+  
+  observeEvent(
+    input$rdo_reportUser, 
+    {
+      oid <- as.numeric(input$rdo_reportUser)
+      ThisUser <- rv_ReportUser$ReportUser
+      ThisUser <- ThisUser[ThisUser$OID == oid, ]
+      rv_ReportUser$SelectedReportUser <- ThisUser
+    }
+  )
   
   observeEvent(
     input$btn_reportUser_add, 

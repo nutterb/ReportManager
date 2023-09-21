@@ -4,11 +4,27 @@
 \alias{initializeReportManagerDatabase}
 \title{Intialize the Report Manager Database}
 \usage{
-initializeReportManagerDatabase(filename)
+initializeReportManagerDatabase(
+  filename,
+  last_name,
+  first_name,
+  login_id,
+  email
+)
 }
 \arguments{
 \item{filename}{\code{character(1)}. A filename of SQL code. Usually
 one found in \code{system.file("Sql", package = "ReportManager")}}
+
+\item{last_name}{\code{character(1)}. The last name of the user.}
+
+\item{first_name}{\code{character(1)}. The first name of the user.}
+
+\item{login_id}{\code{character(1)}. The login ID of the user.}
+
+\item{email}{\code{character(0/1)}. The e-mail address of the user. If not
+provided, the user will not receive reports distributed by e-mail but
+may use the application otherwise.}
 }
 \description{
 Retrieves the SQL code to define the Report Manager

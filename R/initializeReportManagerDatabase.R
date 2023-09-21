@@ -6,10 +6,20 @@
 #'   
 #' @param filename `character(1)`. A filename of SQL code. Usually 
 #'   one found in `system.file("Sql", package = "ReportManager")`
+#' @inheritParams addEditReportUser
+#' 
+#' @details `last_name`, `first_name`, `login_id`, and `email` are 
+#'   the values assigned for the first user in the database. This user
+#'   will be given the UserAdministrator and ReportAdministrator roles, 
+#'   allowing them to add other users and configure reports.
 #'   
 #' @export
 
-initializeReportManagerDatabase <- function(filename){
+initializeReportManagerDatabase <- function(filename, 
+                                            last_name, 
+                                            first_name, 
+                                            login_id, 
+                                            email){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -46,6 +56,22 @@ initializeReportManagerDatabase <- function(filename){
     result <- DBI::dbSendStatement(conn, 
                                    statement)
     DBI::dbClearResult(result)
-    
   }
+  
+  # Add the First User ----------------------------------------------
+  addEditReportUser(last_name = last_name, 
+                    first_name = first_name, 
+                    login_id = login_id, 
+                    email = email, 
+                    is_internal = TRUE, 
+                    is_active = TRUE, 
+                    event_user = 1)
+  
+  # Add the essential roles -----------------------------------------
+  
+  # TODO: add UserAdministrator and ReportAdministrator roles
+  
+  # Assign the First User to the essential roles --------------------
+  
+  # TODO: Add first user to essential roles
 }

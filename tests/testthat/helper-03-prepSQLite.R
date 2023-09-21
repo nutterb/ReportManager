@@ -23,6 +23,10 @@ if (SQLITE_READY){
   # Rebuild the Database --------------------------------------------
   
   initializeReportManagerDatabase(system.file("Sql/SQLite.sql", 
-                                              package = "ReportManager"))
+                                              package = "ReportManager"), 
+                                  last_name = "Doe", 
+                                  first_name = "Jane", 
+                                  login_id = "jdoe", 
+                                  email = "jdoe@domain.com")
   
 }

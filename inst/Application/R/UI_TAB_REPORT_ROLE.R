@@ -6,12 +6,12 @@ UI_TAB_REPORT_USER <-
     disabled(actionButton(inputId = "btn_reportUser_edit", 
                           label = "Edit User", 
                           style = "float:right")), 
-    disabled(actionButton(inputId = "btn_reportUserActivate", 
+    disabled(actionButton(inputId = "btn_reportUser_activate", 
                           label = "Activate User", 
                           style = "float:right")), 
-    disabled(actionButton(inputId = "btn_reportUserDeactivate", 
+    disabled(actionButton(inputId = "btn_reportUser_deactivate", 
                           label = "Deactivate User", 
                           style = "float:right")), 
     radioDataTableOutput(outputId = "dt_reportUser", 
-                         radioId = "rdo_reporUser")
+                         radioId = "rdo_reportUser")
   )
