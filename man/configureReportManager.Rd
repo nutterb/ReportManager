@@ -5,7 +5,7 @@
 \title{Configure the Report Manager}
 \usage{
 configureReportManager(
-  sql_flavor = NULL,
+  flavor = NULL,
   database_file = NULL,
   driver = NULL,
   server = NULL,
@@ -13,6 +13,9 @@ configureReportManager(
 )
 }
 \arguments{
+\item{flavor}{\code{character(1)}. The flavor of SQL used. This will
+determine the SQL engine used. One of \code{c("sql_server", "sqlite")}.}
+
 \item{database_file}{\code{character(1)}. For SQLite connections, the file
 containing the database.}
 
@@ -24,9 +27,6 @@ to connect to.}
 
 \item{database}{\code{character(1)}. For SQL Server connections, the database
 to connect to.}
-
-\item{flavor}{\code{character(1)}. The flavor of SQL used. This will
-determine the SQL engine used. One of \code{c("sql_server", "sqlite")}.}
 }
 \value{
 Invisibly returns \code{NULL}

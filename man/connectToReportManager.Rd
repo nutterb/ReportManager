@@ -4,7 +4,7 @@
 \alias{connectToReportManager}
 \title{Connect to the Report Manager Database}
 \usage{
-connectToReportManager(flavor = getOption("RM_sql_flavor"))
+connectToReportManager(flavor = getOption("RM_sql_flavor"), ...)
 }
 \arguments{
 \item{flavor}{\code{character(1)}. The flavor of SQL used. This will

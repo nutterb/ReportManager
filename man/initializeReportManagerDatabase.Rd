@@ -30,3 +30,9 @@ may use the application otherwise.}
 Retrieves the SQL code to define the Report Manager
 database tables and runs it through the appropriate connection.
 }
+\details{
+\code{last_name}, \code{first_name}, \code{login_id}, and \code{email} are
+the values assigned for the first user in the database. This user
+will be given the UserAdministrator and ReportAdministrator roles,
+allowing them to add other users and configure reports.
+}

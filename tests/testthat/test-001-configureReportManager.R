@@ -3,8 +3,8 @@
 test_that(
   "configureReportManager Argument Validations", 
   {
-    expect_error(configureReportManager(sql_flavor = c("not sql")), 
-                 "'sql_flavor': Must be element of set")
+    expect_error(configureReportManager(flavor = c("not sql")), 
+                 "'flavor': Must be element of set")
     
     
     
@@ -44,7 +44,7 @@ orig_opts <- options()[c("RM_sql_flavor",
 test_that(
   "Set the options", 
   {
-    configureReportManager(sql_flavor = "sqlite", 
+    configureReportManager(flavor = "sqlite", 
                            database_file = "filename", 
                            driver = "driver", 
                            server = "server", 
@@ -61,7 +61,7 @@ test_that(
 test_that(
   "Using NULL doesn't change the value", 
   {
-    configureReportManager(sql_flavor = NULL, 
+    configureReportManager(flavor = NULL, 
                            database_file = NULL, 
                            driver = NULL, 
                            server = NULL, 
@@ -78,7 +78,7 @@ test_that(
 test_that(
   "Values change when provided", 
   {
-    configureReportManager(sql_flavor = "sql_server", 
+    configureReportManager(flavor = "sql_server", 
                            database_file = "filename2", 
                            driver = "driver2", 
                            server = "server2", 

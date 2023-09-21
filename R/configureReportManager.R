@@ -25,7 +25,7 @@
 #' @export
 
 
-configureReportManager <- function(sql_flavor    = NULL,
+configureReportManager <- function(flavor    = NULL,
                                    database_file = NULL, 
                                    driver        = NULL, 
                                    server        = NULL, 
@@ -34,10 +34,10 @@ configureReportManager <- function(sql_flavor    = NULL,
   
   coll <- checkmate::makeAssertCollection()
   
-  if (!is.null(sql_flavor)){
-    sql_flavor <- checkmate::matchArg(x = sql_flavor, 
+  if (!is.null(flavor)){
+    flavor <- checkmate::matchArg(x = flavor, 
                                       choices = SUPPORTED_SQL_FLAVOR, 
-                                      .var.name = "sql_flavor",
+                                      .var.name = "flavor",
                                       add = coll)
   }
   
@@ -69,8 +69,8 @@ configureReportManager <- function(sql_flavor    = NULL,
   
   # Set the options -------------------------------------------------
   
-  if (!is.null(sql_flavor)){
-    options(RM_sql_flavor = sql_flavor)
+  if (!is.null(flavor)){
+    options(RM_sql_flavor = flavor)
   }
   
   if (!is.null(database_file)){

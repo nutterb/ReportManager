@@ -47,7 +47,7 @@ initializeReportManagerDatabase <- function(filename,
   sql_code <- readLines(filename)
   
   statement_end <- which(grepl("^[)];", sql_code))
-  statement_start <- c(1, head(statement_end + 1, -1))
+  statement_start <- c(1, utils::head(statement_end + 1, -1))
   
 
   for (i in seq_along(statement_start)){

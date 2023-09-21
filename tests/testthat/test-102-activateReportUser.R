@@ -51,7 +51,7 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-configureReportManager(sql_flavor = "sqlite")
+configureReportManager(flavor = "sqlite")
 
 test_that(
   "Activate and Deactivate Users", 

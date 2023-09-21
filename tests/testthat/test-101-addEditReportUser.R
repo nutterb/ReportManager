@@ -202,7 +202,7 @@ test_that(
 
 # Functionality - SqlServer -----------------------------------------
 
-configureReportManager(sql_flavor = "sql_server")
+configureReportManager(flavor = "sql_server")
 
 test_that(
   "Add a ReportUser in SQL Server", 
@@ -267,7 +267,7 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-configureReportManager(sql_flavor = "sqlite")
+configureReportManager(flavor = "sqlite")
 
 test_that(
   "Add a ReportUser in SQLite", 

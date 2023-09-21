@@ -8,7 +8,8 @@
 #' 
 #' @export
 
-connectToReportManager <- function(flavor = getOption("RM_sql_flavor")){
+connectToReportManager <- function(flavor = getOption("RM_sql_flavor"), 
+                                   ...){
   coll <- checkmate::makeAssertCollection()
   
   flavor <- checkmate::matchArg(x = flavor, 
@@ -18,15 +19,16 @@ connectToReportManager <- function(flavor = getOption("RM_sql_flavor")){
   checkmate::reportAssertions(coll)
   
   switch(tolower(flavor), 
-         "sqlite" = connectToReportManager_sqlite(), 
-         "sql_server" = connectToReportManager_sqlServer())
+         "sqlite" = connectToReportManager_sqlite(...), 
+         "sql_server" = connectToReportManager_sqlServer(...))
 }
   
   
   
 # Unexported --------------------------------------------------------
 
-connectToReportManager_sqlite <- function(database_file = getOption("RM_sqlite_file")){
+connectToReportManager_sqlite <- function(database_file = getOption("RM_sqlite_file"), 
+                                          ...){
   # Argument Validation ---------------------------------------------
   coll <- checkmate::makeAssertCollection()
   

@@ -7,9 +7,12 @@ Depends:
   R (>= 3.2.0)
 Imports:
   checkmate,
-  DBI
+  DBI, 
+  odbc, 
+  RSQLite
 Suggests:
   DT,
+  keyring,
   magrittr,
   shiny,
   shinyBS,
