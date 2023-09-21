@@ -1,5 +1,3 @@
-context("startReportManager.R")
-
 # Argument Validation -----------------------------------------------
 
 test_that(

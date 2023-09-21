@@ -8,7 +8,7 @@
 #'   sent in accordance with the configurations in the database. When 
 #'   `"off"`, no e-mails are sent. If the user provides an e-mail address, 
 #'   all e-mails will be sent to the address provided.
-#' @param ... Arguments to pass to `[shiny::runApp()]`, such as 
+#' @param ... Arguments to pass to [shiny::runApp()], such as 
 #'   `launch.browser` or `port`.
 #'   
 #' @export

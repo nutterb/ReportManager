@@ -1,3 +1,7 @@
 library(shiny)
+library(shinyBS)
 library(shinydashboard)
 library(shinyjs)
+library(DT)
+library(magrittr)
+library(ReportManager)
