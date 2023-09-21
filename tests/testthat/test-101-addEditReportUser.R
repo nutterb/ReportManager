@@ -202,6 +202,62 @@ test_that(
 
 # Functionality - SqlServer -----------------------------------------
 
+configureReportManager(sql_flavor = "sql_server")
+
+test_that(
+  "Add a ReportUser in SQL Server", 
+  {
+    addEditReportUser(last_name = "Doe", 
+                      first_name = "Jane", 
+                      login_id = "jdoe", 
+                      email = "jdoe@domain.com", 
+                      is_internal = TRUE, 
+                      is_active = TRUE, 
+                      event_user = 1)
+    
+    conn <- connectToReportManager()
+    
+    NewUser <- queryReportUser(oid = 2)
+    expect_data_frame(NewUser, 
+                      nrows = 1, 
+                      ncols = 7)
+    
+    NewUserEvent <- dbGetQuery(conn, "SELECT * FROM dbo.ReportUserEvent WHERE ParentReportUser = 2")
+    expect_data_frame(NewUserEvent, 
+                      nrows = 7, 
+                      ncols = 6)
+    
+    dbDisconnect(conn)
+  }
+)
+
+test_that(
+  "Edit a ReportUser in SQLite", 
+  {
+    addEditReportUser(oid = 2, 
+                      last_name = "Duck", 
+                      first_name = "John", 
+                      login_id = "jdoe2",
+                      email = "jdoe2@domain.com", 
+                      is_internal = FALSE, 
+                      is_active = FALSE, 
+                      event_user = 1)
+    
+    conn <- connectToReportManager()
+    
+    NewUser <- queryReportUser(oid = 2)
+    expect_data_frame(NewUser, 
+                      nrows = 1, 
+                      ncols = 7)
+    
+    NewUserEvent <- dbGetQuery(conn, "SELECT * FROM dbo.ReportUserEvent WHERE ParentReportUser = 2")
+    expect_data_frame(NewUserEvent, 
+                      nrows = 13, 
+                      ncols = 6)
+    
+    dbDisconnect(conn)
+  }
+)
 
 # Functionality - SQLite --------------------------------------------
 
@@ -220,12 +276,12 @@ test_that(
     
     conn <- connectToReportManager()
     
-    NewUser <- queryReportUser(oid = 1)
+    NewUser <- queryReportUser(oid = 2)
     expect_data_frame(NewUser, 
                       nrows = 1, 
                       ncols = 7)
     
-    NewUserEvent <- dbReadTable(conn, "ReportUserEvent")
+    NewUserEvent <- dbGetQuery(conn, "SELECT * FROM ReportUserEvent WHERE ParentReportUser = 2")
     expect_data_frame(NewUserEvent, 
                       nrows = 7, 
                       ncols = 6)
@@ -237,7 +293,7 @@ test_that(
 test_that(
   "Edit a ReportUser in SQLite", 
   {
-    addEditReportUser(oid = 1, 
+    addEditReportUser(oid = 2, 
                       last_name = "Duck", 
                       first_name = "John", 
                       login_id = "jdoe2",
@@ -246,16 +302,14 @@ test_that(
                       is_active = FALSE, 
                       event_user = 1)
     
-    NewUser <- queryReportUser(oid = 1)
-    
     conn <- connectToReportManager()
     
-    NewUser <- queryReportUser(oid = 1)
+    NewUser <- queryReportUser(oid = 2)
     expect_data_frame(NewUser, 
                       nrows = 1, 
                       ncols = 7)
     
-    NewUserEvent <- dbReadTable(conn, "ReportUserEvent")
+    NewUserEvent <- dbGetQuery(conn, "SELECT * FROM ReportUserEvent WHERE ParentReportUser = 2")
     expect_data_frame(NewUserEvent, 
                       nrows = 13, 
                       ncols = 6)

@@ -3,6 +3,12 @@ shinyServer(function(input, output, session){
   # Global ----------------------------------------------------------
   # Global - Reactive Values ----------------------------------------
   
+  CURRENT_USER_OID <- 
+    reactive({
+      req(rv_ReportUser$ReportUser)
+      rv_ReportUser$ReportUser$OID[rv_ReportUser$ReportUser$LoginId %in% Sys.info()["login"]]
+    })
+  
   USER_IS_USER_ADMIN <- 
     reactive({
       TRUE
@@ -53,37 +59,75 @@ shinyServer(function(input, output, session){
   
   # ReportUser - Event Observer -------------------------------------
   
+  observeEvent(input$rdo_reportUser, 
+               OE_rdo_reportUser(rv_ReportUser, 
+                                 input))
+  
+  observeEvent(input$btn_reportUser_add, 
+               OE_btn_reportUser_add(session, 
+                                     rv_ReportUser, 
+                                     input))
+  
+  observeEvent(input$btn_reportUser_edit, 
+               OE_btn_reportUser_edit(session, 
+                                      rv_ReportUser, 
+                                      input))
+  
+  observeEvent(input$btn_reportUser_addEditReportUser, 
+               OE_btn_reportUser_addEditReportUser(session, 
+                                                   rv_ReportUser, 
+                                                   input, 
+                                                   CURRENT_USER_OID(), 
+                                                   proxy_dt_reportUser))
+  
   observeEvent(
-    input$rdo_reportUser, 
+    input$btn_reportUser_activate, 
     {
       oid <- as.numeric(input$rdo_reportUser)
-      ThisUser <- rv_ReportUser$ReportUser
-      ThisUser <- ThisUser[ThisUser$OID == oid, ]
-      rv_ReportUser$SelectedReportUser <- ThisUser
+
+      activateReportUser(oid, 
+                         TRUE, 
+                         CURRENT_USER_OID())
+      
+      NewData <- queryReportUser()
+      rv_ReportUser$ReportUser <- NewData
+      rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
+      
+      NewData %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_reportUser", 
+                       checked = as.character(oid)) %>% 
+        DT::replaceData(proxy = proxy_dt_reportUser, 
+                        data = ., 
+                        resetPaging = FALSE,
+                        rownames = FALSE)
     }
   )
   
   observeEvent(
-    input$btn_reportUser_add, 
+    input$btn_reportUser_deactivate, 
     {
-      rv_ReportUser$AddEdit <- "Add"
-      lapply(c("txt_userRole_lastName", 
-               "txt_userRole_firstName", 
-               "txt_userRole_loginId", 
-               "txt_userRole_emailAddress"), 
-             function(ctrl) updateTextInput(inputId = ctrl, 
-                                            value = ""))
+      oid <- as.numeric(input$rdo_reportUser)
+
+      activateReportUser(oid, 
+                         FALSE, 
+                         CURRENT_USER_OID())
       
-      updateCheckboxInput(inputId = "chk_userRole_isInternal", 
-                          value = FALSE)
-      updateCheckboxInput(inputId = "chk_userRole_isActive", 
-                          value = TRUE)
+      NewData <- queryReportUser()
+      rv_ReportUser$ReportUser <- NewData
+      rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
       
-      toggleModal(session = session, 
-                  modalId = "modal_reportUser_addEdit", 
-                  toggle = "open")
+      NewData %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_reportUser", 
+                       checked = as.character(oid)) %>% 
+        DT::replaceData(proxy = proxy_dt_reportUser, 
+                        data = ., 
+                        resetPaging = FALSE,
+                        rownames = FALSE)
     }
   )
+  
   # ReportUser - Output ---------------------------------------------
   
   output$dt_reportUser <- 
@@ -94,13 +138,17 @@ shinyServer(function(input, output, session){
         RM_datatable(escape = -1)
     })
   
+  proxy_dt_reportUser <- DT::dataTableProxy("dt_reportUser")
+  
   output$title_addEditReportUser <- 
     renderText({
       if (rv_ReportUser$AddEdit == "Add"){
         "Add a New Report User"
       } else {
-        sprintf("Editing User %s (%s)", 
-                NA, NA)
+        sprintf("Editing User %s, %s (%s)", 
+                rv_ReportUser$SelectedReportUser$LastName, 
+                rv_ReportUser$SelectedReportUser$FirstName, 
+                rv_ReportUser$SelectedReportUser$OID)
       }
     })
   
