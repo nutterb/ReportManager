@@ -65,8 +65,10 @@ OE_btn_reportUser_edit <- function(session, rv_ReportUser, input){
 # Event Observer - btn_reportUser_addEditReportUser -----------------
 
 OE_btn_reportUser_addEditReportUser <- function(session, 
-                                                rv_ReportUser, input, 
-                                                current_user_oid, proxy){
+                                                rv_ReportUser, 
+                                                input, 
+                                                current_user_oid, 
+                                                proxy){
   oid <- if (rv_ReportUser$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_reportUser)
   
   addEditReportUser(oid = oid, 
@@ -78,6 +80,37 @@ OE_btn_reportUser_addEditReportUser <- function(session,
                     is_active = input$chk_reportUser_isActive, 
                     event_user = current_user_oid)
   
+  updateReportUserData(rv_ReportUser, 
+                       oid, 
+                       proxy)
+  
+  toggleModal(session = session, 
+              modalId = "modal_reportUser_addEdit", 
+              toggle = "close")
+}
+
+
+# Event Observer - btn_reportUser_activate/deactivate ---------------
+
+OE_btn_reportUser_activate <- function(active, 
+                                       rv_ReportUser, 
+                                       input, 
+                                       current_user_oid, 
+                                       proxy){
+  oid <- as.numeric(input$rdo_reportUser)
+  
+  activateReportUser(oid, 
+                     active, 
+                     current_user_oid)
+  
+  updateReportUserData(rv_ReportUser, 
+                       oid, 
+                       proxy)
+}
+
+# Function - updateReportUserData -----------------------------------
+
+updateReportUserData <- function(rv_ReportUser, oid, proxy){
   NewData <- queryReportUser()
   rv_ReportUser$ReportUser <- NewData
   rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
@@ -90,8 +123,4 @@ OE_btn_reportUser_addEditReportUser <- function(session,
                     data = ., 
                     resetPaging = FALSE,
                     rownames = FALSE)
-  
-  toggleModal(session = session, 
-              modalId = "modal_reportUser_addEdit", 
-              toggle = "close")
 }

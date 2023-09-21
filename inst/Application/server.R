@@ -60,73 +60,39 @@ shinyServer(function(input, output, session){
   # ReportUser - Event Observer -------------------------------------
   
   observeEvent(input$rdo_reportUser, 
-               OE_rdo_reportUser(rv_ReportUser, 
-                                 input))
+               OE_rdo_reportUser(rv_ReportUser = rv_ReportUser, 
+                                 input         = input))
   
   observeEvent(input$btn_reportUser_add, 
-               OE_btn_reportUser_add(session, 
-                                     rv_ReportUser, 
-                                     input))
+               OE_btn_reportUser_add(session       = session, 
+                                     rv_ReportUser = rv_ReportUser, 
+                                     input         = input))
   
   observeEvent(input$btn_reportUser_edit, 
-               OE_btn_reportUser_edit(session, 
-                                      rv_ReportUser, 
-                                      input))
+               OE_btn_reportUser_edit(session       = session, 
+                                      rv_ReportUser = rv_ReportUser, 
+                                      input         = input))
   
   observeEvent(input$btn_reportUser_addEditReportUser, 
-               OE_btn_reportUser_addEditReportUser(session, 
-                                                   rv_ReportUser, 
-                                                   input, 
-                                                   CURRENT_USER_OID(), 
-                                                   proxy_dt_reportUser))
+               OE_btn_reportUser_addEditReportUser(session          = session, 
+                                                   rv_ReportUser    = rv_ReportUser, 
+                                                   input            = input, 
+                                                   current_user_oid = CURRENT_USER_OID(), 
+                                                   proxy            = proxy_dt_reportUser))
   
-  observeEvent(
-    input$btn_reportUser_activate, 
-    {
-      oid <- as.numeric(input$rdo_reportUser)
-
-      activateReportUser(oid, 
-                         TRUE, 
-                         CURRENT_USER_OID())
-      
-      NewData <- queryReportUser()
-      rv_ReportUser$ReportUser <- NewData
-      rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
-      
-      NewData %>% 
-        radioDataTable(id_variable = "OID", 
-                       element_name = "rdo_reportUser", 
-                       checked = as.character(oid)) %>% 
-        DT::replaceData(proxy = proxy_dt_reportUser, 
-                        data = ., 
-                        resetPaging = FALSE,
-                        rownames = FALSE)
-    }
-  )
+  observeEvent(input$btn_reportUser_activate, 
+               OE_btn_reportUser_activate(active           = TRUE, 
+                                          rv_ReportUser    = rv_ReportUser, 
+                                          input            = input, 
+                                          current_user_oid = CURRENT_USER_OID(), 
+                                          proxy            = proxy_dt_reportUser))
   
-  observeEvent(
-    input$btn_reportUser_deactivate, 
-    {
-      oid <- as.numeric(input$rdo_reportUser)
-
-      activateReportUser(oid, 
-                         FALSE, 
-                         CURRENT_USER_OID())
-      
-      NewData <- queryReportUser()
-      rv_ReportUser$ReportUser <- NewData
-      rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
-      
-      NewData %>% 
-        radioDataTable(id_variable = "OID", 
-                       element_name = "rdo_reportUser", 
-                       checked = as.character(oid)) %>% 
-        DT::replaceData(proxy = proxy_dt_reportUser, 
-                        data = ., 
-                        resetPaging = FALSE,
-                        rownames = FALSE)
-    }
-  )
+  observeEvent(input$btn_reportUser_deactivate, 
+               OE_btn_reportUser_activate(active           = FALSE, 
+                                          rv_ReportUser    = rv_ReportUser, 
+                                          input            = input, 
+                                          current_user_oid = CURRENT_USER_OID(), 
+                                          proxy            = proxy_dt_reportUser))
   
   # ReportUser - Output ---------------------------------------------
   
