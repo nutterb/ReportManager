@@ -123,7 +123,7 @@ test_that(
                       nrows = 1, 
                       ncols = 4)
     
-    expect_equal(NewRole$RoleName == "Edited Role Name")
+    expect_equal(NewRole$RoleName, "Edited Role Name")
   }
 )
 

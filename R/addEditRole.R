@@ -51,7 +51,14 @@ addEditRole <- function(oid = numeric(0),
   
   on.exit({ DBI::dbDisconnect(conn) })
   
+  role_name <- trimws(role_name)
+  role_description <- trimws(role_description)
+  
   event_time <- Sys.time()
+  
+  AddEditData <- data.frame(RoleName = role_name, 
+                            RoleDescription = role_description, 
+                            IsActive = is_active)
   
   EventList <- 
     data.frame(EventReportUser = rep(event_user, 4), 
@@ -66,10 +73,9 @@ addEditRole <- function(oid = numeric(0),
                             role_description))
   
   if (length(oid) == 0){
-    OID <- .addEditRole_addRole(role_name        = role_name, 
-                                role_description = role_description, 
-                                is_active        = is_active, 
-                                conn             = conn)
+    OID <- insertRecord(AddEditData, 
+                        table_name = "Role", 
+                        return_oid = TRUE)
     
     EventList$ParentRole <- rep(OID$OID, 
                                 nrow(EventList))
@@ -78,136 +84,34 @@ addEditRole <- function(oid = numeric(0),
                                               oid       = oid,
                                               conn      = conn)
     
-    .addEditRole_editRole(oid              = oid, 
-                          role_name        = role_name, 
-                          role_description = role_description,
-                          is_active        = is_active, 
-                          conn             = conn)
+    if (nrow(EventList) > 0){
+      updateRecord(data = AddEditData, 
+                   where_data = data.frame(OID = oid), 
+                   table_name = "Role")      
+    }
   }
-  
-  .addEditRole_addRoleEvents(EventList, 
-                             conn)
+
+  insertRecord(EventList, 
+               table_name = "RoleEvent", 
+               return_oid = FALSE)
 }
 
 # Unexported --------------------------------------------------------
-
-.addEditRole_addRole <- function(role_name, 
-                                 role_description, 
-                                 is_active,
-                                 conn){
-  statement <- switch(getOption("RM_sql_flavor"), 
-                      "sqlite" = .addEditRole_addRoleStatement_sqlite, 
-                      "sql_server" = .addEditRole_addRoleStatement_sqlServer)
-  
-  addAndReturnOid(conn, 
-                  statement, 
-                  list(role_name, 
-                       role_description, 
-                       is_active))
-}
-
-.addEditRole_editRole <- function(oid, 
-                                  role_name, 
-                                  role_description,
-                                  is_active, 
-                                  conn){
-  statement <- 
-    switch(getOption("RM_sql_flavor"), 
-           "sqlite" = .addEditRole_editRoleStatement_sqlite, 
-           "sql_server" = .addEditRole_editRoleStatement_sqlServer)
-  
-  result <- 
-    DBI::dbSendStatement(
-      conn, 
-      statement, 
-      list(role_name, 
-           role_description,
-           as.numeric(is_active), 
-           oid)
-    )
-  
-  DBI::dbClearResult(result)
-}
-
-.addEditRole_addRoleEvents <- function(EventList, 
-                                       conn){
-  statement <- 
-    switch(getOption("RM_sql_flavor"), 
-           "sqlite" = .addEditRole_addEventStatement_sqlite, 
-           "sql_server" = .addEditRole_addEventStatement_sqlServer)
-  
-  for (i in seq_len(nrow(EventList))){
-    result <- 
-      DBI::dbSendStatement(
-        conn, 
-        statement, 
-        list(EventList$ParentRole[i], 
-             EventList$EventReportUser[i], 
-             EventList$EventType[i], 
-             format(EventList$EventDate[i], 
-                    format = "%Y-%m-%d %H:%M:%S"), 
-             EventList$NewValue[i])
-      )
-    DBI::dbClearResult(result)
-  }
-}
 
 .addEditRole_editedEventList <- function(EventList, 
                                          oid,
                                          conn){
   EventList$ParentRole <- rep(oid, 
                               nrow(EventList))
+
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisRole <- queryRole(oid)
   
-  EventList$CurrentValue <- c(ThisRole$IsActive, 
-                              ThisRole$RoleName, 
-                              ThisRole$RoleDescription)
+  CurrentValue <- c(ThisRole$IsActive, 
+                    ThisRole$RoleName, 
+                    ThisRole$RoleDescription)
   
-  EventList[EventList$CurrentValue != EventList$NewValue, ]
+  EventList[vapply(CurrentValue != EventList$NewValue, 
+                   isTRUE, 
+                   logical(1)), ]
 }
-
-# Add Role Statements -----------------------------------------------
-
-.addEditRole_addRoleStatement_sqlServer <- 
-  "INSERT INTO dbo.[Role]
-   (RoleName, RoleDescription, IsActive)
-   OUTPUT INSERTED.OID
-   VALUES
-   (?,        ?,               ?);"
-
-.addEditRole_addRoleStatement_sqlite <- 
-  "INSERT INTO [Role]
-   (RoleName, RoleDescription, IsActive)
-   VALUES
-   (?,        ?,               ?);"
-
-# Edit Role Statements ----------------------------------------------
-
-.addEditRole_editRoleStatement_sqlServer <- 
-  "UPDATE dbo.[Role]
-   SET [RoleName] = ?, 
-       [RoleDescription] = ?, 
-       [IsActive] = ?
-   WHERE [OID] = ?"
-
-.addEditRole_editRoleStatement_sqlite <- 
-  "UPDATE [Role]
-   SET [RoleName] = ?, 
-       [RoleDescription] = ?, 
-       [IsActive] = ?
-   WHERE [OID] = ?"
-
-# Add Event Statements ----------------------------------------------
-
-.addEditRole_addEventStatement_sqlServer <- 
-  "INSERT INTO dbo.[RoleEvent]
-   (ParentRole, EventReportUser, EventType, EventDateTime, NewValue)
-   VALUES
-   (?,                ?,               ?,         ?,             ?)"
-
-.addEditRole_addEventStatement_sqlite <- 
-  "INSERT INTO [RoleEvent]
-   (ParentRole, EventReportUser, EventType, EventDateTime, NewValue)
-   VALUES
-   (?,                ?,               ?,         ?,             ?)"
