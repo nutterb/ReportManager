@@ -62,139 +62,41 @@ shinyServer(function(input, output, session){
   
   # Roles - Event Observers -----------------------------------------
   
-  observeEvent(
-    input$rdo_role, 
-    {
-      oid <- as.numeric(input$rdo_role)
-      
-      ThisRole <- rv_Roles$Roles
-      ThisRole <- ThisRole[ThisRole$OID == oid, ]
-      rv_Roles$SelectedRole <- ThisRole
-    }
-  )
+  observeEvent(input$rdo_role, 
+               OE_rdo_role(rv_Roles = rv_Roles, 
+                           input    = input))
   
-  observeEvent(
-    input$btn_role_add, 
-    {
-      rv_Roles$AddEdit <- "Add"
-      
-      updateTextInput(session = session, 
-                      inputId = "txt_role_roleName", 
-                      value = "")
-      updateTextInput(session = session, 
-                      inputId = "txt_role_roleDescription", 
-                      value = "")
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_role_isActive", 
-                          value = TRUE)
-      
-      toggleModal(session = session, 
-                  modalId = "modal_role_addEdit", 
-                  toggle = "open")
-    }
-  )
+  observeEvent(input$btn_role_add,
+               OE_btn_role_add(session  = session, 
+                               rv_Roles = rv_Roles))
   
-  observeEvent(
-    input$btn_role_edit, 
-    {
-      rv_Roles$AddEdit <- "Edit"
-      
-      updateTextInput(session = session, 
-                      inputId = "txt_role_roleName", 
-                      value = rv_Roles$SelectedRole$RoleName)
-      updateTextInput(session = session, 
-                      inputId = "txt_role_roleDescription", 
-                      value = rv_Roles$SelectedRole$RoleDescription)
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_role_isActive", 
-                          value = rv_Roles$SelectedRole$IsActive)
-      
-      toggleModal(session = session, 
-                  modalId = "modal_role_addEdit", 
-                  toggle = "open")
-    }
-  )
+  observeEvent(input$btn_role_edit, 
+               OE_brn_role_edit(session  = session, 
+                                rv_Roles = rv_Roles, 
+                                input    = input))
   
-  observeEvent(
-    input$btn_role_addEditRole, 
-    {
-      oid <- if (rv_Roles$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_role)
-      
-      val <- validateRoleInputs(rv_Roles, 
-                                input, 
-                                is_edit = rv_Roles$AddEdit == "Edit", 
-                                this_role_name = rv_Roles$SelectedRole$RoleName)
-      
-      if (!val$is_ok()){
-        alert(val$report())
-      } else {
-        addEditRole(oid = oid,
-                    role_name = trimws(input$txt_role_roleName),
-                    role_description = trimws(input$txt_role_roleDescription),
-                    is_active = input$chk_role_isActive,
-                    event_user = CURRENT_USER_OID())
-        
-        RM_replaceData(query_fun = queryRole, 
-                       reactive_list = rv_Roles, 
-                       data_slot = "Roles", 
-                       selected_slot = "SelectedRole", 
-                       id_variable = "OID", 
-                       element_name = "rdo_role", 
-                       oid = oid, 
-                       proxy = proxy_dt_role)
-        
-        toggleModal(session = session, 
-                    modalId = "modal_role_addEdit", 
-                    toggle = "close")
-      }
-    }
-  )
+  observeEvent(input$btn_role_addEditRole, 
+               OE_btn_role_addEditRole(session          = session, 
+                                       rv_Roles         = rv_Roles, 
+                                       input            = input, 
+                                       is_edit          = rv_Roles$AddEdit == "Edit", 
+                                       this_role_name   = rv_Roles$SelectedRole$RoleName, 
+                                       current_user_oid = CURRENT_USER_OID(), 
+                                       proxy            = proxy_dt_role))
   
-  observeEvent(
-    input$btn_role_activate, 
-    {
-      oid <- as.numeric(input$rdo_role)
-      
-      activateRecord(oid, 
-                     TRUE, 
-                     CURRENT_USER_OID(), 
-                     table_name = "Role", 
-                     event_table_name = "RoleEvent", 
-                     parent_field_name = "ParentRole")
-      
-      RM_replaceData(query_fun = queryRole, 
-                     reactive_list = rv_Roles, 
-                     data_slot = "Roles", 
-                     selected_slot = "SelectedRole", 
-                     id_variable = "OID", 
-                     oid = oid, 
-                     element_name = "rdo_role", 
-                     proxy = proxy_dt_role)
-    }
-  )
+  observeEvent(input$btn_role_activate, 
+               OE_btn_role_activateDeactivate(active           = TRUE, 
+                                              rv_Roles         = rv_Roles,
+                                              input            = input, 
+                                              current_user_oid = CURRENT_USER_OID(), 
+                                              proxy            = proxy_dt_role))
   
-  observeEvent(
-    input$btn_role_deactivate, 
-    {
-      oid <- as.numeric(input$rdo_role)
-      
-      activateRecord(oid, 
-                     FALSE, 
-                     CURRENT_USER_OID(), 
-                     table_name = "Role", 
-                     event_table_name = "RoleEvent", 
-                     parent_field_name = "ParentRole")
-      
-      RM_replaceData(query_fun = queryRole, 
-                     reactive_list = rv_Roles, 
-                     data_slot = "Roles", 
-                     selected_slot = "SelectedRole", 
-                     id_variable = "OID", 
-                     oid = oid, 
-                     element_name = "rdo_role", 
-                     proxy = proxy_dt_role)
-    }
-  )
+  observeEvent(input$btn_role_deactivate, 
+               OE_btn_role_activateDeactivate(active           = FALSE, 
+                                              rv_Roles         = rv_Roles,
+                                              input            = input, 
+                                              current_user_oid = CURRENT_USER_OID(), 
+                                              proxy            = proxy_dt_role))
   
   # Roles - Output --------------------------------------------------
   
