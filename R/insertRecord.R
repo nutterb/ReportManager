@@ -9,34 +9,34 @@
 insertRecord <- function(data, 
                          table_name, 
                          return_oid = TRUE,
-                         flavor = getOption("RM_sql_flavor"),
-                         id_field = "OID", 
-                         schema = "dbo"){
+                         flavor     = getOption("RM_sql_flavor"),
+                         id_field   = "OID", 
+                         schema     = "dbo"){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
   
-  checkmate::assertDataFrame(x = data, 
-                             min.rows = 1, 
+  checkmate::assertDataFrame(x         = data, 
+                             min.rows  = 1, 
                              col.names = "named")
   
-  checkmate::assertCharacter(x = table_name, 
+  checkmate::assertCharacter(x   = table_name, 
                              len = 1, 
                              add = coll)
   
-  checkmate::assertLogical(x = return_oid, 
+  checkmate::assertLogical(x   = return_oid, 
                            len = 1, 
                            add = coll)
   
-  flavor <- checkmate::matchArg(x = flavor, 
+  flavor <- checkmate::matchArg(x       = flavor, 
                                 choices = SUPPORTED_SQL_FLAVOR, 
-                                add = coll)
+                                add     = coll)
   
-  checkmate::assertCharacter(x = id_field, 
+  checkmate::assertCharacter(x   = id_field, 
                              len = 1,
                              add = coll)
   
-  checkmate::assertCharacter(x = schema, 
+  checkmate::assertCharacter(x   = schema, 
                              len = 1, 
                              add = coll)
   
@@ -44,16 +44,17 @@ insertRecord <- function(data,
   
   # Functionality ---------------------------------------------------
   
-  statement <- .insertRecord_makeInsertStatement(data = data, 
+  statement <- .insertRecord_makeInsertStatement(data       = data, 
                                                  table_name = table_name, 
                                                  return_oid = return_oid,
-                                                 flavor = flavor,
-                                                 id_field = id_field, 
-                                                 schema = schema)
+                                                 flavor     = flavor,
+                                                 id_field   = id_field, 
+                                                 schema     = schema)
   
-  .insertRecord_insertRecord(statement = statement, 
-                             data = data, 
-                             id_field = id_field)
+  .insertRecord_insertRecord(statement  = statement, 
+                             data       = data, 
+                             id_field   = id_field, 
+                             return_oid = return_oid)
 }
 
 # Unexported --------------------------------------------------------
@@ -88,7 +89,8 @@ insertRecord <- function(data,
 
 .insertRecord_insertRecord <- function(statement, 
                                        data, 
-                                       id_field){
+                                       id_field, 
+                                       return_oid){
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
@@ -98,19 +100,22 @@ insertRecord <- function(data,
     result <- DBI::dbSendStatement(conn, 
                                    statement, 
                                    unname(data[i, ]))
-    if (getOption("RM_sql_flavor") == "sqlite"){
+    if (getOption("RM_sql_flavor") == "sqlite" && return_oid == TRUE){
       DBI::dbClearResult(result)
       result <- DBI::dbSendStatement(conn, 
                                      sprintf("SELECT last_insert_rowid() AS %s", 
                                              id_field))
     }
     
-    NewID[[i]] <- DBI::dbFetch(result)
-    
+    if (return_oid == TRUE){
+      NewID[[i]] <- DBI::dbFetch(result)
+    }
     DBI::dbClearResult(result)
   }
   
-  do.call("rbind", NewID)
+  if (return_oid == TRUE){
+    do.call("rbind", NewID)
+  }
 }
 
 
@@ -128,25 +133,25 @@ updateRecord <- function(data,
   
   coll <- checkmate::makeAssertCollection()
   
-  checkmate::assertDataFrame(x = data, 
-                             min.rows = 1, 
+  checkmate::assertDataFrame(x         = data, 
+                             min.rows  = 1, 
                              col.names = "named", 
-                             add = coll)
+                             add       = coll)
   
-  checkmate::assertDataFrame(x = where_data, 
-                             min.rows = 1, 
+  checkmate::assertDataFrame(x         = where_data, 
+                             min.rows  = 1, 
                              col.names = "named", 
-                             add = coll)
+                             add       = coll)
   
-  checkmate::assertCharacter(x = table_name, 
+  checkmate::assertCharacter(x   = table_name, 
                              len = 1, 
                              add = coll)
   
-  flavor <- checkmate::matchArg(x = flavor, 
+  flavor <- checkmate::matchArg(x       = flavor, 
                                 choices = SUPPORTED_SQL_FLAVOR,
-                                add = coll)
+                                add     = coll)
   
-  checkmate::assertCharacter(x = schema, 
+  checkmate::assertCharacter(x   = schema, 
                              len = 1, 
                              add = coll)
   
@@ -168,11 +173,11 @@ updateRecord <- function(data,
   
   # Functionality ---------------------------------------------------
   
-  statement <- .updateRecord_makeUpdateStatement(data = data, 
+  statement <- .updateRecord_makeUpdateStatement(data       = data, 
                                                  where_data = where_data, 
                                                  table_name = table_name, 
-                                                 flavor = flavor, 
-                                                 schema = schema)
+                                                 flavor     = flavor, 
+                                                 schema     = schema)
 
   data <- cbind(data, where_data)
   
@@ -191,10 +196,10 @@ updateRecord <- function(data,
 # Unexported --------------------------------------------------------
 
 .updateRecord_makeUpdateStatement <- function(data, 
-                                        where_data, 
-                                        table_name, 
-                                        flavor, 
-                                        schema){
+                                              where_data, 
+                                              table_name, 
+                                              flavor, 
+                                              schema){
   update <- sprintf("UPDATE %s[%s]", 
                     if (flavor == "sql_server") "dbo." else "", 
                     table_name)

@@ -19,15 +19,15 @@ activateReportUser <- function(oid,
   # Argument Validation ---------------------------------------------
   coll <- checkmate::makeAssertCollection()
   
-  checkmate::assertIntegerish(x = oid, 
+  checkmate::assertIntegerish(x   = oid, 
                               len = 1, 
                               add = coll)
   
-  checkmate::assertLogical(x = active, 
+  checkmate::assertLogical(x   = active, 
                            len = 1, 
                            add = coll)
   
-  checkmate::assertIntegerish(x = event_user, 
+  checkmate::assertIntegerish(x   = event_user, 
                               len = 1, 
                               add = coll)
   
@@ -41,53 +41,17 @@ activateReportUser <- function(oid,
     return(invisible())
   }
   
-  statement <- switch(getOption("RM_sql_flavor"), 
-                      "sql_server" = .activateReportUser_statement_sqlServer, 
-                      "sqlite" = .activateReportUser_statement_sqlite)
+  updateRecord(data       = data.frame(IsActive = as.numeric(active)), 
+               where_data = data.frame(OID = oid), 
+               table_name = "ReportUser")
   
-  event_statement <- switch(getOption("RM_sql_flavor"), 
-                            "sql_server" = .activateReportUser_eventStatement_sqlServer, 
-                            "sqlite" = .activateReportUser_eventStatement_sqlite)
+  EventData <- data.frame(ParentReportUser = oid, 
+                          EventReportUser  = event_user, 
+                          EventType        = if (active) "Activate" else "Deactivate", 
+                          EventDateTime    = format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), 
+                          NewValue         = as.character(active))
   
-  conn <- connectToReportManager()
-  on.exit({ DBI::dbDisconnect(conn) })
-  
-  result <- DBI::dbSendStatement(conn, 
-                                 statement, 
-                                 list(as.numeric(active), 
-                                      oid))
-  DBI::dbClearResult(result)
-  
-  result <- DBI::dbSendStatement(conn, 
-                                 event_statement, 
-                                 list(oid, 
-                                      event_user, 
-                                      if (active) "Activate" else "Deactivate", 
-                                      format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), 
-                                      as.character(active)))
-  DBI::dbClearResult(result)
+  insertRecord(data       = EventData, 
+               table_name = "ReportUserEvent", 
+               return_oid = FALSE)
 }
-
-# Unexported --------------------------------------------------------
-
-.activateReportUser_statement_sqlServer <- 
-  "UPDATE dbo.ReportUser 
-   SET IsActive = ?
-   WHERE OID = ?"
-
-.activateReportUser_statement_sqlite <- 
-  "UPDATE ReportUser
-   SET IsActive = ?
-   WHERE OID = ?"
-
-.activateReportUser_eventStatement_sqlServer <- 
-  "INSERT INTO dbo.ReportUserEvent
-   (ParentReportUser, EventReportUser, EventType, EventDateTime, NewValue) 
-   VALUES
-   (?,                ?,               ?,         ?,             ?       )"
-
-.activateReportUser_eventStatement_sqlite <- 
-  "INSERT INTO ReportUserEvent
-   (ParentReportUser, EventReportUser, EventType, EventDateTime, NewValue)
-   VALUES
-   (?,                ?,               ?,         ?,             ?       )"
