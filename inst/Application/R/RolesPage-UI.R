@@ -1,21 +1,4 @@
-UI_TAB_REPORT_USER <- 
-  tagList(
-    disabled(actionButton(inputId = "btn_reportUser_add", 
-                          label = "Add User", 
-                          style = "float:right")),
-    disabled(actionButton(inputId = "btn_reportUser_edit", 
-                          label = "Edit User", 
-                          style = "float:right")), 
-    disabled(actionButton(inputId = "btn_reportUser_activate", 
-                          label = "Activate User", 
-                          style = "float:right")), 
-    disabled(actionButton(inputId = "btn_reportUser_deactivate", 
-                          label = "Deactivate User", 
-                          style = "float:right")), 
-    radioDataTableOutput(outputId = "dt_reportUser", 
-                         radioId = "rdo_reportUser")
-  )
-
+# UI Elements on the Roles Page -------------------------------------
 
 UI_TAB_ROLES <- 
   tagList(
@@ -37,3 +20,23 @@ UI_TAB_ROLES <-
     radioDataTableOutput(outputId = "dt_role", 
                          radioId = "rdo_role")
   )
+
+# Modal - role_addEdit ----------------------------------------
+
+MODAL_ROLES <- bsModal(
+  id = "modal_role_addEdit", 
+  title = textOutput("title_addEditRole"), 
+  size = "large", 
+  trigger = "trg_none", 
+  textInput(inputId = "txt_role_roleName", 
+            label = "Role Name"), 
+  textAreaInput(inputId = "txt_role_roleDescription", 
+                label = "Role Description", 
+                width = "400px", 
+                height = "80px"), 
+  checkboxInput(inputId = "chk_role_isActive", 
+                label = "Is Active", 
+                value = TRUE), 
+  actionButton(inputId = "btn_role_addEditRole", 
+               label = "Save")
+)
