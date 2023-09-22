@@ -73,7 +73,7 @@ shinyServer(function(input, output, session){
                                       rv_ReportUser = rv_ReportUser, 
                                       input         = input))
   
-  observeEvent(input$btn_reportUser_addEditReportUser, 
+  observeEvent(input$btn_reportUser_addEditReportUser,
                OE_btn_reportUser_addEditReportUser(session          = session, 
                                                    rv_ReportUser    = rv_ReportUser, 
                                                    input            = input, 

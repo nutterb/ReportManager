@@ -71,22 +71,29 @@ OE_btn_reportUser_addEditReportUser <- function(session,
                                                 proxy){
   oid <- if (rv_ReportUser$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_reportUser)
   
-  addEditReportUser(oid = oid, 
-                    last_name = input$txt_reportUser_lastName, 
-                    first_name = input$txt_reportUser_firstName, 
-                    login_id = input$txt_reportUser_loginId, 
-                    email = input$txt_reportUser_emailAddress, 
-                    is_internal = input$chk_reportUser_isInternal, 
-                    is_active = input$chk_reportUser_isActive, 
-                    event_user = current_user_oid)
+  val <- validateReportUserInputs(rv_ReportUser, 
+                                  input)
+
+  if (!val$is_ok()) {
+    alert(val$report())
+  } else {
+    addEditReportUser(oid = oid,
+                      last_name = input$txt_reportUser_lastName,
+                      first_name = input$txt_reportUser_firstName,
+                      login_id = input$txt_reportUser_loginId,
+                      email = input$txt_reportUser_emailAddress,
+                      is_internal = input$chk_reportUser_isInternal,
+                      is_active = input$chk_reportUser_isActive,
+                      event_user = current_user_oid)
   
-  updateReportUserData(rv_ReportUser, 
-                       oid, 
-                       proxy)
-  
-  toggleModal(session = session, 
-              modalId = "modal_reportUser_addEdit", 
-              toggle = "close")
+    updateReportUserData(rv_ReportUser, 
+                         oid, 
+                         proxy)
+    
+    toggleModal(session = session, 
+                modalId = "modal_reportUser_addEdit", 
+                toggle = "close")
+  }
 }
 
 
@@ -106,6 +113,41 @@ OE_btn_reportUser_activate <- function(active,
   updateReportUserData(rv_ReportUser, 
                        oid, 
                        proxy)
+}
+
+# Function - validateReportUserInputs -------------------------------
+
+validateReportUserInputs <- function(rv_ReportUser, 
+                                     input){
+  val <- inputValidationCollection()
+  
+  last_name <- trimws(input$txt_reportUser_lastName)
+  first_name <- trimws(input$txt_reportUser_firstName)
+  login_id <- trimws(input$txt_reportUser_loginId)
+  email <- trimws(input$txt_reportUser_emailAddress)
+  
+  if (login_id %in% rv_ReportUser$ReportUser$LoginId){
+    val$invalidate(sprintf("Login ID '%s' already exists in the database. Duplicates are not allowed.", 
+                           login_id))
+  }
+  
+  if (last_name == ""){
+    val$invalidate("Last Name is empty or only whitespace.")
+  }
+  
+  if (first_name == ""){
+    val$invalidate("First Name is empty or only whitespace.")
+  }
+  
+  if (login_id == ""){
+    val$invalidate("Login ID is empty or only whitespace.")
+  }
+  
+  if (email == ""){
+    val$invalidate("E-mail Address is empty or only whitespace.")
+  }
+  
+  val
 }
 
 # Function - updateReportUserData -----------------------------------
