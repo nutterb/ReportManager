@@ -78,7 +78,18 @@ addEditReportUser <- function(oid         = numeric(0),
   
   on.exit({ DBI::dbDisconnect(conn) })
   
+  last_name  <- trimws(last_name)
+  first_name <- trimws(first_name)
+  login_id   <- trimws(login_id)
+  email      <- trimws(email)
+  
   event_time <- Sys.time()
+  
+  AddEditData <- data.frame(LastName = last_name, 
+                            FirstName = first_name, 
+                            LoginId = login_id, 
+                            EmailAddress = email, 
+                            IsInternal = as.numeric(is_internal))
   
   EventList <- 
     data.frame(EventReportUser = rep(event_user, 7), 
@@ -99,13 +110,9 @@ addEditReportUser <- function(oid         = numeric(0),
                             is_active))
   
   if (length(oid) == 0){
-    OID <- .addEditReportUser_addUser(last_name   = last_name, 
-                                      first_name  = first_name, 
-                                      login_id    = login_id, 
-                                      email       = email, 
-                                      is_internal = is_internal, 
-                                      is_active   = is_active, 
-                                      conn        = conn)
+    
+    OID <- insertRecord(AddEditData, 
+                        table_name = "ReportUser")
     
     EventList$ParentReportUser <- rep(OID$OID, 
                                       nrow(EventList))
@@ -114,110 +121,19 @@ addEditReportUser <- function(oid         = numeric(0),
                                                     oid       = oid,
                                                     conn      = conn)
     
-    .addEditReportUser_editUser(oid         = oid, 
-                                last_name   = last_name, 
-                                first_name  = first_name, 
-                                login_id    = login_id, 
-                                email       = email, 
-                                is_internal = is_internal, 
-                                is_active   = is_active, 
-                                conn        = conn)
+    if (nrow(EventList) > 0){
+      updateRecord(data = AddEditData, 
+                   where_data = data.frame(OID = oid), 
+                   table_name = "ReportUser")
+    }
   }
 
-  .addEditReportUser_addUserEvents(EventList, 
-                                   conn)
+  insertRecord(EventList, 
+               table_name = "ReportUserEvent", 
+               return_oid = FALSE)
 }
 
 # Unexported --------------------------------------------------------
-
-.addEditReportUser_addUser <- function(last_name, 
-                                       first_name, 
-                                       login_id, 
-                                       email, 
-                                       is_internal, 
-                                       is_active, 
-                                       conn){
-  statement <- 
-    switch(getOption("RM_sql_flavor"), 
-           "sqlite" = .addEditReportUser_addReportUserStatement_sqlite, 
-           "sql_server" = .addEditReportUser_addReportUserStatement_sqlServer)
-  
-  result <- 
-    DBI::dbSendStatement(
-      conn, 
-      statement, 
-      list(last_name, 
-           first_name, 
-           login_id, 
-           email, 
-           as.numeric(is_internal), 
-           as.numeric(is_active))
-    )
-  
-  if (getOption("RM_sql_flavor") == "sqlite"){
-    DBI::dbClearResult(result)
-    result <- DBI::dbSendStatement(conn, 
-                                   "SELECT last_insert_rowid() AS OID")
-  }
-  
-  Inserted <- DBI::dbFetch(result)
-  
-  DBI::dbClearResult(result)
-  
-  Inserted
-}
-
-.addEditReportUser_editUser <- function(oid, 
-                                        last_name, 
-                                        first_name, 
-                                        login_id, 
-                                        email, 
-                                        is_internal, 
-                                        is_active, 
-                                        conn){
-  statement <- 
-    switch(getOption("RM_sql_flavor"), 
-           "sqlite" = .addEditReportUser_editReportUserStatement_sqlite, 
-           "sql_server" = .addEditReportUser_editReportUserStatement_sqlServer)
-  
-  result <- 
-    DBI::dbSendStatement(
-      conn, 
-      statement, 
-      list(last_name, 
-           first_name, 
-           login_id, 
-           email, 
-           as.numeric(is_internal), 
-           as.numeric(is_active), 
-           oid)
-    )
-  
-  DBI::dbClearResult(result)
-}
-
-.addEditReportUser_addUserEvents <- function(EventList, 
-                                             conn){
-  statement <- 
-    switch(getOption("RM_sql_flavor"), 
-           "sqlite" = .addEditReportUser_addEventStatement_sqlite, 
-           "sql_server" = .addEditReportUser_addEventStatement_sqlServer)
-
-  for (i in seq_len(nrow(EventList))){
-    result <- 
-      DBI::dbSendStatement(
-        conn, 
-        statement, 
-        list(EventList$ParentReportUser[i], 
-             EventList$EventReportUser[i], 
-             EventList$EventType[i], 
-             format(EventList$EventDate[i], 
-                    format = "%Y-%m-%d %H:%M:%S"), 
-             EventList$NewValue[i])
-      )
-    DBI::dbClearResult(result)
-  }
-}
 
 .addEditReportUser_editedEventList <- function(EventList, 
                                                oid,
@@ -227,63 +143,12 @@ addEditReportUser <- function(oid         = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisReportUser <- queryReportUser(oid)
   
-  EventList$CurrentValue <- c(ThisReportUser$LastName, 
-                              ThisReportUser$FirstName, 
-                              ThisReportUser$LoginId, 
-                              ThisReportUser$EmailAddress, 
-                              ThisReportUser$IsInternal, 
-                              ThisReportUser$IsActive)
+  CurrentValue <- c(ThisReportUser$LastName, 
+                    ThisReportUser$FirstName, 
+                    ThisReportUser$LoginId, 
+                    ThisReportUser$EmailAddress, 
+                    ThisReportUser$IsInternal, 
+                    ThisReportUser$IsActive)
   
-  EventList[EventList$CurrentValue != EventList$NewValue, ]
+  EventList[CurrentValue != EventList$NewValue, ]
 }
-
-# Add ReportUser Statements -----------------------------------------
-
-.addEditReportUser_addReportUserStatement_sqlServer <- 
-  "INSERT INTO dbo.ReportUser
-   (LastName, FirstName, LoginId, EmailAddress, IsInternal, IsActive)
-   OUTPUT INSERTED.OID
-   VALUES
-   (?,        ?,         ?,       ?,            ?,          ?)"
-
-.addEditReportUser_addReportUserStatement_sqlite <- 
-  "INSERT INTO ReportUser
-   (LastName, FirstName, LoginId, EmailAddress, IsInternal, IsActive)
-   VALUES
-   (?,        ?,         ?,       ?,            ?,          ?)"
-
-# Update ReportUser Statement ---------------------------------------
-
-.addEditReportUser_editReportUserStatement_sqlServer <- 
-  "UPDATE dbo.ReportUser
-   SET LastName = ?, 
-       FirstName = ?, 
-       LoginId = ?, 
-       EmailAddress = ?, 
-       IsInternal = ?, 
-       IsActive = ?
-   WHERE OID = ?"
-
-.addEditReportUser_editReportUserStatement_sqlite <- 
-  "UPDATE ReportUser
-   SET LastName = ?, 
-       FirstName = ?, 
-       LoginId = ?, 
-       EmailAddress = ?, 
-       IsInternal = ?, 
-       IsActive = ?
-   WHERE OID = ?"
-
-# Add Event Statements ----------------------------------------------
-
-.addEditReportUser_addEventStatement_sqlServer <- 
-  "INSERT INTO dbo.ReportUserEvent
-   (ParentReportUser, EventReportUser, EventType, EventDateTime, NewValue)
-   VALUES
-   (?,                ?,               ?,         ?,             ?)"
-
-.addEditReportUser_addEventStatement_sqlite <- 
-  "INSERT INTO ReportUserEvent
-   (ParentReportUser, EventReportUser, EventType, EventDateTime, NewValue)
-   VALUES
-   (?,                ?,               ?,         ?,             ?)"

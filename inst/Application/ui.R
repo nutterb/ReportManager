@@ -19,6 +19,7 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    MODAL_ROLES,
     MODAL_REPORT_USER,
     
     # Menu Pages ----------------------------------------------------
@@ -41,11 +42,11 @@ dashboardPage(
         "tab_disclaimerFooter"
       ), 
       
-      tabItem(
-        "tab_userRoles"
-      ), 
+      tabItem("tab_roles", UI_TAB_ROLES), 
       
-      tabItem("tab_users", UI_TAB_REPORT_USER)
+      tabItem("tab_users", UI_TAB_REPORT_USER), 
+      
+      tabItem("tab_autoDistribute")
     )
   )
 )

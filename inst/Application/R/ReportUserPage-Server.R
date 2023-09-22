@@ -68,11 +68,15 @@ OE_btn_reportUser_addEditReportUser <- function(session,
                                                 rv_ReportUser, 
                                                 input, 
                                                 current_user_oid, 
-                                                proxy){
+                                                proxy, 
+                                                is_edit = FALSE, 
+                                                this_login_id){
   oid <- if (rv_ReportUser$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_reportUser)
-  
+
   val <- validateReportUserInputs(rv_ReportUser, 
-                                  input)
+                                  input, 
+                                  is_edit = is_edit, 
+                                  this_login_id = this_login_id)
 
   if (!val$is_ok()) {
     alert(val$report())
@@ -86,9 +90,14 @@ OE_btn_reportUser_addEditReportUser <- function(session,
                       is_active = input$chk_reportUser_isActive,
                       event_user = current_user_oid)
   
-    updateReportUserData(rv_ReportUser, 
-                         oid, 
-                         proxy)
+    RM_replaceData(query_fun = queryReportUser, 
+                   reactive_list = rv_ReportUser, 
+                   data_slot = "ReportUser", 
+                   selected_slot = "SelectedReportUser", 
+                   id_variable = "OID", 
+                   element_name = "rdo_reportUser", 
+                   oid = oid, 
+                   proxy = proxy)
     
     toggleModal(session = session, 
                 modalId = "modal_reportUser_addEdit", 
@@ -106,19 +115,29 @@ OE_btn_reportUser_activate <- function(active,
                                        proxy){
   oid <- as.numeric(input$rdo_reportUser)
   
-  activateReportUser(oid, 
-                     active, 
-                     current_user_oid)
+  activateRecord(oid, 
+                 active, 
+                 current_user_oid, 
+                 table_name = "ReportUser", 
+                 event_table_name = "ReportUserEvent", 
+                 parent_field_name = "ParentReportUser")
   
-  updateReportUserData(rv_ReportUser, 
-                       oid, 
-                       proxy)
+  RM_replaceData(query_fun = queryReportUser, 
+                 reactive_list = rv_ReportUser, 
+                 data_slot = "ReportUser", 
+                 selected_slot = "SelectedReportUser", 
+                 id_variable = "OID", 
+                 element_name = "rdo_reportUser", 
+                 oid = oid, 
+                 proxy = proxy)
 }
 
 # Function - validateReportUserInputs -------------------------------
 
 validateReportUserInputs <- function(rv_ReportUser, 
-                                     input){
+                                     input, 
+                                     is_edit = FALSE, 
+                                     this_login_id){
   val <- inputValidationCollection()
   
   last_name <- trimws(input$txt_reportUser_lastName)
@@ -126,9 +145,19 @@ validateReportUserInputs <- function(rv_ReportUser,
   login_id <- trimws(input$txt_reportUser_loginId)
   email <- trimws(input$txt_reportUser_emailAddress)
   
-  if (login_id %in% rv_ReportUser$ReportUser$LoginId){
-    val$invalidate(sprintf("Login ID '%s' already exists in the database. Duplicates are not allowed.", 
-                           login_id))
+  duplicate_login_message <- 
+    sprintf("Login ID '%s' already exists in the database. Duplicates are not allowed.", 
+            login_id)
+  
+  if (is_edit){
+    if ((this_login_id != login_id) &&
+        login_id %in% rv_ReportUser$ReportUser$LoginId){
+      val$invalidate(duplicate_login_message)
+    } 
+  } else {
+    if (login_id %in% rv_ReportUser$ReportUser$LoginId){
+      val$invalidate(duplicate_login_message)
+    }
   }
   
   if (last_name == ""){
@@ -150,19 +179,3 @@ validateReportUserInputs <- function(rv_ReportUser,
   val
 }
 
-# Function - updateReportUserData -----------------------------------
-
-updateReportUserData <- function(rv_ReportUser, oid, proxy){
-  NewData <- queryReportUser()
-  rv_ReportUser$ReportUser <- NewData
-  rv_ReportUser$SelectedReportUser <- NewData[NewData$OID == oid, ]
-  
-  NewData %>% 
-    radioDataTable(id_variable = "OID", 
-                   element_name = "rdo_reportUser", 
-                   checked = as.character(oid)) %>% 
-    DT::replaceData(proxy = proxy, 
-                    data = ., 
-                    resetPaging = FALSE,
-                    rownames = FALSE)
-}

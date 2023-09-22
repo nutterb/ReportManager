@@ -46,21 +46,21 @@ queryReportUser <- function(oid = numeric(0)){
 # Unexported --------------------------------------------------------
 
 .queryReportUser_sqlite <- 
-  "SELECT OID, 
-      LastName,
-      FirstName,
-      LoginId,
-      EmailAddress, 
-      IsInternal, 
-      IsActive
-    FROM ReportUser"
+  "SELECT [OID], 
+      [LastName],
+      [FirstName],
+      [LoginId],
+      [EmailAddress], 
+      [IsInternal], 
+      [IsActive]
+    FROM [ReportUser]"
 
 .queryReportUser_sqlServer <- 
-  "SELECT OID, 
-      LastName, 
-      FirstName, 
-      LoginId,
-      EmailAddress, 
-      IsInternal, 
-      IsActive
-    FROM dbo.ReportUser"
+  "SELECT [OID], 
+      [LastName], 
+      [FirstName], 
+      [LoginId],
+      [[EmailAddress], 
+      [IsInternal], 
+      [IsActive]
+    FROM dbo.[ReportUser]"
