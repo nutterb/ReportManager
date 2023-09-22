@@ -106,9 +106,12 @@ OE_btn_reportUser_activate <- function(active,
                                        proxy){
   oid <- as.numeric(input$rdo_reportUser)
   
-  activateReportUser(oid, 
-                     active, 
-                     current_user_oid)
+  activateRecord(oid, 
+                 active, 
+                 current_user_oid, 
+                 table_name = "ReportUser", 
+                 event_table_name = "ReportUserEvent", 
+                 parent_field_name = "ParentReportUser")
   
   updateReportUserData(rv_ReportUser, 
                        oid, 
