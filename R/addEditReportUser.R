@@ -142,29 +142,14 @@ addEditReportUser <- function(oid         = numeric(0),
            "sqlite" = .addEditReportUser_addReportUserStatement_sqlite, 
            "sql_server" = .addEditReportUser_addReportUserStatement_sqlServer)
   
-  result <- 
-    DBI::dbSendStatement(
-      conn, 
-      statement, 
-      list(last_name, 
-           first_name, 
-           login_id, 
-           email, 
-           as.numeric(is_internal), 
-           as.numeric(is_active))
-    )
-  
-  if (getOption("RM_sql_flavor") == "sqlite"){
-    DBI::dbClearResult(result)
-    result <- DBI::dbSendStatement(conn, 
-                                   "SELECT last_insert_rowid() AS OID")
-  }
-  
-  Inserted <- DBI::dbFetch(result)
-  
-  DBI::dbClearResult(result)
-  
-  Inserted
+  addAndReturnOid(conn, 
+                  statement, 
+                  list(last_name, 
+                       first_name, 
+                       login_id, 
+                       email, 
+                       as.numeric(is_internal), 
+                       as.numeric(is_active)))
 }
 
 .addEditReportUser_editUser <- function(oid, 

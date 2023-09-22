@@ -69,7 +69,20 @@ initializeReportManagerDatabase <- function(filename,
   
   # Add the essential roles -----------------------------------------
   
-  # TODO: add UserAdministrator and ReportAdministrator roles
+  addEditRole(role_name = "UserAdministrator", 
+              role_description = "Users with this role can manage users and user roles.", 
+              is_active = TRUE, 
+              event_user = 1)
+  
+  addEditRole(role_name = "ReportAdministrator", 
+              role_description = "Users with this role can manage report templates.", 
+              is_active = TRUE, 
+              event_user = 1)
+  
+  addEditRole(role_name = "ReportSubmission", 
+              role_description = "Users with this role have permission to submit any report.", 
+              is_active = TRUE, 
+              event_user = 1)
   
   # Assign the First User to the essential roles --------------------
   
