@@ -78,10 +78,10 @@ OE_btn_reportUser_addEditReportUser <- function(session,
     alert(val$report())
   } else {
     addEditReportUser(oid = oid,
-                      last_name = input$txt_reportUser_lastName,
-                      first_name = input$txt_reportUser_firstName,
-                      login_id = input$txt_reportUser_loginId,
-                      email = input$txt_reportUser_emailAddress,
+                      last_name = trimws(input$txt_reportUser_lastName),
+                      first_name = trimws(input$txt_reportUser_firstName),
+                      login_id = trimws(input$txt_reportUser_loginId),
+                      email = trimws(input$txt_reportUser_emailAddress),
                       is_internal = input$chk_reportUser_isInternal,
                       is_active = input$chk_reportUser_isActive,
                       event_user = current_user_oid)
