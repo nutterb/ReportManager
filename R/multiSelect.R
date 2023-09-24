@@ -84,13 +84,18 @@ multiSelect <- function(inputId,
   
   checkmate::reportAssertions(coll)
   
+  
+  checkmate::assertSubset(x = selected, 
+                          choices = choices, 
+                          add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
   # Functionality ---------------------------------------------------
   
   # Make the Choices Data Frame
-  Choices <- data.frame(choices = letters, 
-                        selected = rep(c(TRUE, FALSE), c(2, 24)), 
-                        order = c(2, 1, rep(NA_real_, 24)), 
-                        display_order = seq_along(choices))
+  Choices <- .updateMultiSelect_makeChoicesFrame(choices = choices, 
+                                                 selected = selected)
   
   # Up-Down tag list
   
@@ -178,6 +183,7 @@ updateMultiSelect <- function(session, inputId, input,
                                             "move_left", 
                                             "move_up", 
                                             "move_down"), 
+                                .var.name = "action",
                                 add = coll)
   
   checkmate::reportAssertions(coll)
@@ -229,7 +235,71 @@ updateMultiSelect <- function(session, inputId, input,
                            selected = input$user_selected)
 }
 
+#' @rdname multiSelect
+#' @export
+
+replaceMultiSelect <- function(session, 
+                               inputId, 
+                               choices, 
+                               selected){
+  
+  # Argument validation ---------------------------------------------
+  
+  coll <- checkmate::makeAssertCollection()
+  
+  checkmate::assertCharacter(x = inputId, 
+                             len = 1, 
+                             add = coll)
+  
+  checkmate::assertCharacter(x = choices, 
+                             add = coll)
+  
+  checkmate::assertCharacter(x = selected, 
+                             add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  checkmate::assertSubset(x = selected, 
+                          choices = choices, 
+                          add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  Choices <- .updateMultiSelect_makeChoicesFrame(choices, selected)
+  
+  updateTextInput(session = session, 
+                  inputId = inputId, 
+                  value = as.character(jsonlite::toJSON(Choices)))
+  
+  updateSelectInput(session = session, 
+                    inputId = sprintf("%s_unselected", inputId), 
+                    choices = choices,
+                    selected = character(0))
+  
+  updateSelectInput(session = session, 
+                    inputId= sprintf("%s_selected", inputId), 
+                    choices = selected, 
+                    selected = character(0))
+}
+
 # Unexported --------------------------------------------------------
+
+.updateMultiSelect_makeChoicesFrame <- function(choices, 
+                                                selected){
+  len_choices <- length(choices)
+  len_selected <- length(selected)
+  
+  Choices <- 
+    data.frame(choices = letters, 
+               selected = rep(c(TRUE, FALSE), c(len_selected, 
+                                                len_choices - len_selected)), 
+               order = rep(NA_real_, len_choices), 
+               display_order = seq_along(choices), 
+               stringsAsFactors = FALSE)
+  
+  Choices$order[match(selected, choices)] <- seq_along(selected)
+  Choices
+}
 
 .updateMultiSelect_setChoiceOrder <- function(Choices){
   Choices <- Choices[order(Choices$order, Choices$choices), ]
