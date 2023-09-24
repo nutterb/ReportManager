@@ -108,37 +108,39 @@ multiSelect <- function(inputId,
   
   
   shiny::tagList(
+    shiny::tags$label(label),
+    shiny::br(),
     shinyjs::hidden(
       shiny::textInput(inputId = inputId, 
-                       label = label, 
+                       label = "", 
                        value = as.character(jsonlite::toJSON(Choices)))), 
     div(style = "display:inline-block;", 
-        selectInput(inputId = sprintf("%s_unselected", 
-                                      inputId), 
-                    label = "Unselected", 
-                    choices = Choices$choices[!Choices$selected], 
-                    selected = NULL,
-                    selectize = FALSE, 
-                    multiple = TRUE,
-                    ...)), 
-    div(style = "display:inline-block;",
-        actionButton(inputId = sprintf("%s_move_right_all", 
-                                       inputId), 
-                     label = "Move All Right"), 
-        br(), 
-        actionButton(inputId = sprintf("%s_move_right", 
+        shiny::selectInput(inputId = sprintf("%s_unselected", 
+                                             inputId), 
+                           label = "Unselected", 
+                           choices = Choices$choices[!Choices$selected], 
+                           selected = NULL,
+                           selectize = FALSE, 
+                           multiple = TRUE,
+                           ...)), 
+    shiny::div(style = "display:inline-block;",
+        shiny::actionButton(inputId = sprintf("%s_move_all_right", 
+                                              inputId), 
+                            label = "Move All Right"), 
+        shiny::br(), 
+        shiny::actionButton(inputId = sprintf("%s_move_right", 
                                        inputId), 
                      label = "Move Right"), 
-        br(), 
-        actionButton(inputId = sprintf("%s_move_left", 
+        shiny::br(), 
+        shiny::actionButton(inputId = sprintf("%s_move_left", 
                                        inputId), 
                      label = "Move Left"), 
-        br(), 
-        actionButton(inputId = sprintf("%s_move_left_all", 
+        shiny::br(), 
+        shiny::actionButton(inputId = sprintf("%s_move_all_left", 
                                        inputId), 
                      label = "Move All Left")), 
-    div(style = "display:inline-block;", 
-        selectInput(inputId = sprintf("%s_selected", 
+    shiny::div(style = "display:inline-block;", 
+        shiny::selectInput(inputId = sprintf("%s_selected", 
                                       inputId), 
                     label = "Selected", 
                     choices = .updateMultiSelect_getOrderedSelection(Choices), 
@@ -193,7 +195,16 @@ updateMultiSelect <- function(session, inputId, input,
                                                                         inputId)]]] <- TRUE,
     "move_left" = Choices$selected[Choices$choices %in% input[[sprintf("%s_selected", 
                                                                        inputId)]]] <- FALSE, 
-    "move_all_left" = Choices$selected <- rep(FALSE, nrow(Choices))) 
+    "move_all_left" = Choices$selected <- rep(FALSE, nrow(Choices)), 
+    "move_up" = Choices$order <- 
+      .updateMultiSelect_moveUpDown(Choices = Choices, 
+                                    selection_to_move = input[[sprintf("%s_selected", inputId)]], 
+                                    up = TRUE),
+    "move_down" = Choices$order <- 
+      .updateMultiSelect_moveUpDown(Choices = Choices, 
+                                    selection_to_move = input[[sprintf("%s_selected", inputId)]], 
+                                    up = FALSE)
+    ) 
 
   Choices <- .updateMultiSelect_setChoiceOrder(Choices)
   
@@ -202,20 +213,20 @@ updateMultiSelect <- function(session, inputId, input,
                                   auto_unbox = TRUE, 
                                   json_verbatim = TRUE)
   
-  updateTextInput(session = session, 
-                  inputId = inputId, 
-                  value = as.character(new_choices))
+  shiny::updateTextInput(session = session, 
+                         inputId = inputId, 
+                         value = as.character(new_choices))
   
   # Update the select input controls.
-  updateSelectInput(session = session, 
-                    inputId = sprintf("%s_unselected",
-                                      inputId),
-                    choices = Choices$choices[!Choices$selected])
-  updateSelectInput(session = session, 
-                    inputId = sprintf("%s_selected",
-                                      inputId),
-                    choices = .updateMultiSelect_getOrderedSelection(Choices), 
-                    selected = input$user_selected)
+  shiny::updateSelectInput(session = session, 
+                           inputId = sprintf("%s_unselected",
+                                             inputId),
+                           choices = Choices$choices[!Choices$selected])
+  shiny::updateSelectInput(session = session, 
+                           inputId = sprintf("%s_selected",
+                                             inputId),
+                           choices = .updateMultiSelect_getOrderedSelection(Choices), 
+                           selected = input$user_selected)
 }
 
 # Unexported --------------------------------------------------------
@@ -231,4 +242,31 @@ updateMultiSelect <- function(session, inputId, input,
   Selected <- Choices[Choices$selected, ]
   Selected <- Selected[order(Selected$order, Selected$display_order), ]
   Selected$choices
+}
+
+.updateMultiSelect_moveUpDown <- function(Choices, 
+                                          selection_to_move, 
+                                          up = TRUE){
+  Choices <- Choices[order(Choices$order), ]
+  
+  increment <- if (up) -1 else 1
+  
+  row_to_move <- which(Choices$choices %in% selection_to_move)
+  row_adjacent <- row_to_move + increment
+  
+  order_to_move <- Choices$order[Choices$choices %in% selection_to_move]
+  order_adjacent <- order_to_move + increment
+  
+  iterate_over <- seq_along(order_to_move)
+  if (!up) iterate_over <- rev(iterate_over)
+  
+  for (i in iterate_over){
+      Choices$order[row_to_move[i]] <- order_adjacent[i]
+      Choices$order[row_adjacent[i]] <- order_to_move[i]
+      
+      Choices <- Choices[order(Choices$order), ]
+  }
+  
+  Choices <- Choices[order(Choices$display_order), ]
+  Choices$order
 }
