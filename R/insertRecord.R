@@ -3,14 +3,29 @@
 #' 
 #' @description Generalized forms for writing and executing statements
 #'   to add new records or update existing records. 
+#' 
+#' @param data `data.frame`. The data to insert into the database. The 
+#'   names of `data` must be names in `table_name`.
+#' @param where_data `data.frame`. Gives the where conditions for updating
+#'   data. 
+#' @param table_name `character(1)`. The name of the table to which 
+#'   the contents of `data` will be saved.
+#' @param id_field `character(1)`. The name of the ID field in 
+#'   `table_name`.
+#' @param return_oid `logical(1)`. When `TRUE`, the OID of the inserted
+#'   records will be returned to the session. The OIDs are of use when 
+#'   also writing events for any insertions.
+#' @param flavor `character(1)`. The flavor of SQL in user. 
+#' @param schema `character(1)`. The name of the schema for the database. 
+
 #'   
 #' @export
 
 insertRecord <- function(data, 
                          table_name, 
+                         id_field   = "OID", 
                          return_oid = TRUE,
                          flavor     = getOption("RM_sql_flavor"),
-                         id_field   = "OID", 
                          schema     = "dbo"){
   # Argument Validation ---------------------------------------------
   

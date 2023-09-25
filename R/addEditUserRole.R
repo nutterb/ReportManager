@@ -47,6 +47,10 @@ addEditUserRole <- function(oid = numeric(0),
   
   # Functionality ---------------------------------------------------
   
+  conn <- connectToReportManager()
+  
+  on.exit({ DBI::dbDisconnect(conn) })
+  
   AddEditData <- data.frame(ParentUser = parent_user, 
                             ParentRole = parent_role, 
                             IsActive   = is_active)

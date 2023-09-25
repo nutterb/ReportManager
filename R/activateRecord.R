@@ -1,11 +1,17 @@
-#' @name activateReportUser
+#' @name activateRecord
 #' @title Activate or Deactivate Report Users
 #' 
 #' @description Changes the value of a table's IsActive property.
 #' 
 #' @param oid `integerish(1)`. The OID of the record to modify. 
 #' @param active `logical(1)`. The value to set in the database.
-#' @param event_user `integerish(1)`. The OID of the ReportUser performing the action. 
+#' @param event_user `integerish(1)`. The User OID of the user performing the action.
+#' @param table_name `character(1)`. The name of the table for which the 
+#'   object is being activated/deactivated.
+#' @param event_table_name `character(1)`. The name of the table in which 
+#'   events are stored for the table named in `table_name`.
+#' @param parent_field_name `character(1)`. The name of the foreign key
+#'   field mapping between `event_table_name` and `table_name`.
 #' 
 #' @details When the value of `active` matches what is already in the database, 
 #'   no action will be taken. Otherwise, the value is updated and an event
