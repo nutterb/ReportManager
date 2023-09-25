@@ -55,6 +55,7 @@ activateRecord <- function(oid,
     switch(table_name, 
            "User" = queryUser(oid)$IsActive, 
            "Role" = queryRole(oid)$IsActive, 
+           "UserRole" = queryUserRole(oid)$IsActive,
            stop(sprintf("Activation for table %s is not supported.", 
                         table_name)))
 

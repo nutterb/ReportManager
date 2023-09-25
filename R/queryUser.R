@@ -60,7 +60,7 @@ queryUser <- function(oid = numeric(0)){
       [LastName], 
       [FirstName], 
       [LoginId],
-      [[EmailAddress], 
+      [EmailAddress], 
       [IsInternal], 
       [IsActive]
     FROM dbo.[User]"

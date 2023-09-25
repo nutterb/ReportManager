@@ -54,8 +54,8 @@ queryUserRole <- function(oid = numeric(0)){
          UR.[IsActive], 
          U.[LastName], 
          U.[FirstName], 
-         U.[IsActive] AS IsActiveUser,
          R.[RoleName], 
+         U.[IsActive] AS IsActiveUser,
          R.[IsActive] AS IsActiveRole
   FROM dbo.[UserRole] UR
     LEFT JOIN dbo.[User] U
@@ -71,8 +71,8 @@ queryUserRole <- function(oid = numeric(0)){
          UR.[IsActive], 
          U.[LastName], 
          U.[FirstName], 
+         R.[RoleName],
          U.[IsActive] AS IsActiveUser,
-         R.[RoleName], 
          R.[IsActive] AS IsActiveRole
   FROM [UserRole] UR
     LEFT JOIN [User] U

@@ -18,7 +18,8 @@ insertRecord <- function(data,
   
   checkmate::assertDataFrame(x         = data, 
                              min.rows  = 1, 
-                             col.names = "named")
+                             col.names = "named", 
+                             add = coll)
   
   checkmate::assertCharacter(x   = table_name, 
                              len = 1, 
@@ -50,7 +51,7 @@ insertRecord <- function(data,
                                                  flavor     = flavor,
                                                  id_field   = id_field, 
                                                  schema     = schema)
-  
+
   .insertRecord_insertRecord(statement  = statement, 
                              data       = data, 
                              id_field   = id_field, 

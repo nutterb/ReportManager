@@ -126,11 +126,41 @@ test_that(
   }
 )
 
-# Functionality - SQL Server ----------------------------------------
+# User - SQL Server -------------------------------------------------
 
-# TODO: SQL Server validation
+configureReportManager(flavor = "sql_server")
 
-# Functionality - SQLite --------------------------------------------
+test_that(
+  "Activate and Deactivate Users", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    UserNow <- queryUser(oid = 1)
+    
+    expect_true(UserNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "User", 
+                   event_table_name = "UserEvent", 
+                   parent_field_name = "ParentUser")
+    
+    expect_false(queryUser(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "User", 
+                   event_table_name = "UserEvent", 
+                   parent_field_name = "ParentUser")
+    
+    expect_true(queryUser(oid = 1)$IsActive)
+  }
+)
+
+# User - SQLite -----------------------------------------------------
 
 configureReportManager(flavor = "sqlite")
 
@@ -161,5 +191,141 @@ test_that(
                    parent_field_name = "ParentUser")
     
     expect_true(queryUser(oid = 1)$IsActive)
+  }
+)
+
+# Role - SQL Server -------------------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    RoleNow <- queryRole(oid = 1)
+    
+    expect_true(RoleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Role", 
+                   event_table_name = "RoleEvent", 
+                   parent_field_name = "ParentRole")
+    
+    expect_false(queryRole(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Role", 
+                   event_table_name = "RoleEvent", 
+                   parent_field_name = "ParentRole")
+    
+    expect_true(queryRole(oid = 1)$IsActive)
+  }
+)
+
+# Role - SQLite -----------------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    RoleNow <- queryRole(oid = 1)
+    
+    expect_true(RoleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Role", 
+                   event_table_name = "RoleEvent", 
+                   parent_field_name = "ParentRole")
+    
+    expect_false(queryRole(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Role", 
+                   event_table_name = "RoleEvent", 
+                   parent_field_name = "ParentRole")
+    
+    expect_true(queryRole(oid = 1)$IsActive)
+  }
+)
+
+# User Role - SQL Server --------------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    UserRoleNow <- queryUserRole(oid = 1)
+    
+    expect_true(UserRoleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "UserRole", 
+                   event_table_name = "UserRoleEvent", 
+                   parent_field_name = "ParentUserRole")
+    
+    expect_false(queryUserRole(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "UserRole", 
+                   event_table_name = "UserRoleEvent", 
+                   parent_field_name = "ParentUserRole")
+    
+    expect_true(queryUserRole(oid = 1)$IsActive)
+  }
+)
+
+# User Role - SQLite ------------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    UserRoleNow <- queryUserRole(oid = 1)
+    
+    expect_true(UserRoleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "UserRole", 
+                   event_table_name = "UserRoleEvent", 
+                   parent_field_name = "ParentUserRole")
+    
+    expect_false(queryUserRole(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "UserRole", 
+                   event_table_name = "UserRoleEvent", 
+                   parent_field_name = "ParentUserRole")
+    
+    expect_true(queryUserRole(oid = 1)$IsActive)
   }
 )

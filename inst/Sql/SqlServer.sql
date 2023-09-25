@@ -70,11 +70,12 @@ CREATE TABLE dbo.[RoleEvent](
 /* UserRole Table ********************************************/
 
 CREATE TABLE dbo.[UserRole] (
-  OID INTEGER PRIMARY KEY, 
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentUser INT NOT NULL, 
   ParentRole INT NOT NULL, 
   IsActive BIT NOT NULL DEFAULT 0, 
   
+  PRIMARY KEY (OID),
   FOREIGN KEY (ParentUser) REFERENCES dbo.[User](OID),
   FOREIGN KEY (ParentRole) REFERENCES dbo.[Role](OID)
 );
@@ -82,13 +83,14 @@ CREATE TABLE dbo.[UserRole] (
 /* UserRoleEvent Table ***************************************/
 
 CREATE TABLE dbo.[UserRoleEvent] (
-  OID INTEGER PRIMARY KEY, 
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentUserRole INT NOT NULL, 
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
   NewValue VARCHAR(250) NULL, 
   
+  PRIMARY KEY (OID),
   FOREIGN KEY (ParentUserRole) REFERENCES dbo.[UserRole](OID), 
   FOREIGN KEY (EventUser) REFERENCES dbo.[User](OID),
   CONSTRAINT chk_UserRoleEventType CHECK (EventType IN ('Add', 
