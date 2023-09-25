@@ -1,7 +1,7 @@
-#' @name queryReportUser
-#' @title Fetch the ReportUser Table
+#' @name queryUser
+#' @title Fetch the User Table
 #' 
-#' @description Fetch the ReportUser table from the database.
+#' @description Fetch the User table from the database.
 #' 
 #' @param oid `integerish(0/1)`. The OID of the Report User to fetch
 #'   from the database. By default (`character(0)`), all records are 
@@ -9,7 +9,7 @@
 #' 
 #' @export
 
-queryReportUser <- function(oid = numeric(0)){
+queryUser <- function(oid = numeric(0)){
   # Argument Validation ---------------------------------------------
   coll <- checkmate::makeAssertCollection()
   
@@ -24,8 +24,8 @@ queryReportUser <- function(oid = numeric(0)){
   on.exit({ DBI::dbDisconnect(conn) })
   
   statement <- switch(getOption("RM_sql_flavor"), 
-                      "sqlite" = .queryReportUser_sqlite, 
-                      "sql_server" = .queryReportUser_sqlServer,
+                      "sqlite" = .queryUser_sqlite, 
+                      "sql_server" = .queryUser_sqlServer,
                       stop(sprintf("Query not defined for SQL flavor '%s'", 
                                    getOption("RM_sql_flavor"))))
   
@@ -33,19 +33,19 @@ queryReportUser <- function(oid = numeric(0)){
     statement <- paste0(statement, " WHERE OID = ", oid)
   }
   
-  ReportUser <- DBI::dbGetQuery(conn, statement)
+  User <- DBI::dbGetQuery(conn, statement)
   
   if (getOption("RM_sql_flavor") == "sqlite"){
-    ReportUser$IsInternal <- as.logical(ReportUser$IsInternal)
-    ReportUser$IsActive <- as.logical(ReportUser$IsActive)
+    User$IsInternal <- as.logical(User$IsInternal)
+    User$IsActive <- as.logical(User$IsActive)
   }
   
-  ReportUser
+  User
 }
 
 # Unexported --------------------------------------------------------
 
-.queryReportUser_sqlite <- 
+.queryUser_sqlite <- 
   "SELECT [OID], 
       [LastName],
       [FirstName],
@@ -53,9 +53,9 @@ queryReportUser <- function(oid = numeric(0)){
       [EmailAddress], 
       [IsInternal], 
       [IsActive]
-    FROM [ReportUser]"
+    FROM [User]"
 
-.queryReportUser_sqlServer <- 
+.queryUser_sqlServer <- 
   "SELECT [OID], 
       [LastName], 
       [FirstName], 
@@ -63,4 +63,4 @@ queryReportUser <- function(oid = numeric(0)){
       [[EmailAddress], 
       [IsInternal], 
       [IsActive]
-    FROM dbo.[ReportUser]"
+    FROM dbo.[User]"

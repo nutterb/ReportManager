@@ -101,14 +101,14 @@ multiSelect <- function(inputId,
   
   up_down_tag <- 
     shiny::tagList(
-      div(style = "display:inline-block;", 
-          actionButton(inputId = sprintf("%s_move_up", 
-                                         inputId), 
-                       label = "Move Up"), 
-          br(), 
-          actionButton(inputId = sprintf("%s_move_down", 
-                                         inputId), 
-                       label = "Move Down"))
+      shiny::div(style = "display:inline-block;", 
+                 shiny::actionButton(inputId = sprintf("%s_move_up", 
+                                                       inputId), 
+                                     label = "Move Up"), 
+                 shiny::br(), 
+                 shiny::actionButton(inputId = sprintf("%s_move_down", 
+                                                       inputId), 
+                                     label = "Move Down"))
     )
   
   
@@ -119,40 +119,40 @@ multiSelect <- function(inputId,
       shiny::textInput(inputId = inputId, 
                        label = "", 
                        value = as.character(jsonlite::toJSON(Choices)))), 
-    div(style = "display:inline-block;", 
-        shiny::selectInput(inputId = sprintf("%s_unselected", 
-                                             inputId), 
-                           label = "Unselected", 
-                           choices = Choices$choices[!Choices$selected], 
-                           selected = NULL,
-                           selectize = FALSE, 
-                           multiple = TRUE,
-                           ...)), 
-    shiny::div(style = "display:inline-block;",
-        shiny::actionButton(inputId = sprintf("%s_move_all_right", 
-                                              inputId), 
-                            label = "Move All Right"), 
-        shiny::br(), 
-        shiny::actionButton(inputId = sprintf("%s_move_right", 
-                                       inputId), 
-                     label = "Move Right"), 
-        shiny::br(), 
-        shiny::actionButton(inputId = sprintf("%s_move_left", 
-                                       inputId), 
-                     label = "Move Left"), 
-        shiny::br(), 
-        shiny::actionButton(inputId = sprintf("%s_move_all_left", 
-                                       inputId), 
-                     label = "Move All Left")), 
     shiny::div(style = "display:inline-block;", 
-        shiny::selectInput(inputId = sprintf("%s_selected", 
-                                      inputId), 
-                    label = "Selected", 
-                    choices = .updateMultiSelect_getOrderedSelection(Choices), 
-                    selected = NULL,
-                    selectize = FALSE, 
-                    multiple = TRUE,
-                    ...)), 
+               shiny::selectInput(inputId = sprintf("%s_unselected", 
+                                                    inputId), 
+                                  label = "Unselected", 
+                                  choices = Choices$choices[!Choices$selected], 
+                                  selected = NULL,
+                                  selectize = FALSE, 
+                                  multiple = TRUE,
+                                  ...)), 
+    shiny::div(style = "display:inline-block;",
+               shiny::actionButton(inputId = sprintf("%s_move_all_right", 
+                                                     inputId), 
+                                   label = "Move All Right"), 
+               shiny::br(), 
+               shiny::actionButton(inputId = sprintf("%s_move_right", 
+                                                     inputId), 
+                                   label = "Move Right"), 
+               shiny::br(), 
+               shiny::actionButton(inputId = sprintf("%s_move_left", 
+                                                     inputId), 
+                                   label = "Move Left"), 
+               shiny::br(), 
+               shiny::actionButton(inputId = sprintf("%s_move_all_left", 
+                                                     inputId), 
+                                   label = "Move All Left")), 
+    shiny::div(style = "display:inline-block;", 
+               shiny::selectInput(inputId = sprintf("%s_selected", 
+                                                    inputId), 
+                                  label = "Selected", 
+                                  choices = .updateMultiSelect_getOrderedSelection(Choices), 
+                                  selected = NULL,
+                                  selectize = FALSE, 
+                                  multiple = TRUE,
+                                  ...)), 
     
     if (up_down) up_down_tag else NULL
   )
@@ -210,8 +210,8 @@ updateMultiSelect <- function(session, inputId, input,
       .updateMultiSelect_moveUpDown(Choices = Choices, 
                                     selection_to_move = input[[sprintf("%s_selected", inputId)]], 
                                     up = FALSE)
-    ) 
-
+  ) 
+  
   Choices <- .updateMultiSelect_setChoiceOrder(Choices)
   
   # Send the new choices back to the input element.
@@ -331,10 +331,10 @@ replaceMultiSelect <- function(session,
   if (!up) iterate_over <- rev(iterate_over)
   
   for (i in iterate_over){
-      Choices$order[row_to_move[i]] <- order_adjacent[i]
-      Choices$order[row_adjacent[i]] <- order_to_move[i]
-      
-      Choices <- Choices[order(Choices$order), ]
+    Choices$order[row_to_move[i]] <- order_adjacent[i]
+    Choices$order[row_adjacent[i]] <- order_to_move[i]
+    
+    Choices <- Choices[order(Choices$order), ]
   }
   
   Choices <- Choices[order(Choices$display_order), ]

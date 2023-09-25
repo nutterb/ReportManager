@@ -6,7 +6,7 @@
 #'   
 #' @param filename `character(1)`. A filename of SQL code. Usually 
 #'   one found in `system.file("Sql", package = "ReportManager")`
-#' @inheritParams addEditReportUser
+#' @inheritParams addEditUser
 #' 
 #' @details `last_name`, `first_name`, `login_id`, and `email` are 
 #'   the values assigned for the first user in the database. This user
@@ -59,13 +59,13 @@ initializeReportManagerDatabase <- function(filename,
   }
   
   # Add the First User ----------------------------------------------
-  addEditReportUser(last_name = last_name, 
-                    first_name = first_name, 
-                    login_id = login_id, 
-                    email = email, 
-                    is_internal = TRUE, 
-                    is_active = TRUE, 
-                    event_user = 1)
+  addEditUser(last_name = last_name, 
+              first_name = first_name, 
+              login_id = login_id, 
+              email = email, 
+              is_internal = TRUE, 
+              is_active = TRUE, 
+              event_user = 1)
   
   # Add the essential roles -----------------------------------------
   

@@ -1,9 +1,9 @@
 #' @name activateReportUser
 #' @title Activate or Deactivate Report Users
 #' 
-#' @description Changes the value of the ReportUser.IsActive property.
+#' @description Changes the value of a table's IsActive property.
 #' 
-#' @param oid `integerish(1)`. The OID of the ReportUser to modify. 
+#' @param oid `integerish(1)`. The OID of the record to modify. 
 #' @param active `logical(1)`. The value to set in the database.
 #' @param event_user `integerish(1)`. The OID of the ReportUser performing the action. 
 #' 
@@ -52,8 +52,8 @@ activateRecord <- function(oid,
   
   current_value <- 
     switch(table_name, 
-           "ReportUser" = queryReportUser(oid)$IsActive, 
-           "Role"       = queryRole(oid)$IsActive, 
+           "User" = queryUser(oid)$IsActive, 
+           "Role" = queryRole(oid)$IsActive, 
            stop(sprintf("Activation for table %s is not supported.", 
                         table_name)))
   
@@ -66,7 +66,7 @@ activateRecord <- function(oid,
                table_name = table_name)
   
   EventData <- data.frame(Parent          = oid, 
-                          EventReportUser = event_user, 
+                          EventUser       = event_user, 
                           EventType       = if (active) "Activate" else "Deactivate", 
                           EventDateTime   = format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), 
                           NewValue        = as.character(active))

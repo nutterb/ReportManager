@@ -1,13 +1,13 @@
-#' @name addEditReportUser
-#' @title Add or Edit a ReportUser Entry
+#' @name addEditUser
+#' @title Add or Edit a User Entry
 #' 
 #' @description Executes the SQL statement to add or edit an existing 
-#'   ReportUser while adding the appropriate events. 
+#'   User while adding the appropriate events. 
 #'   
 #'   When editing, values are compared against what is currently in the 
 #'   database and only changed values are edited.
 #'   
-#' @param oid `integerish(0/1)`. The OID of the ReortUser entry to be 
+#' @param oid `integerish(0/1)`. The OID of the User entry to be 
 #'   edited. Use `numeric(0)` to add a new entry.
 #' @param last_name `character(1)`. The last name of the user.
 #' @param first_name `character(1)`. The first name of the user. 
@@ -21,12 +21,12 @@
 #' @param is_active `logical(1)`. When `TRUE`, the user has access to the 
 #'   application and may receive e-mails with distributed reports. When 
 #'   `FALSE`, access is denied and no e-mails may be sent to the user.
-#' @param event_user `integerish(1)`. The ReportUser.OID of the user performing
+#' @param event_user `integerish(1)`. The User.OID of the user performing
 #'   the action.
 #'   
 #' @export
 
-addEditReportUser <- function(oid         = numeric(0), 
+addEditUser <- function(oid         = numeric(0), 
                               last_name, 
                               first_name, 
                               login_id, 
@@ -92,7 +92,7 @@ addEditReportUser <- function(oid         = numeric(0),
                             IsInternal = as.numeric(is_internal))
   
   EventList <- 
-    data.frame(EventReportUser = rep(event_user, 7), 
+    data.frame(EventUser = rep(event_user, 7), 
                EventType = c("Add", 
                              "EditLastName", 
                              "EditFirstName", 
@@ -112,43 +112,43 @@ addEditReportUser <- function(oid         = numeric(0),
   if (length(oid) == 0){
     
     OID <- insertRecord(AddEditData, 
-                        table_name = "ReportUser")
+                        table_name = "User")
     
-    EventList$ParentReportUser <- rep(OID$OID, 
+    EventList$ParentUser <- rep(OID$OID, 
                                       nrow(EventList))
   } else {
-    EventList <- .addEditReportUser_editedEventList(EventList = EventList,
+    EventList <- .addEditUser_editedEventList(EventList = EventList,
                                                     oid       = oid,
                                                     conn      = conn)
     
     if (nrow(EventList) > 0){
       updateRecord(data = AddEditData, 
                    where_data = data.frame(OID = oid), 
-                   table_name = "ReportUser")
+                   table_name = "User")
     }
   }
 
   insertRecord(EventList, 
-               table_name = "ReportUserEvent", 
+               table_name = "UserEvent", 
                return_oid = FALSE)
 }
 
 # Unexported --------------------------------------------------------
 
-.addEditReportUser_editedEventList <- function(EventList, 
+.addEditUser_editedEventList <- function(EventList, 
                                                oid,
                                                conn){
-  EventList$ParentReportUser <- rep(oid, 
+  EventList$ParentUser <- rep(oid, 
                                     nrow(EventList))
   EventList <- EventList[!EventList$EventType == "Add", ]
-  ThisReportUser <- queryReportUser(oid)
+  ThisUser <- queryUser(oid)
   
-  CurrentValue <- c(ThisReportUser$LastName, 
-                    ThisReportUser$FirstName, 
-                    ThisReportUser$LoginId, 
-                    ThisReportUser$EmailAddress, 
-                    ThisReportUser$IsInternal, 
-                    ThisReportUser$IsActive)
+  CurrentValue <- c(ThisUser$LastName, 
+                    ThisUser$FirstName, 
+                    ThisUser$LoginId, 
+                    ThisUser$EmailAddress, 
+                    ThisUser$IsInternal, 
+                    ThisUser$IsActive)
   
   EventList[CurrentValue != EventList$NewValue, ]
 }
