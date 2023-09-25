@@ -6,6 +6,8 @@ OE_rdo_role <- function(rv_Roles, input){
   ThisRole <- rv_Roles$Roles
   ThisRole <- ThisRole[ThisRole$OID == oid, ]
   rv_Roles$SelectedRole <- ThisRole
+  
+  rv_Roles$UserRole <- queryUserRole(role_oid = oid)
 }
 
 # Observe Event - btn_role_add --------------------------------------
@@ -112,6 +114,29 @@ OE_btn_role_activateDeactivate <- function(active,
                  oid = oid, 
                  element_name = "rdo_role", 
                  proxy = proxy)
+}
+
+# Observe Event - btn_role_viewEdit ---------------------------------
+
+OE_btn_role_viewEdit <- function(rv_User, 
+                                 rv_Roles, 
+                                 session){
+  choices <- as.character(rv_User$User$OID)
+  
+  selected <- choices[choices %in% rv_Roles$UserRole$ParentUser]
+  
+  replaceMultiSelect(session = session, 
+                     inputId = "multi_userRole", 
+                     choices = choices, 
+                     selected = selected, 
+                     names = sprintf("%s, %s (%s)", 
+                                     rv_User$User$LastName, 
+                                     rv_User$User$FirstName, 
+                                     rv_User$User$LoginId))
+  
+  toggleModal(session = session, 
+              modalId = "modal_userRole_edit", 
+              toggle = "open")
 }
 
 # validateRoleInputs ------------------------------------------------

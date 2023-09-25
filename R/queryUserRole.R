@@ -5,16 +5,32 @@
 #'   database. 
 #'   
 #' @param oid `integerish(0/1)`. When length 0, all records are returned. 
-#'   Otherwise, only the requested record is returned. 
+#'   Otherwise, the UserRole.OID will be included in the WHERE clause. 
+#' @param user_oid `integerish(0/1)`. When length 1, the User.OID is included
+#'   in the WHERE clause. Otherwise, the User OID is not considered in the
+#'   query.
+#' @param role_oid `integerish(0/1)`. When length 1, the Role.OID is included 
+#'   in the WHERE clause. Otherwise, the Role OID is not considered in the 
+#'   query.
 #'
 #' @export
 
-queryUserRole <- function(oid = numeric(0)){
+queryUserRole <- function(oid = numeric(0), 
+                          user_oid = numeric(0), 
+                          role_oid = numeric(0)){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
   
   checkmate::assertIntegerish(x = oid, 
+                              max.len = 1, 
+                              add = coll)
+  
+  checkmate::assertIntegerish(x = user_oid, 
+                              max.len = 1, 
+                              add = coll)
+  
+  checkmate::assertIntegerish(x = role_oid, 
                               max.len = 1, 
                               add = coll)
   
@@ -29,8 +45,15 @@ queryUserRole <- function(oid = numeric(0)){
            "sql_server" = .queryUserRole_statement_sqlServer, 
            "sqlite"     = .queryUserRole_statement_sqlite)
   
-  if (length(oid) > 0){
-    statement <- paste0(statement, " WHERE UR.[OID] = ", oid)
+  where <- 
+    c(if (length(oid)) sprintf("UR.OID = %s", oid) else character(0), 
+      if (length(user_oid)) sprintf("U.OID = %s", user_oid) else character(0), 
+      if (length(role_oid)) sprintf("R.OID = %s", role_oid) else character(0))
+  
+  if (length(where) > 0 ){
+    where <- sprintf("WHERE %s", 
+                     paste0(where, collapse = " AND "))
+    statement <- paste(statement, where, sep = "\n")
   }
   
   UserRole <- DBI::dbGetQuery(conn, statement)

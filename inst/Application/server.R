@@ -28,7 +28,8 @@ shinyServer(function(input, output, session){
     reactiveValues(
       AddEdit = "Add", 
       Roles = queryRole(), 
-      SelectedRole = NULL
+      SelectedRole = NULL, 
+      UserRole = NULL
     )
   
   # Roles - Passive Observers ---------------------------------------
@@ -98,14 +99,34 @@ shinyServer(function(input, output, session){
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
-  observeEvent(
-    input$btn_role_viewEdit, 
-    {
-      toggleModal(session = session, 
-                  modalId = "modal_userRole_edit", 
-                  toggle = "open")
-    }
-  )
+  observeEvent(input$btn_role_viewEdit, 
+               OE_btn_role_viewEdit(rv_User  = rv_User, 
+                                    rv_Roles = rv_Roles, 
+                                    session  = session))
+  
+  observeEvent(input$multi_userRole_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_all_right"))
+  
+  observeEvent(input$multi_userRole_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_right"))
+  
+  observeEvent(input$multi_userRole_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_left"))
+  
+  observeEvent(input$multi_userRole_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_all_left"))
   
   # Roles - Output --------------------------------------------------
   
