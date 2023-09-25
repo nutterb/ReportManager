@@ -1,9 +1,9 @@
 #' @name activateReportUser
 #' @title Activate or Deactivate Report Users
 #' 
-#' @description Changes the value of the ReportUser.IsActive property.
+#' @description Changes the value of a table's IsActive property.
 #' 
-#' @param oid `integerish(1)`. The OID of the ReportUser to modify. 
+#' @param oid `integerish(1)`. The OID of the record to modify. 
 #' @param active `logical(1)`. The value to set in the database.
 #' @param event_user `integerish(1)`. The OID of the ReportUser performing the action. 
 #' 
@@ -20,16 +20,17 @@ activateRecord <- function(oid,
                            event_table_name, 
                            parent_field_name){
   # Argument Validation ---------------------------------------------
+
   coll <- checkmate::makeAssertCollection()
-  
+
   checkmate::assertIntegerish(x   = oid, 
                               len = 1, 
                               add = coll)
-  
+
   checkmate::assertLogical(x   = active, 
                            len = 1, 
                            add = coll)
-  
+
   checkmate::assertIntegerish(x   = event_user, 
                               len = 1, 
                               add = coll)
@@ -37,36 +38,37 @@ activateRecord <- function(oid,
   checkmate::assertCharacter(x   = table_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::assertCharacter(x   = event_table_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::assertCharacter(x   = parent_field_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::reportAssertions(coll)
   
   # Functionality ---------------------------------------------------
-  
+
   current_value <- 
     switch(table_name, 
-           "ReportUser" = queryReportUser(oid)$IsActive, 
-           "Role"       = queryRole(oid)$IsActive, 
+           "User" = queryUser(oid)$IsActive, 
+           "Role" = queryRole(oid)$IsActive, 
+           "UserRole" = queryUserRole(oid)$IsActive,
            stop(sprintf("Activation for table %s is not supported.", 
                         table_name)))
-  
+
   if (current_value == active){
     return(invisible())
   }
-  
+
   updateRecord(data       = data.frame(IsActive = as.numeric(active)), 
                where_data = data.frame(OID = oid), 
                table_name = table_name)
-  
+
   EventData <- data.frame(Parent          = oid, 
-                          EventReportUser = event_user, 
+                          EventUser       = event_user, 
                           EventType       = if (active) "Activate" else "Deactivate", 
                           EventDateTime   = format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), 
                           NewValue        = as.character(active))

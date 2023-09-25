@@ -61,7 +61,7 @@ addEditRole <- function(oid = numeric(0),
                             IsActive = is_active)
   
   EventList <- 
-    data.frame(EventReportUser = rep(event_user, 4), 
+    data.frame(EventUser = rep(event_user, 4), 
                EventType = c("Add", 
                              if (is_active) "Activate" else "Deactivate", 
                              "EditRoleName", 

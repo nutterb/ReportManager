@@ -5,8 +5,8 @@ shinyServer(function(input, output, session){
   
   CURRENT_USER_OID <- 
     reactive({
-      req(rv_ReportUser$ReportUser)
-      rv_ReportUser$ReportUser$OID[rv_ReportUser$ReportUser$LoginId %in% Sys.info()["login"]]
+      req(rv_User$User)
+      rv_User$User$OID[rv_User$User$LoginId %in% Sys.info()["login"]]
     })
   
   USER_IS_USER_ADMIN <- 
@@ -98,6 +98,15 @@ shinyServer(function(input, output, session){
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
+  observeEvent(
+    input$btn_role_viewEdit, 
+    {
+      toggleModal(session = session, 
+                  modalId = "modal_userRole_edit", 
+                  toggle = "open")
+    }
+  )
+  
   # Roles - Output --------------------------------------------------
   
   output$dt_role <- 
@@ -112,7 +121,7 @@ shinyServer(function(input, output, session){
   
   output$title_addEditRole <- 
     renderText({
-      if (rv_ReportUser$AddEdit == "Add"){
+      if (rv_User$AddEdit == "Add"){
         "Add a New Role"
       } else {
         sprintf("Editing Role %s (%s)", 
@@ -121,14 +130,20 @@ shinyServer(function(input, output, session){
       }
     })
   
-  # ReportUser ------------------------------------------------------
-  # ReportUser - Reactive Values ------------------------------------
+  output$title_userRole_edit <- 
+    renderText({
+      sprintf("Users assigned to role: %s", 
+              rv_Roles$SelectedRole$RoleName)
+    })
   
-  rv_ReportUser <- 
+  # User ------------------------------------------------------------
+  # User - Reactive Values ------------------------------------------
+  
+  rv_User <- 
     reactiveValues(
       AddEdit = "Add", 
-      ReportUser = queryReportUser(), 
-      SelectedReportUser = NULL
+      User = queryUser(), 
+      SelectedUser = NULL
     )
   
   # ReportUser - Passive Observer -----------------------------------
@@ -139,83 +154,83 @@ shinyServer(function(input, output, session){
     
     toggleState(id = "btn_reportUser_edit", 
                 condition = USER_IS_USER_ADMIN() &&
-                  length(input$rdo_reportUser) > 0)
+                  length(input$rdo_user) > 0)
   })
   
   observe({
-    req(rv_ReportUser$SelectedReportUser)
+    req(rv_User$SelectedUser)
 
-    toggleState(id = "btn_reportUser_activate", 
+    toggleState(id = "btn_user_activate", 
                 condition = USER_IS_USER_ADMIN() &&
-                  length(input$rdo_reportUser) > 0 &&
-                  isFALSE(rv_ReportUser$SelectedReportUser$IsActive))
+                  length(input$rdo_user) > 0 &&
+                  isFALSE(rv_User$SelectedUser$IsActive))
     
-    toggleState(id = "btn_reportUser_deactivate", 
+    toggleState(id = "btn_user_deactivate", 
                 condition = USER_IS_USER_ADMIN() &&
-                  length(input$rdo_reportUser) > 0 &&
-                  isTRUE(rv_ReportUser$SelectedReportUser$IsActive))
+                  length(input$rdo_user) > 0 &&
+                  isTRUE(rv_User$SelectedUser$IsActive))
   })
   
   # ReportUser - Event Observer -------------------------------------
   
-  observeEvent(input$rdo_reportUser, 
-               OE_rdo_reportUser(rv_ReportUser = rv_ReportUser, 
+  observeEvent(input$rdo_user, 
+               OE_rdo_user(rv_User = rv_User, 
                                  input         = input))
   
-  observeEvent(input$btn_reportUser_add, 
-               OE_btn_reportUser_add(session       = session, 
-                                     rv_ReportUser = rv_ReportUser, 
+  observeEvent(input$btn_user_add, 
+               OE_btn_user_add(session       = session, 
+                                     rv_User = rv_User, 
                                      input         = input))
   
-  observeEvent(input$btn_reportUser_edit, 
-               OE_btn_reportUser_edit(session       = session, 
-                                      rv_ReportUser = rv_ReportUser, 
+  observeEvent(input$btn_user_edit, 
+               OE_btn_user_edit(session       = session, 
+                                      rv_User = rv_User, 
                                       input         = input))
   
-  observeEvent(input$btn_reportUser_addEditReportUser,
-               OE_btn_reportUser_addEditReportUser(session          = session, 
-                                                   rv_ReportUser    = rv_ReportUser, 
+  observeEvent(input$btn_user_addEditUser,
+               OE_btn_user_addEditUser(session          = session, 
+                                                   rv_User    = rv_User, 
                                                    input            = input, 
                                                    current_user_oid = CURRENT_USER_OID(), 
-                                                   proxy            = proxy_dt_reportUser, 
-                                                   is_edit          = rv_ReportUser$AddEdit == "Edit",
-                                                   this_login_id    = rv_ReportUser$SelectedReportUser$LoginId))
+                                                   proxy            = proxy_dt_user, 
+                                                   is_edit          = rv_User$AddEdit == "Edit",
+                                                   this_login_id    = rv_User$SelectedUser$LoginId))
   
-  observeEvent(input$btn_reportUser_activate, 
-               OE_btn_reportUser_activate(active           = TRUE, 
-                                          rv_ReportUser    = rv_ReportUser, 
+  observeEvent(input$btn_user_activate, 
+               OE_btn_user_activate(active           = TRUE, 
+                                          rv_User    = rv_User, 
                                           input            = input, 
                                           current_user_oid = CURRENT_USER_OID(), 
-                                          proxy            = proxy_dt_reportUser))
+                                          proxy            = proxy_dt_user))
   
-  observeEvent(input$btn_reportUser_deactivate, 
-               OE_btn_reportUser_activate(active           = FALSE, 
-                                          rv_ReportUser    = rv_ReportUser, 
-                                          input            = input, 
-                                          current_user_oid = CURRENT_USER_OID(), 
-                                          proxy            = proxy_dt_reportUser))
+  observeEvent(input$btn_user_deactivate, 
+               OE_btn_user_activate(active           = FALSE, 
+                                    rv_User          = rv_User, 
+                                    input            = input, 
+                                    current_user_oid = CURRENT_USER_OID(), 
+                                    proxy            = proxy_dt_user))
   
   # ReportUser - Output ---------------------------------------------
   
-  output$dt_reportUser <- 
+  output$dt_user <- 
     DT::renderDataTable({
-      queryReportUser() %>% 
+      queryUser() %>% 
         radioDataTable(id_variable = "OID", 
-                       element_name = "rdo_reportUser") %>% 
+                       element_name = "rdo_user") %>% 
         RM_datatable(escape = -1)
     })
   
   proxy_dt_reportUser <- DT::dataTableProxy("dt_reportUser")
   
-  output$title_addEditReportUser <- 
+  output$title_addEditUser <- 
     renderText({
-      if (rv_ReportUser$AddEdit == "Add"){
-        "Add a New Report User"
+      if (rv_User$AddEdit == "Add"){
+        "Add a New User"
       } else {
         sprintf("Editing User %s, %s (%s)", 
-                rv_ReportUser$SelectedReportUser$LastName, 
-                rv_ReportUser$SelectedReportUser$FirstName, 
-                rv_ReportUser$SelectedReportUser$OID)
+                rv_User$SelectedUser$LastName, 
+                rv_User$SelectedUser$FirstName, 
+                rv_User$SelectedUser$OID)
       }
     })
   

@@ -15,14 +15,14 @@ activateRecord(
 )
 }
 \arguments{
-\item{oid}{\code{integerish(1)}. The OID of the ReportUser to modify.}
+\item{oid}{\code{integerish(1)}. The OID of the record to modify.}
 
 \item{active}{\code{logical(1)}. The value to set in the database.}
 
 \item{event_user}{\code{integerish(1)}. The OID of the ReportUser performing the action.}
 }
 \description{
-Changes the value of the ReportUser.IsActive property.
+Changes the value of a table's IsActive property.
 }
 \details{
 When the value of \code{active} matches what is already in the database,

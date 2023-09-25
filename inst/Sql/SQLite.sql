@@ -1,6 +1,6 @@
-/* ReportUser Table  ***********************************************/
+/* User Table  ***********************************************/
 
-CREATE TABLE [ReportUser](
+CREATE TABLE [User](
   OID INTEGER PRIMARY KEY, 
   LastName VARCHAR(50) NOT NULL, 
   FirstName VARCHAR(50) NOT NULL,
@@ -10,19 +10,19 @@ CREATE TABLE [ReportUser](
   IsActive BIT NOT NULL DEFAULT 1
 );
 
-/* ReportUserEvent Table *******************************************/
+/* UserEvent Table *******************************************/
 
-CREATE TABLE [ReportUserEvent](
+CREATE TABLE [UserEvent](
   OID INTEGER PRIMARY KEY, 
-  ParentReportUser INT NOT NULL, 
-  EventReportUser INT NOT NULL, 
+  ParentUser INT NOT NULL, 
+  EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
   NewValue VARCHAR(200) NULL, 
   
-  FOREIGN KEY (ParentReportUser) REFERENCES [ReportUser](OID), 
-  FOREIGN KEY (EventReportUser) REFERENCES [ReportUser](OID), 
-  CONSTRAINT chk_ReportUserEventType CHECK (EventType IN ('SetInternalTrue', 
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_UserEventType CHECK (EventType IN ('SetInternalTrue', 
                                                           'SetInternalFalse', 
                                                           'EditEmailAddress', 
                                                           'EditLastName',
@@ -47,13 +47,13 @@ CREATE TABLE [Role](
 CREATE TABLE [RoleEvent](
   OID INTEGER PRIMARY KEY, 
   ParentRole INT NOT NULL, 
-  EventReportUser INT NOT NULL, 
+  EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
   NewValue VARCHAR(250) NULL, 
   
   FOREIGN KEY (ParentRole) REFERENCES [Role](OID), 
-  FOREIGN KEY (EventReportUser) REFERENCES [ReportUser](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
   CONSTRAINT chk_RoleEventType CHECK (EventType IN ('EditRoleDescription',
                                                     'EditRoleName', 
                                                     'Deactivate', 
@@ -62,30 +62,31 @@ CREATE TABLE [RoleEvent](
 );
 
 
-/* ReportUserRole Table ********************************************/
+/* UserRole Table ********************************************/
 
-CREATE TABLE [ReportUserRole] (
+CREATE TABLE [UserRole] (
   OID INTEGER PRIMARY KEY, 
-  ParentReportUser INT NOT NULL, 
+  ParentUser INT NOT NULL, 
   ParentRole INT NOT NULL, 
   IsActive BIT NOT NULL DEFAULT 0, 
   
-  FOREIGN KEY (ParentReportUser) REFERENCES [ReportUser](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID),
   FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
 );
 
-/* ReportUserRoleEvent Table ***************************************/
+/* UserRoleEvent Table ***************************************/
 
-CREATE TABLE [ReportUserRoleEvent] (
+CREATE TABLE [UserRoleEvent] (
   OID INTEGER PRIMARY KEY, 
-  ParentReportUserRole INT NOT NULL, 
-  EventReportUser INT NOT NULL, 
+  ParentUserRole INT NOT NULL, 
+  EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
   
-  FOREIGN KEY (ParentReportUserRole) REFERENCES [ReportUserRole](OID), 
-  FOREIGN KEY (EventReportUser) REFERENCES [ReportUser](OID),
-  CONSTRAINT chk_ReportUserRoleEventType CHECK (EventType IN ('Add', 
-                                                              'Activate', 
-                                                              'Deactivate'))
+  FOREIGN KEY (ParentUserRole) REFERENCES [UserRole](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_UserRoleEventType CHECK (EventType IN ('Add', 
+                                                        'Activate', 
+                                                        'Deactivate'))
 );

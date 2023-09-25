@@ -9,14 +9,18 @@ if (SQL_SERVER_READY){
     
     if (table %in% tables){
       result <- DBI::dbSendStatement(conn, 
-                                     sprintf("DROP TABLE dbo.%s", 
+                                     sprintf("DROP TABLE dbo.[%s]", 
                                              table))
       DBI::dbClearResult(result)
     }
   }
   
-  dropTable("ReportUserEvent", conn)
-  dropTable("ReportUser", conn)
+  dropTable("UserRoleEvent", conn)
+  dropTable("UserRole", conn)
+  dropTable("RoleEvent", conn)
+  dropTable("Role", conn)
+  dropTable("UserEvent", conn)
+  dropTable("User", conn)
   
   DBI::dbDisconnect(conn)
   

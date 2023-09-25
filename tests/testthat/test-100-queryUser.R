@@ -5,10 +5,10 @@ options(RM_sql_flavor = "sql_server")
 test_that(
   "Return an error when oid is not integerish(0/1)", 
   {
-    expect_error(queryReportUser(oid = c(1, 2)), 
+    expect_error(queryUser(oid = c(1, 2)), 
                  "'oid': Must have length <= 1")
     
-    expect_error(queryReportUser(oid = "1"), 
+    expect_error(queryUser(oid = "1"), 
                  "'oid': Must be of type 'integerish'")
   }
 )
@@ -16,14 +16,14 @@ test_that(
 # Report Users for SQL Server ---------------------------------------
 
 test_that(
-  "queryReportUser works in SQL Server", 
+  "queryUser works in SQL Server", 
   {
     skip_if_not(SQL_SERVER_READY, 
                 SQL_SERVER_READY_MESSAGE)
     
-    ReportUser <- queryReportUser()
+    User <- queryUser()
     
-    expect_data_frame(ReportUser, 
+    expect_data_frame(User, 
                       ncols = 7)
   }
 )
@@ -34,14 +34,14 @@ test_that(
 options(RM_sql_flavor = "sqlite")
 
 test_that(
-  "queryReportUser works in SQLite", 
+  "queryUser works in SQLite", 
   {
     skip_if_not(SQLITE_READY, 
                 SQLITE_READY_MESSAGE)
     
-    ReportUser <- queryReportUser()
+    User <- queryUser()
     
-    expect_data_frame(ReportUser, 
+    expect_data_frame(User, 
                       ncols = 7)
   }
 )
