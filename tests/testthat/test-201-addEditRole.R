@@ -89,6 +89,8 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
+options(RM_sql_flavor = "sqlite")
+
 test_that(
   "Add a Role", 
   {
@@ -129,4 +131,42 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-# TODO: Add SQL Server Tests
+options(RM_sql_flavor = "sql_server")
+
+test_that(
+  "Add a Role", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    addEditRole(role_name = "New Role", 
+                role_description = "Role description", 
+                event_user = 1)
+    
+    NewRole <- queryRole(oid = 4)
+    
+    expect_data_frame(NewRole, 
+                      nrows = 1, 
+                      ncols = 4)
+  }
+)
+
+test_that(
+  "Edit a Role", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    addEditRole(oid = 4, 
+                role_name = "Edited Role Name", 
+                event_user = 1)
+    
+    NewRole <- queryRole(oid = 4)
+    
+    expect_data_frame(NewRole, 
+                      nrows = 1, 
+                      ncols = 4)
+    
+    expect_equal(NewRole$RoleName, "Edited Role Name")
+  }
+)

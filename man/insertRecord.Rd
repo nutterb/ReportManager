@@ -8,9 +8,9 @@
 insertRecord(
   data,
   table_name,
+  id_field = "OID",
   return_oid = TRUE,
   flavor = getOption("RM_sql_flavor"),
-  id_field = "OID",
   schema = "dbo"
 )
 
@@ -21,6 +21,27 @@ updateRecord(
   flavor = getOption("RM_sql_flavor"),
   schema = "dbo"
 )
+}
+\arguments{
+\item{data}{\code{data.frame}. The data to insert into the database. The
+names of \code{data} must be names in \code{table_name}.}
+
+\item{table_name}{\code{character(1)}. The name of the table to which
+the contents of \code{data} will be saved.}
+
+\item{id_field}{\code{character(1)}. The name of the ID field in
+\code{table_name}.}
+
+\item{return_oid}{\code{logical(1)}. When \code{TRUE}, the OID of the inserted
+records will be returned to the session. The OIDs are of use when
+also writing events for any insertions.}
+
+\item{flavor}{\code{character(1)}. The flavor of SQL in user.}
+
+\item{schema}{\code{character(1)}. The name of the schema for the database.}
+
+\item{where_data}{\code{data.frame}. Gives the where conditions for updating
+data.}
 }
 \description{
 Generalized forms for writing and executing statements

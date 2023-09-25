@@ -24,6 +24,10 @@
 #' @param up_down `logical(1)`. When `TRUE`, the "Move Up" and "Move Down"
 #'   buttons are displayed, allowing for the selections to be ordered.
 #' @param ... Other arguments to pass to `selectInput`. 
+#' @param session The `session` object from the shiny session.
+#' @param input The `input` object from the shiny session. 
+#' @param action `character(1)`. One of `c("move_all_right", "move_right", 
+#'     "move_all_left", "move_left", "move_up", "move_down")` 
 #' 
 #' @details The choices provided in `choices` and `selected` are used to
 #'   form a data frame with the columns
@@ -267,19 +271,19 @@ replaceMultiSelect <- function(session,
   
   Choices <- .updateMultiSelect_makeChoicesFrame(choices, selected)
   
-  updateTextInput(session = session, 
-                  inputId = inputId, 
-                  value = as.character(jsonlite::toJSON(Choices)))
+  shiny::updateTextInput(session = session, 
+                         inputId = inputId, 
+                         value = as.character(jsonlite::toJSON(Choices)))
   
-  updateSelectInput(session = session, 
-                    inputId = sprintf("%s_unselected", inputId), 
-                    choices = choices,
-                    selected = character(0))
+  shiny::updateSelectInput(session = session, 
+                           inputId = sprintf("%s_unselected", inputId), 
+                           choices = choices,
+                           selected = character(0))
   
-  updateSelectInput(session = session, 
-                    inputId= sprintf("%s_selected", inputId), 
-                    choices = selected, 
-                    selected = character(0))
+  shiny::updateSelectInput(session = session, 
+                           inputId= sprintf("%s_selected", inputId), 
+                           choices = selected, 
+                           selected = character(0))
 }
 
 # Unexported --------------------------------------------------------

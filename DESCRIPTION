@@ -8,6 +8,7 @@ Depends:
 Imports:
   checkmate,
   DBI, 
+  jsonlite,
   odbc, 
   RSQLite
 Suggests:

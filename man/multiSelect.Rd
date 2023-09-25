@@ -42,6 +42,12 @@ initiating the UI element.}
 buttons are displayed, allowing for the selections to be ordered.}
 
 \item{...}{Other arguments to pass to \code{selectInput}.}
+
+\item{session}{The \code{session} object from the shiny session.}
+
+\item{input}{The \code{input} object from the shiny session.}
+
+\item{action}{\code{character(1)}. One of \code{c("move_all_right", "move_right",  "move_all_left", "move_left", "move_up", "move_down")}}
 }
 \description{
 Some settings in the Report Manager are chosen by moving
