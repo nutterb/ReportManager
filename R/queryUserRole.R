@@ -61,7 +61,7 @@ queryUserRole <- function(oid = numeric(0)){
     LEFT JOIN dbo.[User] U
       ON UR.[ParentUser] = U.[OID]
     LEFT JOIN dbo.[Role] R
-      ON UR.[ParentRole] = U.[OID]
+      ON UR.[ParentRole] = R.[OID]
 "
 
 .queryUserRole_statement_sqlite <- "
@@ -78,5 +78,5 @@ queryUserRole <- function(oid = numeric(0)){
     LEFT JOIN [User] U
       ON UR.[ParentUser] = U.[OID]
     LEFT JOIN [Role] R
-      ON UR.[ParentRole] = U.[OID]
+      ON UR.[ParentRole] = R.[OID]
 "
