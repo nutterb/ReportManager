@@ -290,7 +290,7 @@ replaceMultiSelect <- function(session,
   len_selected <- length(selected)
   
   Choices <- 
-    data.frame(choices = letters, 
+    data.frame(choices = choices, 
                selected = rep(c(TRUE, FALSE), c(len_selected, 
                                                 len_choices - len_selected)), 
                order = rep(NA_real_, len_choices), 

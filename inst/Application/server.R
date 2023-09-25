@@ -5,7 +5,7 @@ shinyServer(function(input, output, session){
   
   CURRENT_USER_OID <- 
     reactive({
-      req(rv_User$ReportUser)
+      req(rv_User$User)
       rv_User$User$OID[rv_User$User$LoginId %in% Sys.info()["login"]]
     })
   
@@ -98,6 +98,15 @@ shinyServer(function(input, output, session){
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
+  observeEvent(
+    input$btn_role_viewEdit, 
+    {
+      toggleModal(session = session, 
+                  modalId = "modal_userRole_edit", 
+                  toggle = "open")
+    }
+  )
+  
   # Roles - Output --------------------------------------------------
   
   output$dt_role <- 
@@ -119,6 +128,12 @@ shinyServer(function(input, output, session){
                 rv_Roles$SelectedRole$RoleName, 
                 rv_Roles$SelectedRole$OID)
       }
+    })
+  
+  output$title_userRole_edit <- 
+    renderText({
+      sprintf("Users assigned to role: %s", 
+              rv_Roles$SelectedRole$RoleName)
     })
   
   # User ------------------------------------------------------------

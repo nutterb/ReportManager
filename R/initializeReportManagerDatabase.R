@@ -86,5 +86,15 @@ initializeReportManagerDatabase <- function(filename,
   
   # Assign the First User to the essential roles --------------------
   
-  # TODO: Add first user to essential roles
+  addEditUserRole(parent_user = 1, 
+                  parent_role = 1, 
+                  event_user = 1)
+  
+  addEditUserRole(parent_user = 1, 
+                  parent_role = 2, 
+                  event_user = 1)
+  
+  addEditUserRole(parent_user = 1, 
+                  parent_role = 3, 
+                  event_user = 1)
 }

@@ -20,16 +20,17 @@ activateRecord <- function(oid,
                            event_table_name, 
                            parent_field_name){
   # Argument Validation ---------------------------------------------
+
   coll <- checkmate::makeAssertCollection()
-  
+
   checkmate::assertIntegerish(x   = oid, 
                               len = 1, 
                               add = coll)
-  
+
   checkmate::assertLogical(x   = active, 
                            len = 1, 
                            add = coll)
-  
+
   checkmate::assertIntegerish(x   = event_user, 
                               len = 1, 
                               add = coll)
@@ -37,34 +38,34 @@ activateRecord <- function(oid,
   checkmate::assertCharacter(x   = table_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::assertCharacter(x   = event_table_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::assertCharacter(x   = parent_field_name, 
                              len = 1, 
                              add = coll)
-  
+
   checkmate::reportAssertions(coll)
   
   # Functionality ---------------------------------------------------
-  
+
   current_value <- 
     switch(table_name, 
            "User" = queryUser(oid)$IsActive, 
            "Role" = queryRole(oid)$IsActive, 
            stop(sprintf("Activation for table %s is not supported.", 
                         table_name)))
-  
+
   if (current_value == active){
     return(invisible())
   }
-  
+
   updateRecord(data       = data.frame(IsActive = as.numeric(active)), 
                where_data = data.frame(OID = oid), 
                table_name = table_name)
-  
+
   EventData <- data.frame(Parent          = oid, 
                           EventUser       = event_user, 
                           EventType       = if (active) "Activate" else "Deactivate", 

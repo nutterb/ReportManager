@@ -87,6 +87,7 @@ CREATE TABLE dbo.[UserRoleEvent] (
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
   
   FOREIGN KEY (ParentUserRole) REFERENCES dbo.[UserRole](OID), 
   FOREIGN KEY (EventUser) REFERENCES dbo.[User](OID),

@@ -96,7 +96,7 @@ OE_btn_role_activateDeactivate <- function(active,
                                            current_user_oid, 
                                            proxy){
   oid <- as.numeric(input$rdo_role)
-  
+
   activateRecord(oid, 
                  active, 
                  current_user_oid, 

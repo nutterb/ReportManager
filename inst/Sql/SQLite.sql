@@ -82,10 +82,11 @@ CREATE TABLE [UserRoleEvent] (
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
   
   FOREIGN KEY (ParentUserRole) REFERENCES [UserRole](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_UserRoleEventType CHECK (EventType IN ('Add', 
-                                                              'Activate', 
-                                                              'Deactivate'))
+                                                        'Activate', 
+                                                        'Deactivate'))
 );
