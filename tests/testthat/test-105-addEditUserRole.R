@@ -120,6 +120,7 @@ test_that(
     expect_data_frame(UserRole, 
                       nrows = 1)
     expect_false(UserRole$IsActive)
+    
   }
 )
 
@@ -161,6 +162,8 @@ test_that(
     expect_data_frame(UserRole, 
                       nrows = 1)
     expect_false(UserRole$IsActive)
+    
+    
   }
 )
 
