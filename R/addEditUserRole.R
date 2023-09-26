@@ -74,10 +74,10 @@ addEditUserRole <- function(oid = numeric(0),
     EventList$ParentUserRole <- rep(OID$OID, 
                                     nrow(EventList))
   } else {
-    EventList <- .addEditRole_editedEventList(EventList = EventList,
-                                              oid       = oid,
-                                              conn      = conn)
-    
+    EventList <- .addEditUserRole_editedEventList(EventList = EventList,
+                                                  oid       = oid,
+                                                  conn      = conn)
+
     if (nrow(EventList) > 0){
       updateRecord(data = AddEditData, 
                    where_data = data.frame(OID = oid), 
@@ -85,9 +85,11 @@ addEditUserRole <- function(oid = numeric(0),
     }
   }
 
-  insertRecord(EventList, 
-               table_name = "UserRoleEvent", 
-               return_oid = FALSE)
+  if (nrow(EventList) > 0){
+    insertRecord(EventList, 
+                 table_name = "UserRoleEvent", 
+                 return_oid = FALSE)
+  }
 }
 
 # Unexported --------------------------------------------------------
@@ -95,13 +97,13 @@ addEditUserRole <- function(oid = numeric(0),
 .addEditUserRole_editedEventList <- function(EventList, 
                                              oid,
                                              conn){
-  EventList$ParentRole <- rep(oid, 
-                              nrow(EventList))
+  EventList$ParentUserRole <- rep(oid, 
+                                  nrow(EventList))
   
   EventList <- EventList[!EventList$EventType == "Add", ]
-  ThisRole <- queryUserRole(oid)
-  
-  CurrentValue <- c(ThisRole$IsActive)
+  ThisUserRole <- queryUserRole(oid)
+ 
+  CurrentValue <- c(ThisUserRole$IsActive)
   
   EventList[vapply(CurrentValue != EventList$NewValue, 
                    isTRUE, 

@@ -214,7 +214,7 @@ updateMultiSelect <- function(session, inputId, input,
   
   Choices <- input[[inputId]]
   Choices <- jsonlite::fromJSON(Choices)
-  
+
   # Update the `selected` or `order` columns based on the action.
   switch(
     action, 
@@ -233,9 +233,9 @@ updateMultiSelect <- function(session, inputId, input,
                                     selection_to_move = input[[sprintf("%s_selected", inputId)]], 
                                     up = FALSE)
   ) 
-  
+
   Choices <- .updateMultiSelect_setChoiceOrder(Choices)
-  
+
   # we make this just to ensure the names carry over. 
   .choices <- Choices$choices
   names(.choices) <- Choices$names
@@ -254,6 +254,7 @@ updateMultiSelect <- function(session, inputId, input,
                            inputId = sprintf("%s_unselected",
                                              inputId),
                            choices = .choices[!Choices$selected])
+
   shiny::updateSelectInput(session = session, 
                            inputId = sprintf("%s_selected",
                                              inputId),
@@ -293,7 +294,7 @@ replaceMultiSelect <- function(session,
   checkmate::reportAssertions(coll)
   
   Choices <- .updateMultiSelect_makeChoicesFrame(choices, selected, names)
-  
+
   # we make this just to ensure the names carry over. 
   .choices = Choices$choices
   names(.choices) = Choices$names
@@ -326,7 +327,7 @@ replaceMultiSelect <- function(session,
                names = if (is.null(names)) choices else names,
                selected = rep(c(TRUE, FALSE), c(len_selected, 
                                                 len_choices - len_selected)), 
-               order = rep(NA_real_, len_choices), 
+               order = seq_along(choices), 
                display_order = seq_along(choices), 
                stringsAsFactors = FALSE)
   
@@ -343,7 +344,9 @@ replaceMultiSelect <- function(session,
 
 .updateMultiSelect_getOrderedSelection <- function(Choices){
   Selected <- Choices[Choices$selected, ]
+
   Selected <- Selected[order(Selected$order, Selected$display_order), ]
+
   selected <- Selected$choices
   names(selected) <- Selected$names
   selected

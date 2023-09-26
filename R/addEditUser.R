@@ -128,9 +128,11 @@ addEditUser <- function(oid         = numeric(0),
     }
   }
 
-  insertRecord(EventList, 
-               table_name = "UserEvent", 
-               return_oid = FALSE)
+  if (nrow(EventList)){
+    insertRecord(EventList, 
+                 table_name = "UserEvent", 
+                 return_oid = FALSE)
+  }
 }
 
 # Unexported --------------------------------------------------------
