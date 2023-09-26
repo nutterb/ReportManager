@@ -90,3 +90,71 @@ CREATE TABLE [UserRoleEvent] (
                                                         'Activate', 
                                                         'Deactivate'))
 );
+
+
+/* Schedule Table **************************************************/
+
+CREATE TABLE [Schedule] (
+  OID INTEGER PRIMARY KEY, 
+  ScheduleName VARCHAR(50) NOT NULL, 
+  Frequency INT NOT NULL, 
+  FrequencyUnit VARCHAR(10) NOT NULL, 
+  OffsetOverlap INT NOT NULL, 
+  OffsetOverlapUnit VARCHAR(10) NOT NULL, 
+  IsActive BIT NOT NULL DEFAULT 0
+);
+
+/* ScheduleEventTable **********************************************/
+
+CREATE TABLE [ScheduleEvent](
+  OID INTEGER PRIMARY KEY, 
+  ParentSchedule INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ScheuleEventType CHECK (EventType IN ('EditScheduleName',
+                                                       'EditFrequency',
+                                                       'EditOverlap',
+                                                       'Deactivate', 
+                                                       'Activate', 
+                                                       'Add'))
+);
+
+/* DateReportingFormat Table ***************************************/
+
+CREATE TABLE [DateReportingFormat](
+  OID INTEGER PRIMARY KEY, 
+  [Format] VARCHAR(15) NOT NULL, 
+  [Description] VARCHAR(50) NOT NULL, 
+  IncrementStart INT NOT NULL, 
+  IncrementStartUnit VARCHAR(10) NOT NULL, 
+  IncrementEnd INT NOT NULL, 
+  IncrementEndUnit VARCHAR(10) NOT NULL, 
+  IsActive BIT NOT NULL DEFAULT 0
+);
+
+/* DateReportingFormatEvent Table **********************************/
+
+CREATE TABLE [DateReportingFormatEvent](
+  OID INTEGER PRIMARY KEY, 
+  ParentDateReportingFormat INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentDateReportingFormat) REFERENCES [DateReportingFormat](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_DateReportingFormatEventType CHECK (EventType IN ('EditFormatName',
+                                                                   'EditFormatDescription',
+                                                                   'EditFrequency',
+                                                                   'EditIncrementStart',
+                                                                   'EditIncrementEnd',
+                                                                   'Deactivate', 
+                                                                   'Activate', 
+                                                                   'Add'))
+);

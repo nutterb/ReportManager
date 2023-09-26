@@ -15,6 +15,10 @@ if (SQLITE_READY){
     }
   }
   
+  dropTable("DateReportingFormatEvent", conn)
+  dropTable("DateReportingFormat", conn)
+  dropTable("ScheduleEvent", conn)
+  dropTable("Schedule", conn)
   dropTable("UserRoleEvent", conn)
   dropTable("UserRole", conn)
   dropTable("UserEvent", conn)
