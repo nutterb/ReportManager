@@ -267,7 +267,7 @@ test_that(
 configureReportManager(flavor = "sql_server")
 
 test_that(
-  "Activate and Deactivate Roles", 
+  "Activate and Deactivate User Roles", 
   {
     skip_if_not(SQL_SERVER_READY, 
                 SQL_SERVER_READY_MESSAGE)

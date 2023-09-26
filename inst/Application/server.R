@@ -28,7 +28,8 @@ shinyServer(function(input, output, session){
     reactiveValues(
       AddEdit = "Add", 
       Roles = queryRole(), 
-      SelectedRole = NULL
+      SelectedRole = NULL, 
+      UserRole = NULL
     )
   
   # Roles - Passive Observers ---------------------------------------
@@ -98,14 +99,41 @@ shinyServer(function(input, output, session){
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
+  observeEvent(input$btn_role_viewEdit, 
+               OE_btn_role_viewEdit(rv_User  = rv_User, 
+                                    rv_Roles = rv_Roles, 
+                                    session  = session))
+  
+  observeEvent(input$multi_userRole_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_all_right"))
+  
+  observeEvent(input$multi_userRole_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_right"))
+  
+  observeEvent(input$multi_userRole_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_left"))
+  
+  observeEvent(input$multi_userRole_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "multi_userRole", 
+                                 input = input, 
+                                 "move_all_left"))
+  
   observeEvent(
-    input$btn_role_viewEdit, 
+    input$btn_userRole_save, 
     {
-      toggleModal(session = session, 
-                  modalId = "modal_userRole_edit", 
-                  toggle = "open")
-    }
-  )
+      OE_btn_userRole_save(input = input, 
+                           current_user_oid = CURRENT_USER_OID())
+    })
   
   # Roles - Output --------------------------------------------------
   
@@ -146,13 +174,13 @@ shinyServer(function(input, output, session){
       SelectedUser = NULL
     )
   
-  # ReportUser - Passive Observer -----------------------------------
+  # User - Passive Observer -----------------------------------------
   
   observe({
-    toggleState(id = "btn_reportUser_add", 
+    toggleState(id = "btn_user_add", 
                 condition = USER_IS_USER_ADMIN())
     
-    toggleState(id = "btn_reportUser_edit", 
+    toggleState(id = "btn_user_edit", 
                 condition = USER_IS_USER_ADMIN() &&
                   length(input$rdo_user) > 0)
   })
@@ -171,7 +199,7 @@ shinyServer(function(input, output, session){
                   isTRUE(rv_User$SelectedUser$IsActive))
   })
   
-  # ReportUser - Event Observer -------------------------------------
+  # User - Event Observer -------------------------------------------
   
   observeEvent(input$rdo_user, 
                OE_rdo_user(rv_User = rv_User, 
@@ -210,7 +238,7 @@ shinyServer(function(input, output, session){
                                     current_user_oid = CURRENT_USER_OID(), 
                                     proxy            = proxy_dt_user))
   
-  # ReportUser - Output ---------------------------------------------
+  # User - Output ---------------------------------------------------
   
   output$dt_user <- 
     DT::renderDataTable({
@@ -220,7 +248,7 @@ shinyServer(function(input, output, session){
         RM_datatable(escape = -1)
     })
   
-  proxy_dt_reportUser <- DT::dataTableProxy("dt_reportUser")
+  proxy_dt_user <- DT::dataTableProxy("dt_user")
   
   output$title_addEditUser <- 
     renderText({

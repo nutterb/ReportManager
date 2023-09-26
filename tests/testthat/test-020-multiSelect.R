@@ -7,6 +7,7 @@ test_that(
                              label = "label", 
                              choices = letters, 
                              selected = c("a", "z"), 
+                             names = LETTERS,
                              width = "100%", 
                              up_down = FALSE), 
                  "'inputId': Must be of type 'character'")
@@ -15,6 +16,7 @@ test_that(
                              label = "label", 
                              choices = letters, 
                              selected = c("a", "z"), 
+                             names = LETTERS,
                              width = "100%", 
                              up_down = FALSE), 
                  "'inputId': Must have length 1")
@@ -29,6 +31,7 @@ test_that(
                              label = 123, 
                              choices = letters, 
                              selected = c("a", "z"), 
+                             names = LETTERS,
                              width = "100%", 
                              up_down = FALSE), 
                  "'label': Must be of type 'character'")
@@ -37,6 +40,7 @@ test_that(
                              label = c("label", "name"), 
                              choices = letters, 
                              selected = c("a", "z"), 
+                             names = LETTERS,
                              width = "100%", 
                              up_down = FALSE), 
                  "'label': Must have length 1")
@@ -62,6 +66,15 @@ test_that(
                              width = "100%", 
                              up_down = FALSE), 
                  "'selected': Must be of type 'character'")
+    
+    expect_error(multiSelect(inputId = "input", 
+                             label = "label", 
+                             choices = as.character(1:10), 
+                             selected = "1", 
+                             names = 1:10,
+                             width = "100%", 
+                             up_down = FALSE), 
+                 "'names': Must be of type 'character'")
   }
 )
 
@@ -77,6 +90,21 @@ test_that(
                  "'selected': Must be a subset of")
   }
 )
+
+test_that(
+  "Return an error if names does not have the same length as choices", 
+  {
+    expect_error(multiSelect(inputId = "input", 
+                             label = "label", 
+                             choices = letters, 
+                             selected = c("a", "z"), 
+                             names = LETTERS[1:10],
+                             width = "100%", 
+                             up_down = FALSE), 
+                 "'names': Must have length")
+  }
+)
+
 
 test_that(
   "Return an error if width is not character(1)", 

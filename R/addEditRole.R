@@ -91,9 +91,11 @@ addEditRole <- function(oid = numeric(0),
     }
   }
 
-  insertRecord(EventList, 
-               table_name = "RoleEvent", 
-               return_oid = FALSE)
+  if (nrow(EventList) > 0){
+    insertRecord(EventList, 
+                 table_name = "RoleEvent", 
+                 return_oid = FALSE)
+  }
 }
 
 # Unexported --------------------------------------------------------

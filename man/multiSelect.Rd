@@ -11,6 +11,7 @@ multiSelect(
   label,
   choices = NULL,
   selected = NULL,
+  names = NULL,
   width = "100\%",
   up_down = FALSE,
   ...
@@ -24,7 +25,7 @@ updateMultiSelect(
     "move_down")
 )
 
-replaceMultiSelect(session, inputId, choices, selected)
+replaceMultiSelect(session, inputId, choices, selected, names)
 }
 \arguments{
 \item{inputId}{\code{character(1)}. The ID for the input element.}
@@ -35,6 +36,9 @@ replaceMultiSelect(session, inputId, choices, selected)
 
 \item{selected}{\code{character}. The choices to be marked as selected when
 initiating the UI element.}
+
+\item{names}{\code{character}. Names to apply to the \code{choices}. These become
+the display names on the UI. Must have the same length as \code{choices}.}
 
 \item{width}{\code{character(1)}. A CSS style for the width of the control.}
 
@@ -70,6 +74,7 @@ form a data frame with the columns
 \itemize{
 \item \code{choices} - The choices available to choose from. These are shown in the order provided.
 \item \code{selected} - The choices to initiate as selected. These are shown in the order provided.
+\item \code{names} - The display names for the choices.
 \item \code{order} - The order in which selections will appear in the selected box. This is stored internally to manage moving items up and down.
 \item \code{display_order} - The order in which the available choices will appear. This is stored to maintain order when moving choices left and right.
 }

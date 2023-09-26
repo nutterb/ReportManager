@@ -4,11 +4,19 @@
 \alias{queryUserRole}
 \title{Retrieve User Role Assignments}
 \usage{
-queryUserRole(oid = numeric(0))
+queryUserRole(oid = numeric(0), user_oid = numeric(0), role_oid = numeric(0))
 }
 \arguments{
 \item{oid}{\code{integerish(0/1)}. When length 0, all records are returned.
-Otherwise, only the requested record is returned.}
+Otherwise, the UserRole.OID will be included in the WHERE clause.}
+
+\item{user_oid}{\code{integerish(0/1)}. When length 1, the User.OID is included
+in the WHERE clause. Otherwise, the User OID is not considered in the
+query.}
+
+\item{role_oid}{\code{integerish(0/1)}. When length 1, the Role.OID is included
+in the WHERE clause. Otherwise, the Role OID is not considered in the
+query.}
 }
 \description{
 Executes a query to retrieve the UserRole assignments from the

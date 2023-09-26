@@ -235,7 +235,7 @@ test_that(
 )
 
 test_that(
-  "Edit a User in SQLite", 
+  "Edit a User in SQL Server", 
   {
     skip_if_not(SQL_SERVER_READY, 
                 SQL_SERVER_READY_MESSAGE)

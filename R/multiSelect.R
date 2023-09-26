@@ -20,6 +20,8 @@
 #' @param choices `character`. The choices available for selection. 
 #' @param selected `character`. The choices to be marked as selected when 
 #'   initiating the UI element.
+#' @param names `character`. Names to apply to the `choices`. These become
+#'   the display names on the UI. Must have the same length as `choices`.
 #' @param width `character(1)`. A CSS style for the width of the control.
 #' @param up_down `logical(1)`. When `TRUE`, the "Move Up" and "Move Down"
 #'   buttons are displayed, allowing for the selections to be ordered.
@@ -34,6 +36,7 @@
 #'   
 #' * `choices` - The choices available to choose from. These are shown in the order provided.
 #' * `selected` - The choices to initiate as selected. These are shown in the order provided.
+#' * `names` - The display names for the choices.
 #' * `order` - The order in which selections will appear in the selected box. This is stored internally to manage moving items up and down.
 #' * `display_order` - The order in which the available choices will appear. This is stored to maintain order when moving choices left and right.
 #' 
@@ -57,6 +60,7 @@ multiSelect <- function(inputId,
                         label, 
                         choices = NULL, 
                         selected = NULL, 
+                        names = NULL,
                         width = "100%",
                         up_down = FALSE,
                         ...){
@@ -72,10 +76,16 @@ multiSelect <- function(inputId,
                              len = 1, 
                              add = coll)
   
-  checkmate::assertCharacter(x = choices, 
+  checkmate::assertCharacter(x = choices,
+                             null.ok = TRUE,
                              add = coll)
   
   checkmate::assertCharacter(x = selected, 
+                             null.ok = TRUE,
+                             add = coll)
+  
+  checkmate::assertCharacter(x = names,
+                             null.ok = TRUE,
                              add = coll)
   
   checkmate::assertCharacter(x = width, 
@@ -88,6 +98,10 @@ multiSelect <- function(inputId,
   
   checkmate::reportAssertions(coll)
   
+  checkmate::assertCharacter(x = names, 
+                             len = length(choices),
+                             null.ok = TRUE,
+                             add = coll)
   
   checkmate::assertSubset(x = selected, 
                           choices = choices, 
@@ -99,8 +113,9 @@ multiSelect <- function(inputId,
   
   # Make the Choices Data Frame
   Choices <- .updateMultiSelect_makeChoicesFrame(choices = choices, 
-                                                 selected = selected)
-  
+                                                 selected = selected, 
+                                                 names = names)
+
   # Up-Down tag list
   
   up_down_tag <- 
@@ -115,6 +130,9 @@ multiSelect <- function(inputId,
                                      label = "Move Down"))
     )
   
+  # we make this just to ensure the names carry over. 
+  .choices = Choices$choices
+  names(.choices) = Choices$names
   
   shiny::tagList(
     shiny::tags$label(label),
@@ -127,7 +145,7 @@ multiSelect <- function(inputId,
                shiny::selectInput(inputId = sprintf("%s_unselected", 
                                                     inputId), 
                                   label = "Unselected", 
-                                  choices = Choices$choices[!Choices$selected], 
+                                  choices = .choices[!Choices$selected], 
                                   selected = NULL,
                                   selectize = FALSE, 
                                   multiple = TRUE,
@@ -196,7 +214,7 @@ updateMultiSelect <- function(session, inputId, input,
   
   Choices <- input[[inputId]]
   Choices <- jsonlite::fromJSON(Choices)
-  
+
   # Update the `selected` or `order` columns based on the action.
   switch(
     action, 
@@ -215,8 +233,12 @@ updateMultiSelect <- function(session, inputId, input,
                                     selection_to_move = input[[sprintf("%s_selected", inputId)]], 
                                     up = FALSE)
   ) 
-  
+
   Choices <- .updateMultiSelect_setChoiceOrder(Choices)
+
+  # we make this just to ensure the names carry over. 
+  .choices <- Choices$choices
+  names(.choices) <- Choices$names
   
   # Send the new choices back to the input element.
   new_choices <- jsonlite::toJSON(Choices, 
@@ -231,7 +253,8 @@ updateMultiSelect <- function(session, inputId, input,
   shiny::updateSelectInput(session = session, 
                            inputId = sprintf("%s_unselected",
                                              inputId),
-                           choices = Choices$choices[!Choices$selected])
+                           choices = .choices[!Choices$selected])
+
   shiny::updateSelectInput(session = session, 
                            inputId = sprintf("%s_selected",
                                              inputId),
@@ -245,7 +268,8 @@ updateMultiSelect <- function(session, inputId, input,
 replaceMultiSelect <- function(session, 
                                inputId, 
                                choices, 
-                               selected){
+                               selected, 
+                               names){
   
   # Argument validation ---------------------------------------------
   
@@ -269,7 +293,11 @@ replaceMultiSelect <- function(session,
   
   checkmate::reportAssertions(coll)
   
-  Choices <- .updateMultiSelect_makeChoicesFrame(choices, selected)
+  Choices <- .updateMultiSelect_makeChoicesFrame(choices, selected, names)
+
+  # we make this just to ensure the names carry over. 
+  .choices = Choices$choices
+  names(.choices) = Choices$names
   
   shiny::updateTextInput(session = session, 
                          inputId = inputId, 
@@ -277,27 +305,29 @@ replaceMultiSelect <- function(session,
   
   shiny::updateSelectInput(session = session, 
                            inputId = sprintf("%s_unselected", inputId), 
-                           choices = choices,
+                           choices = .choices[!Choices$selected],
                            selected = character(0))
   
   shiny::updateSelectInput(session = session, 
                            inputId= sprintf("%s_selected", inputId), 
-                           choices = selected, 
+                           choices = .updateMultiSelect_getOrderedSelection(Choices), 
                            selected = character(0))
 }
 
 # Unexported --------------------------------------------------------
 
 .updateMultiSelect_makeChoicesFrame <- function(choices, 
-                                                selected){
+                                                selected, 
+                                                names){
   len_choices <- length(choices)
   len_selected <- length(selected)
   
   Choices <- 
     data.frame(choices = choices, 
+               names = if (is.null(names)) choices else names,
                selected = rep(c(TRUE, FALSE), c(len_selected, 
                                                 len_choices - len_selected)), 
-               order = rep(NA_real_, len_choices), 
+               order = seq_along(choices), 
                display_order = seq_along(choices), 
                stringsAsFactors = FALSE)
   
@@ -314,8 +344,12 @@ replaceMultiSelect <- function(session,
 
 .updateMultiSelect_getOrderedSelection <- function(Choices){
   Selected <- Choices[Choices$selected, ]
+
   Selected <- Selected[order(Selected$order, Selected$display_order), ]
-  Selected$choices
+
+  selected <- Selected$choices
+  names(selected) <- Selected$names
+  selected
 }
 
 .updateMultiSelect_moveUpDown <- function(Choices, 

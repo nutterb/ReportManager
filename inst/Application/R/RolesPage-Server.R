@@ -6,6 +6,8 @@ OE_rdo_role <- function(rv_Roles, input){
   ThisRole <- rv_Roles$Roles
   ThisRole <- ThisRole[ThisRole$OID == oid, ]
   rv_Roles$SelectedRole <- ThisRole
+  
+  rv_Roles$UserRole <- queryUserRole(role_oid = oid)
 }
 
 # Observe Event - btn_role_add --------------------------------------
@@ -112,6 +114,57 @@ OE_btn_role_activateDeactivate <- function(active,
                  oid = oid, 
                  element_name = "rdo_role", 
                  proxy = proxy)
+}
+
+# Observe Event - btn_role_viewEdit ---------------------------------
+
+OE_btn_role_viewEdit <- function(rv_User, 
+                                 rv_Roles, 
+                                 session){
+  choices <- as.character(rv_User$User$OID)
+  
+  selected <- choices[choices %in% rv_Roles$UserRole$ParentUser]
+  
+  replaceMultiSelect(session = session, 
+                     inputId = "multi_userRole", 
+                     choices = choices, 
+                     selected = selected, 
+                     names = sprintf("%s, %s (%s)", 
+                                     rv_User$User$LastName, 
+                                     rv_User$User$FirstName, 
+                                     rv_User$User$LoginId))
+  
+  toggleModal(session = session, 
+              modalId = "modal_userRole_edit", 
+              toggle = "open")
+}
+
+# Observe Event - btn_userRole_save ---------------------------------
+
+OE_btn_userRole_save <- function(input, current_user_oid){
+  UR_current <- queryUserRole(role_oid = as.numeric(input$rdo_role))
+  UR_ui <- jsonlite::fromJSON(input$multi_userRole)
+  
+  UR_upload <- merge(UR_current[c("OID", "ParentUser", "ParentRole")], 
+                     UR_ui[c("choices", "selected")], 
+                     by.x = "ParentUser", 
+                     by.y = "choices",
+                     all.x = TRUE, 
+                     all.y = TRUE)
+  UR_upload <- UR_upload[c("OID", "ParentUser", "ParentRole", "selected")]
+  UR_upload$selected <- UR_upload$selected %in% TRUE
+  UR_upload$ParentRole <- ifelse(is.na(UR_upload$ParentRole), 
+                                 as.numeric(input$rdo_role), 
+                                 UR_upload$ParentRole)
+  UR_upload <- UR_upload[!(is.na(UR_upload$OID) & !UR_upload$selected), ]
+  
+  for (i in seq_len(nrow(UR_upload))){
+    addEditUserRole(oid = if (is.na(UR_upload$OID[i])) numeric(0) else as.numeric(UR_upload$OID[i]), 
+                    parent_user = as.numeric(UR_upload$ParentUser[i]), 
+                    parent_role = as.numeric(UR_upload$ParentRole[i]), 
+                    is_active = UR_upload$selected[i], 
+                    event_user = current_user_oid)
+  }
 }
 
 # validateRoleInputs ------------------------------------------------
