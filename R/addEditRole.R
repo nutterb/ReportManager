@@ -58,7 +58,8 @@ addEditRole <- function(oid = numeric(0),
   
   AddEditData <- data.frame(RoleName = role_name, 
                             RoleDescription = role_description, 
-                            IsActive = is_active)
+                            IsActive = is_active, 
+                            stringsAsFactors = FALSE)
   
   EventList <- 
     data.frame(EventUser = rep(event_user, 4), 
