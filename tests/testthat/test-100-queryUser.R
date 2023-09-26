@@ -15,6 +15,8 @@ test_that(
 
 # Report Users for SQL Server ---------------------------------------
 
+options(RM_sql_flavor = "sql_server")
+
 test_that(
   "queryUser works in SQL Server", 
   {
