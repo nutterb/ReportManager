@@ -45,6 +45,19 @@ addEditUserRole <- function(oid = numeric(0),
   
   checkmate::reportAssertions(coll)
   
+  if (length(oid) == 0){
+    CurrentUserRole <- queryUserRole(user_oid = parent_user, 
+                                     role_oid = parent_role)
+    
+    if (nrow(CurrentUserRole) > 0){
+      coll$push(sprintf("A UserRole record for User.OID = %s and Role.OID = %s already exists. Edit the exisitng record instead of adding another", 
+                        parent_user, 
+                        parent_role))
+    }
+  }
+  
+  checkmate::reportAssertions(coll)
+  
   # Functionality ---------------------------------------------------
   
   conn <- connectToReportManager()

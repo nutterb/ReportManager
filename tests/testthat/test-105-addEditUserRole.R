@@ -124,6 +124,16 @@ test_that(
   }
 )
 
+test_that(
+  "Generate an error if trying to add a UserRole for a User-Role that already exists", 
+  {
+    expect_error(addEditUserRole(parent_user = 2, 
+                                 parent_role = 5, 
+                                 event_user = 1), 
+                 "A UserRole record for User.OID")
+  }
+)
+
 # Functionality - SQLite --------------------------------------------
 
 options(RM_sql_flavor = "sqlite")
@@ -167,3 +177,12 @@ test_that(
   }
 )
 
+test_that(
+  "Generate an error if trying to add a UserRole for a User-Role that already exists", 
+  {
+    expect_error(addEditUserRole(parent_user = 2, 
+                                 parent_role = 5, 
+                                 event_user = 1), 
+                 "A UserRole record for User.OID")
+  }
+)
