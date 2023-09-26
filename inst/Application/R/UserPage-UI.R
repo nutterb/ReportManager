@@ -20,7 +20,7 @@ UI_TAB_REPORT_USER <-
 
 # Modal - user_addEdit ----------------------------------------
 
-MODAL_REPORT_USER <- bsModal(
+MODAL_USER <- bsModal(
   id = "modal_user_addEdit", 
   title = textOutput("title_addEditUser"), 
   size = "large", 
