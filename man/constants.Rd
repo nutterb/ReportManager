@@ -4,12 +4,22 @@
 \name{constants}
 \alias{constants}
 \alias{SUPPORTED_SQL_FLAVOR}
+\alias{UNIT_OF_TIME}
+\alias{UNIT_OF_TIME_WITH_NONE}
 \title{Constants for the ReportManager application}
 \format{
 An object of class \code{character} of length 2.
+
+An object of class \code{character} of length 7.
+
+An object of class \code{character} of length 8.
 }
 \usage{
 SUPPORTED_SQL_FLAVOR
+
+UNIT_OF_TIME
+
+UNIT_OF_TIME_WITH_NONE
 }
 \description{
 Commonly used values to simplify maintenance of the package.

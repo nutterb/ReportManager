@@ -22,6 +22,139 @@ shinyServer(function(input, output, session){
   # Global - Passive Observer ---------------------------------------
   # Global - Event Observer -----------------------------------------
   
+  # Schedule --------------------------------------------------------
+  # Schedule - Reactive Values --------------------------------------
+  
+  rv_Schedule <- reactiveValues(
+    Schedule = querySchedule(), 
+    AddEdit = "Add", 
+    SelectedSchedule = NULL
+  )
+  
+  rv_DateFormat <- reactiveValues(
+    DateFormat = queryDateReportingFormat(), 
+    AddEdit = "Add", 
+    SelectedDateFormat = NULL
+  )
+  
+  # Schedule - Passive Observers ------------------------------------
+  
+  observe({
+    toggleState(id = "btn_schedule_addSchedule", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_schedule_editSchedule", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0)
+  })
+  
+  observe({
+    req(rv_Schedule$SelectedSchedule)
+    
+    toggleState(id = "btn_schedule_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0 &&
+                  isFALSE(rv_Schedule$SelectedSchedule$IsActive))
+    
+    toggleState(id = "btn_schedule_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0 &&
+                  isTRUE(rv_Schedule$SelectedSchedule$IsActive))
+  })
+  
+  # Schedule - Event Observers --------------------------------------
+  
+  observeEvent(input$rdo_schedule, 
+               OE_rdo_schedule(rv_Schedule, 
+                               input))
+  
+  observeEvent(input$btn_schedule_addSchedule, 
+               OE_btn_schedule_addSchedule(session, 
+                                           rv_Schedule))
+  
+  observeEvent(input$btn_schedule_editSchedule,
+               OE_btn_schedule_editSchedule(session, 
+                                            rv_Schedule))
+  
+  observeEvent(
+    input$btn_schedule_addEditSchedule,
+    {
+      oid <- if(rv_Schedule$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_schedule)
+      
+      addEditUser(oid = oid, 
+                  schedule_name = input)
+    }
+  )
+  
+  observeEvent(
+    input$btn_schedule_deactivate, 
+    {
+      oid <- as.numeric(input$rdo_schedule)
+      
+      activateRecord(oid, 
+                     active = FALSE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "Schedule", 
+                     event_table_name = "ScheduleEvent", 
+                     parent_field_name = "ParentSchedule")
+      
+      RM_replaceData(query_fun = querySchedule, 
+                     reactive_list = rv_Schedule, 
+                     data_slot = "Schedule", 
+                     selected_slot = "SelectedSchedule", 
+                     id_variable = "OID", 
+                     element_name = "rdo_user", 
+                     oid = oid, 
+                     proxy = proxy_dt_schedule)
+    }
+  )
+  
+  observeEvent(
+    input$btn_schedule_activate, 
+    {
+      oid <- as.numeric(input$rdo_schedule)
+      
+      activateRecord(oid, 
+                     active = TRUE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "Schedule", 
+                     event_table_name = "ScheduleEvent", 
+                     parent_field_name = "ParentSchedule")
+      
+      RM_replaceData(query_fun = querySchedule, 
+                     reactive_list = rv_Schedule, 
+                     data_slot = "Schedule", 
+                     selected_slot = "SelectedSchedule", 
+                     id_variable = "OID", 
+                     element_name = "rdo_user", 
+                     oid = oid, 
+                     proxy = proxy_dt_schedule)
+    }
+  )
+  
+  # Schedule - Output -----------------------------------------------
+  
+  output$dt_schedule <- 
+    DT::renderDataTable({
+      querySchedule() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_schedule") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_schedule <- dataTableProxy("dt_schedule")
+  
+  output$title_schedule_addEdit <- 
+    renderText({
+      if (rv_Schedule$AddEdit == "Add"){
+        "Add a New Schedule"
+      } else {
+        sprintf("Editing Schedule %s (%s)", 
+                rv_Schedule$SelectedSchedule$ScheduleName, 
+                rv_Schedule$SelectedSchedule$OID)
+      }
+    })
+  
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
   rv_Roles <- 

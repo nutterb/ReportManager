@@ -19,6 +19,32 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    bsModal(
+      id = "modal_schedule_addEdit", 
+      title = textOutput("title_schedule_addEdit"), 
+      size = "large", 
+      trigger = "trg_none", 
+      textInput(inputId = "txt_schedule_scheduleName", 
+                label = "Schedule Name"), 
+      splitLayout(numericInput(inputId = "num_schedule_frequency", 
+                               label = "Frequency", 
+                               value = 0), 
+                  selectInput(inputId = "sel_schedule_frequencyUnit", 
+                              label = "Unit of Time", 
+                              choices = UNIT_OF_TIME, 
+                              selected = "Day"), 
+                  cellWidths = c("15%", "50%")), 
+      splitLayout(numericInput(inputId = "num_schedule_offset", 
+                               label = "Offset", 
+                               value = 0), 
+                  selectInput(inputId = "sel_schedule_offsetUnit", 
+                              label = "Unit of Time", 
+                              choices = UNIT_OF_TIME, 
+                              selected = "Day"), 
+                  cellWidths = c("15%", "50%")), 
+      actionButton(inputId = "btn_schedule_addEditSchedule", 
+                   label = "Save")
+    ),
     MODAL_ROLES,
     MODAL_USER_ROLE,
     MODAL_USER,
@@ -35,9 +61,7 @@ dashboardPage(
         "tab_reportTemplate"
       ), 
       
-      tabItem(
-        "tab_scheduleManagement"
-      ), 
+      tabItem("tab_scheduleManagement", UI_TAB_SCHEDULE_PAGE), 
       
       tabItem(
         "tab_disclaimerFooter"
