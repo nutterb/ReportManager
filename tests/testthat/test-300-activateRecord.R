@@ -329,3 +329,71 @@ test_that(
     expect_true(queryUserRole(oid = 1)$IsActive)
   }
 )
+
+# Schedule - SQL Server ---------------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate User Roles", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    ScheduleNow <- querySchedule(oid = 1)
+    
+    expect_true(ScheuleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Schedule", 
+                   event_table_name = "ScheduleEvent", 
+                   parent_field_name = "ParentSchedule")
+    
+    expect_false(querySchedule(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Schedule", 
+                   event_table_name = "ScheduleEvent", 
+                   parent_field_name = "ParentSchedule")
+    
+    expect_true(querySchedule(oid = 1)$IsActive)
+  }
+)
+
+# Schedule - SQLite -------------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    ScheduleNow <- querySchedule(oid = 1)
+    
+    expect_true(ScheduleNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Schedule", 
+                   event_table_name = "ScheduleEvent", 
+                   parent_field_name = "ParentSchedule")
+    
+    expect_false(querySchedule(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Schedule", 
+                   event_table_name = "ScheduleEvent", 
+                   parent_field_name = "ParentSchedule")
+    
+    expect_true(querySchedule(oid = 1)$IsActive)
+  }
+)

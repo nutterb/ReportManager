@@ -128,8 +128,9 @@ CREATE TABLE [ScheduleEvent](
 
 CREATE TABLE [DateReportingFormat](
   OID INTEGER PRIMARY KEY, 
-  [Format] VARCHAR(15) NOT NULL, 
-  [Description] VARCHAR(50) NOT NULL, 
+  [FormatName] VARCHAR(25) NOT NULL, 
+  [Description] VARCHAR(50) NULL,
+  [FormatCode] VARCHAR(25) NOT NULL,
   IncrementStart INT NOT NULL, 
   IncrementStartUnit VARCHAR(10) NOT NULL, 
   IncrementEnd INT NOT NULL, 

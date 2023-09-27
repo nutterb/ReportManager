@@ -25,8 +25,8 @@ addEditSchedule <- function(oid = numeric(0),
                             schedule_name, 
                             frequency, 
                             frequency_unit, 
-                            offset_overlap, 
-                            offset_overlap_unit, 
+                            offset_overlap = 0, 
+                            offset_overlap_unit = "Day", 
                             is_active = TRUE, 
                             event_user){
   # Argument Validation ---------------------------------------------
@@ -47,6 +47,7 @@ addEditSchedule <- function(oid = numeric(0),
   
   frequency_unit <- checkmate::matchArg(x = frequency_unit, 
                                         choices = UNIT_OF_TIME, 
+                                        .var.name = "frequency_unit",
                                         add = coll)
   
   checkmate::assertIntegerish(x = offset_overlap, 
@@ -54,7 +55,8 @@ addEditSchedule <- function(oid = numeric(0),
                               add = coll)
   
   offset_overlap_unit <- checkmate::matchArg(x = offset_overlap_unit, 
-                                             choices = c("None", UNIT_OF_TIME), 
+                                             choices = UNIT_OF_TIME_WITH_NONE, 
+                                             .var.name = "offset_overlap_unit",
                                              add = coll)
   
   checkmate::assertLogical(x = is_active, 
@@ -104,13 +106,13 @@ addEditSchedule <- function(oid = numeric(0),
                         table_name = "Schedule", 
                         return_oid = TRUE)
     
-    EventList$ParentRole <- rep(OID$OID, 
-                                nrow(EventList))
+    EventList$ParentSchedule <- rep(OID$OID, 
+                                    nrow(EventList))
   } else {
     EventList <- .addEditSchedule_editedEventList(EventList = EventList,
                                                   oid       = oid,
                                                   conn      = conn)
-    
+
     if (nrow(EventList) > 0){
       updateRecord(data = AddEditData, 
                    where_data = data.frame(OID = oid), 
@@ -128,20 +130,20 @@ addEditSchedule <- function(oid = numeric(0),
 
 # Unexported --------------------------------------------------------
 
-.addEditScheule_editedEventList <- function(EventList, 
-                                         oid,
-                                         conn){
-  EventList$ParentRole <- rep(oid, 
+.addEditSchedule_editedEventList <- function(EventList, 
+                                             oid,
+                                             conn){
+  EventList$ParentSchedule <- rep(oid, 
                               nrow(EventList))
   
   EventList <- EventList[!EventList$EventType == "Add", ]
-  ThisRole <- queryRole(oid)
+  ThisSchedule <- querySchedule(oid)
   
-  CurrentValue <- c(ThisRole$IsActive, 
-                    ThisRole$ScheduleName, 
-                    sprintf("%s %s", ThisRole$Frequency, ThisRole$FrequencyUnit), 
-                    sprintf("%s %s", ThisRole$OffsetOverlap, ThisRole$OffsetOverlapUnit))
-  
+  CurrentValue <- c(ThisSchedule$IsActive, 
+                    ThisSchedule$ScheduleName, 
+                    sprintf("%s %s", ThisSchedule$Frequency, ThisSchedule$FrequencyUnit), 
+                    sprintf("%s %s", ThisSchedule$OffsetOverlap, ThisSchedule$OffsetOverlapUnit))
+
   EventList[vapply(CurrentValue != EventList$NewValue, 
                    isTRUE, 
                    logical(1)), ]

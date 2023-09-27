@@ -35,16 +35,23 @@ queryDateReportingFormat <- function(oid = numeric(0)){
                          oid)
   }
   
-  DBI::dbGetQuery(conn, 
-                  statement)
+  DateReportingFormat <- DBI::dbGetQuery(conn, 
+                                         statement)
+  
+  if (getOption("RM_sql_flavor") == "sqlite"){
+    DateReportingFormat$IsActive <- as.logical(DateReportingFormat$IsActive)
+  }
+  
+  DateReportingFormat
 }
 
 # Unexported --------------------------------------------------------
 
 .queryDateReportingFormat_statement_sqlServer <- "
   SELECT [OID], 
-         [Format], 
+         [FormatName], 
          [Description],
+         [FormatCode],
          [IncrementStart],
          [IncrementStartUnit],
          [IncrementEnd], 
@@ -55,8 +62,9 @@ queryDateReportingFormat <- function(oid = numeric(0)){
 
 .queryDateReportingFormat_statement_sqlite <- "
   SELECT [OID], 
-         [Format], 
+         [FormatName], 
          [Description],
+         [FormatCode],
          [IncrementStart],
          [IncrementStartUnit],
          [IncrementEnd], 

@@ -36,8 +36,14 @@ querySchedule <- function(oid = numeric(0)){
                          oid)
   }
   
-  DBI::dbGetQuery(conn, 
-                  statement)
+  Schedule <- DBI::dbGetQuery(conn, 
+                              statement)
+  
+  if (getOption("RM_sql_flavor") == "sqlite"){
+    Schedule$IsActive <- as.logical(Schedule$IsActive)
+  }
+  
+  Schedule
 }
 
 # Unexported --------------------------------------------------------

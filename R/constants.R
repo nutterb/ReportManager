@@ -5,4 +5,6 @@
 
 SUPPORTED_SQL_FLAVOR <- c("sql_server", "sqlite")
 
-UNIT_OF_TIME <- c("Minute", "Hour", "Day", "Week", "Month", "Year")
+UNIT_OF_TIME <- c("Second", "Minute", "Hour", "Day", "Week", "Month", "Year")
+
+UNIT_OF_TIME_WITH_NONE <- c("None", UNIT_OF_TIME)

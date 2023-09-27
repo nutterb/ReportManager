@@ -97,4 +97,50 @@ initializeReportManagerDatabase <- function(filename,
   addEditUserRole(parent_user = 1, 
                   parent_role = 3, 
                   event_user = 1)
+  
+  # Populate a Few Common Schedules ---------------------------------
+  
+  addEditSchedule(schedule_name = "Daily", 
+                  frequency = 1, 
+                  frequency_unit = "Day", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Weekly", 
+                  frequency = 1, 
+                  frequency_unit = "Week", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Monthly", 
+                  frequency = 1, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Quarterly", 
+                  frequency = 3, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Semi-annually", 
+                  frequency = 6, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Annually", 
+                  frequency = 1, 
+                  frequency_unit = "Year", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Rolling Three Months", 
+                  frequency = 1, 
+                  frequency_unit = "Month", 
+                  offset_overlap = 3, 
+                  offset_overlap_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "None", 
+                  frequency = 0, 
+                  frequency_unit = "Day", 
+                  offset_overlap = 0, 
+                  offset_overlap_unit = "None", 
+                  event_user = 1)
 }
