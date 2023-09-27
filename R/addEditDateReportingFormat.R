@@ -28,16 +28,16 @@
 #'   
 #' @export
 
-addEditSchedule <- function(oid = numeric(0), 
-                            format_name, 
-                            description, 
-                            format_code, 
-                            increment_start = 0, 
-                            increment_start_unit = "Second", 
-                            increment_end = 0, 
-                            increment_end_unit = "Second",
-                            is_active = TRUE, 
-                            event_user){
+addEditDateReportingFormat <- function(oid = numeric(0), 
+                                       format_name, 
+                                       description, 
+                                       format_code, 
+                                       increment_start = 0, 
+                                       increment_start_unit = "Second", 
+                                       increment_end = 0, 
+                                       increment_end_unit = "Second",
+                                       is_active = TRUE, 
+                                       event_user){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -91,7 +91,9 @@ addEditSchedule <- function(oid = numeric(0),
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
-  schedule_name <- trimws(schedule_name)
+  format_name <- trimws(format_name)
+  description <- trimws(description)
+  format_code <- trimws(format_code)
   
   event_time <- Sys.time()
   
@@ -110,7 +112,7 @@ addEditSchedule <- function(oid = numeric(0),
                EventType = c("Add", 
                              if (is_active) "Activate" else "Deactivate",
                              "EditFormatName",
-                             "EditDescription", 
+                             "EditFormatDescription", 
                              "EditFormatCode", 
                              "EditIncrementStart", 
                              "EditIncrementEnd"), 
@@ -129,8 +131,8 @@ addEditSchedule <- function(oid = numeric(0),
                         table_name = "DateReportingFormat", 
                         return_oid = TRUE)
     
-    EventList$ParentRole <- rep(OID$OID, 
-                                nrow(EventList))
+    EventList$ParentDateReportingFormat <- rep(OID$OID, 
+                                               nrow(EventList))
   } else {
     EventList <- .addEditDateReportingFormat_editedEventList(EventList = EventList,
                                                              oid       = oid,
@@ -156,8 +158,8 @@ addEditSchedule <- function(oid = numeric(0),
 .addEditDateReportingFormat_editedEventList <- function(EventList, 
                                                         oid,
                                                         conn){
-  EventList$ParentRole <- rep(oid, 
-                              nrow(EventList))
+  EventList$ParentDateReportingFormat <- rep(oid, 
+                                             nrow(EventList))
   
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisRole <- queryRole(oid)

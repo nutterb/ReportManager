@@ -342,7 +342,7 @@ test_that(
     
     ScheduleNow <- querySchedule(oid = 1)
     
-    expect_true(ScheuleNow$IsActive)
+    expect_true(ScheduleNow$IsActive)
     
     activateRecord(oid = 1, 
                    active = FALSE, 
@@ -395,5 +395,73 @@ test_that(
                    parent_field_name = "ParentSchedule")
     
     expect_true(querySchedule(oid = 1)$IsActive)
+  }
+)
+
+# DateReportingFormat - SQL Server ----------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate User Roles", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    DateReportingFormatNow <- queryDateReportingFormat(oid = 1)
+    
+    expect_true(DateReportingFormatNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "DateReportingFormat", 
+                   event_table_name = "DateReportingFormatEvent", 
+                   parent_field_name = "ParentDateReportingFormat")
+    
+    expect_false(queryDateReportingFormat(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "DateReportingFormat", 
+                   event_table_name = "DateReportingFormatEvent", 
+                   parent_field_name = "ParentDateReportingFormat")
+    
+    expect_true(queryDateReportingFormat(oid = 1)$IsActive)
+  }
+)
+
+# DateReportingFormat - SQLite --------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Roles", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    DateReportingFormatNow <- queryDateReportingFormat(oid = 1)
+    
+    expect_true(DateReportingFormatNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "DateReportingFormat", 
+                   event_table_name = "DateReportingFormatEvent", 
+                   parent_field_name = "ParentDateReportingFormat")
+    
+    expect_false(queryDateReportingFormat(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "DateReportingFormat", 
+                   event_table_name = "DateReportingFormatEvent", 
+                   parent_field_name = "ParentDateReportingFormat")
+    
+    expect_true(queryDateReportingFormat(oid = 1)$IsActive)
   }
 )

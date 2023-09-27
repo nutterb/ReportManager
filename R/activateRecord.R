@@ -63,6 +63,7 @@ activateRecord <- function(oid,
            "Role" = queryRole(oid)$IsActive, 
            "UserRole" = queryUserRole(oid)$IsActive,
            "Schedule" = querySchedule(oid)$IsActive,
+           "DateReportingFormat" = queryDateReportingFormat(oid)$IsActive,
            stop(sprintf("Activation for table %s is not supported.", 
                         table_name)))
 

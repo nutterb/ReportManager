@@ -2,16 +2,17 @@
 % Please edit documentation in R/addEditDateReportingFormat.R
 \name{addEditDateReportingFormat}
 \alias{addEditDateReportingFormat}
-\alias{addEditSchedule}
 \title{Add or Edit a DateReportingFormat Object}
 \usage{
-addEditSchedule(
+addEditDateReportingFormat(
   oid = numeric(0),
-  schedule_name,
-  frequency,
-  frequency_unit,
-  offset_overlap,
-  offset_overlap_unit,
+  format_name,
+  description,
+  format_code,
+  increment_start = 0,
+  increment_start_unit = "Second",
+  increment_end = 0,
+  increment_end_unit = "Second",
   is_active = TRUE,
   event_user
 )
@@ -19,12 +20,6 @@ addEditSchedule(
 \arguments{
 \item{oid}{\code{integerish(0/1)}. The OID of the DateReportingFormat to be edited.
 When the length is 0, a new DateReportingFormat will be added.}
-
-\item{is_active}{\code{logical(1)}. When \code{TRUE}, the record will be marked as
-active.}
-
-\item{event_user}{\code{integerish(1)}. the User.OID of the user performing
-the action.}
 
 \item{format_name}{\code{character(1)}. The name of the reporting format.}
 
@@ -47,6 +42,12 @@ increment the ending time when report. See Details.}
 
 \item{increment_end_unit}{\code{character(0)}. The unit of time to apply to
 \code{increment_end}.  One of \code{c("Second", "Minute", "Hour", "Day", "Week", "Month", "Year")}.}
+
+\item{is_active}{\code{logical(1)}. When \code{TRUE}, the record will be marked as
+active.}
+
+\item{event_user}{\code{integerish(1)}. the User.OID of the user performing
+the action.}
 }
 \description{
 Adds a new DateReportingFormat object or edits an existing

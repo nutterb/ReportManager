@@ -210,7 +210,7 @@ test_that(
     
     NewSchedule <- querySchedule(oid = NewSchedule$OID)
     
-    expect_equal(NewSchedule$schedule_name, 
+    expect_equal(NewSchedule$ScheduleName, 
                  "Rename the schedule")
   }
 )

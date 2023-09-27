@@ -9,8 +9,8 @@ addEditSchedule(
   schedule_name,
   frequency,
   frequency_unit,
-  offset_overlap,
-  offset_overlap_unit,
+  offset_overlap = 0,
+  offset_overlap_unit = "Day",
   is_active = TRUE,
   event_user
 )

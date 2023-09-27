@@ -152,7 +152,7 @@ CREATE TABLE [DateReportingFormatEvent](
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
   CONSTRAINT chk_DateReportingFormatEventType CHECK (EventType IN ('EditFormatName',
                                                                    'EditFormatDescription',
-                                                                   'EditFrequency',
+                                                                   'EditFormatCode',
                                                                    'EditIncrementStart',
                                                                    'EditIncrementEnd',
                                                                    'Deactivate', 
