@@ -171,3 +171,62 @@ CREATE TABLE [DateReportingFormatEvent](
                                                                    'Activate', 
                                                                    'Add'))
 );
+
+/* Disclaimer Table ************************************************/
+
+CREATE TABLE [Disclaimer](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  Disclaimer VARCHAR(2000) NOT NULL,
+  IsActive BIT DEFAULT 0
+  
+  PRIMARY KEY (OID), 
+);
+
+/* DisclaimerEvent Table *******************************************/
+
+CREATE TABLE [DisclaimerEventTable](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentDisclaimer INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
+                                                          'Deactivate', 
+                                                          'Activate', 
+                                                          'Add')
+);
+
+/* Footer Table ****************************************************/
+
+CREATE TABLE [Footer](
+  OID INTEGER IDENTITY(1, 1) NOT NULL,  
+  Footer VARCHAR(200) NOT NULL,
+  IsActive BIT DEFAULT 0
+  
+  PRIMARY KEY (OID), 
+);
+
+/* FooterEvent Table ***********************************************/
+
+CREATE TABLE [FooterEventTable](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentFooter INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
+                                                      'Deactivate', 
+                                                      'Activate', 
+                                                      'Add')
+);

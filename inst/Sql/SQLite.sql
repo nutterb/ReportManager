@@ -159,3 +159,55 @@ CREATE TABLE [DateReportingFormatEvent](
                                                                    'Activate', 
                                                                    'Add'))
 );
+
+/* Disclaimer Table ************************************************/
+
+CREATE TABLE [Disclaimer](
+  OID INTEGER PRIMARY KEY, 
+  Disclaimer VARCHAR(2000) NOT NULL,
+  IsActive BIT DEFAULT 0
+);
+
+/* DisclaimerEvent Table *******************************************/
+
+CREATE TABLE [DisclaimerEventTable](
+  OID INTEGER PRIMARY KEY
+  ParentDisclaimer INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
+                                                          'Deactivate', 
+                                                          'Activate', 
+                                                          'Add')
+);
+
+/* Footer Table ****************************************************/
+
+CREATE TABLE [Footer](
+  OID INTEGER PRIMARY KEY, 
+  Footer VARCHAR(200) NOT NULL,
+  IsActive BIT DEFAULT 0
+);
+
+/* FooterEvent Table ***********************************************/
+
+CREATE TABLE [FooterEventTable](
+  OID INTEGER PRIMARY KEY
+  ParentFooter INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
+                                                      'Deactivate', 
+                                                      'Activate', 
+                                                      'Add')
+);
