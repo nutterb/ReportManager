@@ -31,13 +31,21 @@ querySchedule <- function(oid = numeric(0)){
                       "sqlite" = .querySchedule_statement_sqlite)
   
   if (length(oid) > 0){
-    statement <- sprintf("%s WHERE [OID] = %s", 
+    statement <- sprintf("%s WHERE [OID] = ?", 
                          statement, 
                          oid)
   }
   
-  Schedule <- DBI::dbGetQuery(conn, 
-                              statement)
+  param_list <- list(oid)
+  param_list <- param_list[lengths(param_list) > 0]
+  
+  Schedule <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     Schedule$IsActive <- as.logical(Schedule$IsActive)

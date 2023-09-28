@@ -30,10 +30,19 @@ queryUser <- function(oid = numeric(0)){
                                    getOption("RM_sql_flavor"))))
   
   if (length(oid) > 0){
-    statement <- paste0(statement, " WHERE OID = ", oid)
+    statement <- paste0(statement, " WHERE [OID] = ?")
   }
   
-  User <- DBI::dbGetQuery(conn, statement)
+  param_list <- list(oid)
+  param_list <- param_list[lengths(param_list) > 0]
+  
+  User <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     User$IsInternal <- as.logical(User$IsInternal)
