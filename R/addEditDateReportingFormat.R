@@ -125,7 +125,7 @@ addEditDateReportingFormat <- function(oid = numeric(0),
                             sprintf("%s %s", increment_start, increment_start_unit), 
                             sprintf("%s %s", increment_end, increment_end_unit)), 
                stringsAsFactors = FALSE)
-  
+
   if (length(oid) == 0){
     OID <- insertRecord(AddEditData, 
                         table_name = "DateReportingFormat", 
@@ -162,14 +162,14 @@ addEditDateReportingFormat <- function(oid = numeric(0),
                                              nrow(EventList))
   
   EventList <- EventList[!EventList$EventType == "Add", ]
-  ThisRole <- queryRole(oid)
+  ThisDateReportFormat <- queryDateReportingFormat(oid)
   
-  CurrentValue <- c(ThisRole$IsActive, 
-                    ThisRole$FormatName, 
-                    ThisRole$Description, 
-                    ThisRole$FormatCode,
-                    sprintf("%s %s", ThisRole$IncrementStart, ThisRole$IncrementStartUnit), 
-                    sprintf("%s %s", ThisRole$IncrementEnd, ThisRole$IncrementEndUnit))
+  CurrentValue <- c(ThisDateReportFormat$IsActive, 
+                    ThisDateReportFormat$FormatName, 
+                    ThisDateReportFormat$Description, 
+                    ThisDateReportFormat$FormatCode,
+                    sprintf("%s %s", ThisDateReportFormat$IncrementStart, ThisDateReportFormat$IncrementStartUnit), 
+                    sprintf("%s %s", ThisDateReportFormat$IncrementEnd, ThisDateReportFormat$IncrementEndUnit))
   
   EventList[vapply(CurrentValue != EventList$NewValue, 
                    isTRUE, 

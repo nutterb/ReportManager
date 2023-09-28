@@ -145,23 +145,12 @@ validateScheduleInputs <- function(rv_Schedule,
   
   val <- inputValidationCollection()
   
-  duplicate_schedule_message <- 
-    sprintf("Schedule '%s' already exists in the database. Duplicates are not allowed.", 
-            schedule_name)
-  
-  if (is_edit){
-    if ((this_schedule_name != schedule_name) &&
-        schedule_name %in% rv_Schedule$Schedule$ScheduleName){
-      val$invalidate(duplicate_schedule_message)
-    } 
-  } else {
-    print(isTRUE(this_schedule_name %in% rv_Schedule$Schedule$ScheduleName))
-    print(this_schedule_name)
-    print(rv_Schedule$Schedule$ScheduleName)
-    if (isTRUE(schedule_name %in% rv_Schedule$Schedule$ScheduleName)){
-      val$invalidate(duplicate_schedule_message)
-    }
-  }
+  RM_validate_unique(val = val, 
+                     input_value = schedule_name, 
+                     selected_value = this_schedule_name, 
+                     database_values = rv_Schedule$Schedule$ScheduleName,
+                     is_edit = is_edit, 
+                     object_type = "Schedule")
   
   if (schedule_name == ""){
     val$invalidate("Schedule Name is empty or only whitespace")
@@ -219,7 +208,7 @@ OE_dateFormat_addFormat <- function(session, rv_DateFormat){
                       value = TRUE)
   
   toggleModal(session = session, 
-              modalId = "modal_dateFormat", 
+              modalId = "modal_dateFormat_addEdit", 
               toggle = "open")
 }
 
@@ -230,7 +219,7 @@ OE_btn_dateFormat_editFormat <- function(session, rv_DateFormat){
   
   updateTextInput(session = session, 
                   inputId = "txt_dateFormat_formatName", 
-                  value = rv_DateFormat$SelectedDateFormat$ScheduleName)
+                  value = rv_DateFormat$SelectedDateFormat$FormatName)
   
   updateTextInput(session = session, 
                   inputId = "txt_dateFormat_description", 
@@ -238,7 +227,7 @@ OE_btn_dateFormat_editFormat <- function(session, rv_DateFormat){
   
   updateTextInput(session = session, 
                   inputId = "txt_dateFormat_formatCode", 
-                  value = rv_DateFormat$SelectedDateFormat$ScheduleCode)
+                  value = rv_DateFormat$SelectedDateFormat$FormatCode)
   
   updateNumericInput(session = session, 
                      inputId = "num_dateFormat_incrementStart", 
@@ -261,6 +250,110 @@ OE_btn_dateFormat_editFormat <- function(session, rv_DateFormat){
                       value = rv_DateFormat$SelectedDateFormat$IsActive)
   
   toggleModal(session = session, 
-              modalId = "modal_dateFormat", 
+              modalId = "modal_dateFormat_addEdit", 
               toggle = "open")
+}
+
+# Observe Event - btn_dateFormat_addEditFormat ----------------------
+
+OE_btn_dateFormat_addEditFormat <- function(session, 
+                                            rv_DateFormat, 
+                                            input, 
+                                            current_user_oid, 
+                                            proxy){
+  oid <- if(rv_DateFormat$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_dateFormat)
+  
+  val <- validateDateFormatInputs(rv_DateFormat = rv_DateFormat, 
+                                  input = input, 
+                                  is_edit = rv_DateFormat$AddEdit == "Edit", 
+                                  this_format_name = rv_DateFormat$SelectedDateFormat$FormatName)
+  
+  if (!val$is_ok()){
+    alert(val$report())
+  } else {
+    print(oid)
+    addEditDateReportingFormat(oid = oid, 
+                               format_name = input$txt_dateFormat_formatName, 
+                               description = input$txt_dateFormat_description, 
+                               format_code = input$txt_dateFormat_formatCode, 
+                               increment_start = input$num_dateFormat_incrementStart, 
+                               increment_start_unit = input$sel_dateFormat_incrementStartUnit, 
+                               increment_end = input$num_dateFormat_incrementEnd, 
+                               increment_end_unit = input$sel_dateFormat_incrementEndUnit, 
+                               is_active = input$chk_dateFormat_isActive, 
+                               event_user = current_user_oid)
+    
+    RM_replaceData(query_fun = queryDateReportingFormat, 
+                   reactive_list = rv_DateFormat, 
+                   data_slot = "DateFormat", 
+                   selected_slot = "SelectedDateFormat", 
+                   id_variable = "OID", 
+                   element_name = "rdo_dateFormat", 
+                   oid = oid, 
+                   proxy = proxy)
+    
+    toggleModal(session = session, 
+                modalId = "modal_dateFormat_addEdit", 
+                toggle = "close")
+  }
+}
+
+# Observe Event - btn_dateFormat_activate/deactivate ----------------
+
+OE_btn_dateFormat_activateDeactivate <- function(activate, 
+                                                 rv_DateFormat, 
+                                                 input, 
+                                                 current_user_oid, 
+                                                 proxy){
+  oid <- as.numeric(input$rdo_dateFormat)
+  
+  activateRecord(oid, 
+                 active = activate, 
+                 event_user = current_user_oid, 
+                 table_name = "DateReportingFormat", 
+                 event_table_name = "DateReportingFormatEvent", 
+                 parent_field_name = "ParentDateReportingFormat")
+  
+  RM_replaceData(query_fun = queryDateReportingFormat, 
+                 reactive_list = rv_DateFormat, 
+                 data_slot = "DateFormat", 
+                 selected_slot = "SelectedDateFormat", 
+                 id_variable = "OID", 
+                 element_name = "rdo_dateFormat", 
+                 oid = oid, 
+                 proxy = proxy)
+}
+  
+# Validation DateFormat Inputs --------------------------------------
+
+validateDateFormatInputs <- function(rv_DateFormat, 
+                                   input, 
+                                   is_edit, 
+                                   this_format_name){
+  format_name <- trimws(input$txt_dateFormat_formatName)
+  description <- trimws(input$txt_dateFormat_description)
+  format_code <- trimws(input$txt_dateFormat_formatCode)
+  
+  val <- inputValidationCollection()
+  
+  RM_validate_unique(val = val, 
+                     input_value = format_name, 
+                     selected_value = this_format_name, 
+                     database_values = rv_DateFormat$DateFormat$FormatName,
+                     is_edit = is_edit, 
+                     object_type = "DateReportingFormat")
+  
+  if (format_name == ""){
+    val$invalidate("Format Name is empty or only whitespace.")
+  }
+  
+  if (description == ""){
+    val$invalidate("Description is empty or only whitespace.")
+  }
+  
+  if (format_code == ""){
+    val$invalidate("Format Code is empty or only whitespace.")
+  }
+  
+  val
 }

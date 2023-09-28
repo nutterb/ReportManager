@@ -162,6 +162,27 @@ shinyServer(function(input, output, session){
                OE_btn_dateFormat_editFormat(session = session, 
                                             rv_DateFormat = rv_DateFormat))
   
+  observeEvent(input$btn_dateFormat_addEditFormat, 
+               OE_btn_dateFormat_addEditFormat(session = session, 
+                                               rv_DateFormat = rv_DateFormat, 
+                                               input = input, 
+                                               current_user_oid = CURRENT_USER_OID(), 
+                                               proxy = proxy_dt_dateFormat))
+  
+  observeEvent(input$btn_dateFormat_activate, 
+               OE_btn_dateFormat_activateDeactivate(activate = TRUE, 
+                                                    rv_DateFormat = rv_DateFormat, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_dateFormat))
+  
+  observeEvent(input$btn_dateFormat_deactivate, 
+               OE_btn_dateFormat_activateDeactivate(activate = FALSE, 
+                                                    rv_DateFormat = rv_DateFormat, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_dateFormat))
+  
   # Date Reporting Format - Output ----------------------------------
   
   output$dt_dateFormat <- 
