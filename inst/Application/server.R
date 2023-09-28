@@ -205,6 +205,52 @@ shinyServer(function(input, output, session){
       }
     })
   
+  # Disclaimer ------------------------------------------------------
+  # Disclaimer - Reactive Values ------------------------------------
+  
+  rv_Disclaimer <- reactiveValues(
+    Disclaimer = queryDisclaimer(), 
+    AddEdit = "Add", 
+    SelectedDisclaimer = NULL
+  )
+  
+  # Disclaimer - Passive Observers ----------------------------------
+  # Disclaimer - Event Observers ------------------------------------
+  # Disclaimer - Output ---------------------------------------------
+  
+  output$dt_disclaimer <- 
+    DT::renderDataTable({
+      queryDisclaimer() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_disclaimer") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_disclaimer <- DT::dataTableProxy("dt_disclaimer")
+  
+  # Footer ----------------------------------------------------------
+  # Footer - Reactive Values ----------------------------------------
+  
+  rv_Footer <- reactiveValues(
+    Footer = queryFooter(), 
+    AddEdit = "Add", 
+    SelectedFooter = NULL
+  )
+  
+  # Footer - Passive Observers --------------------------------------
+  # Footer - Event Observers ----------------------------------------
+  # Footer - Output -------------------------------------------------
+  
+  output$dt_footer <- 
+    DT::renderDataTable({
+      queryFooter() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_footer") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_footer <- DT::dataTableProxy("dt_footer")
+  
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
   rv_Roles <- 
