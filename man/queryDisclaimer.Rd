@@ -4,7 +4,7 @@
 \alias{queryDisclaimer}
 \title{Retrieve Disclaimer Objects from the Database}
 \usage{
-queryDisclaimer(oid)
+queryDisclaimer(oid = numeric(0))
 }
 \arguments{
 \item{oid}{\code{integerish(0/1)}. The OID of the Disclaimer object to retrieve.

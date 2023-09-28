@@ -4,7 +4,7 @@
 \alias{queryFooter}
 \title{Retrieve Footer Objects from the Database}
 \usage{
-queryFooter(oid)
+queryFooter(oid = numeric(0))
 }
 \arguments{
 \item{oid}{\code{integerish(0/1)}. The OID of the Footer object to retrieve.
