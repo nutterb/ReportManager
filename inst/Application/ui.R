@@ -42,6 +42,9 @@ dashboardPage(
                               choices = UNIT_OF_TIME, 
                               selected = "Day"), 
                   cellWidths = c("15%", "50%")), 
+      checkboxInput(inputId = "chk_schedule_isActive", 
+                    label = "Active", 
+                    value = TRUE),
       actionButton(inputId = "btn_schedule_addEditSchedule", 
                    label = "Save")
     ),
