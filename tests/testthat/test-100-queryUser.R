@@ -1,5 +1,3 @@
-options(RM_sql_flavor = "sql_server")
-
 # Argument Validation -----------------------------------------------
 
 test_that(

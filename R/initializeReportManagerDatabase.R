@@ -97,4 +97,74 @@ initializeReportManagerDatabase <- function(filename,
   addEditUserRole(parent_user = 1, 
                   parent_role = 3, 
                   event_user = 1)
+  
+  # Populate a Few Common Schedules ---------------------------------
+  
+  addEditSchedule(schedule_name = "Daily", 
+                  frequency = 1, 
+                  frequency_unit = "Day", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Weekly", 
+                  frequency = 1, 
+                  frequency_unit = "Week", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Monthly", 
+                  frequency = 1, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Quarterly", 
+                  frequency = 3, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Semi-annually", 
+                  frequency = 6, 
+                  frequency_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Annually", 
+                  frequency = 1, 
+                  frequency_unit = "Year", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "Rolling Three Months", 
+                  frequency = 1, 
+                  frequency_unit = "Month", 
+                  offset_overlap = 3, 
+                  offset_overlap_unit = "Month", 
+                  event_user = 1)
+  
+  addEditSchedule(schedule_name = "None", 
+                  frequency = 0, 
+                  frequency_unit = "Day", 
+                  offset_overlap = 0, 
+                  offset_overlap_unit = "None", 
+                  event_user = 1)
+  
+  # Populate a Few Common Date Formats ------------------------------
+  
+  addEditDateReportingFormat(format_name = "Date", 
+                             description = "Date only (15 Jan 2000)", 
+                             format_code = "%d %b %Y", 
+                             increment_end = -1, 
+                             event_user = 1)
+  addEditDateReportingFormat(format_name = "DateTime", 
+                             description = "Date and time (15 Jan 2000 16:30:25)", 
+                             format_code = "%d %b %Y %H:%M:%S", 
+                             increment_end = -1, 
+                             event_user = 1)
+  addEditDateReportingFormat(format_name = "DateTime H", 
+                             description = "Date and time, hour only (15 Jan 2000 16:00)", 
+                             format_code = "%d %b %Y %H:00", 
+                             increment_end = -1, 
+                             event_user = 1)
+  addEditDateReportingFormat(format_name = "DateTime HM", 
+                             description = "Date and time, hour and minute (15 Jan 2000 16:30)", 
+                             format_code = "%d %b %Y %H:%M", 
+                             increment_end = -1, 
+                             event_user = 1)
+  
 }

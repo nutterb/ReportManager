@@ -22,6 +22,189 @@ shinyServer(function(input, output, session){
   # Global - Passive Observer ---------------------------------------
   # Global - Event Observer -----------------------------------------
   
+  # Schedule --------------------------------------------------------
+  # Schedule - Reactive Values --------------------------------------
+  
+  rv_Schedule <- reactiveValues(
+    Schedule = querySchedule(), 
+    AddEdit = "Add", 
+    SelectedSchedule = NULL
+  )
+  
+  # Schedule - Passive Observers ------------------------------------
+  
+  observe({
+    toggleState(id = "btn_schedule_addSchedule", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_schedule_editSchedule", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0)
+  })
+  
+  observe({
+    req(rv_Schedule$SelectedSchedule)
+    
+    toggleState(id = "btn_schedule_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0 &&
+                  isFALSE(rv_Schedule$SelectedSchedule$IsActive))
+    
+    toggleState(id = "btn_schedule_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_schedule) > 0 &&
+                  isTRUE(rv_Schedule$SelectedSchedule$IsActive))
+  })
+  
+  # Schedule - Event Observers --------------------------------------
+  
+  observeEvent(input$rdo_schedule, 
+               OE_rdo_schedule(rv_Schedule, 
+                               input))
+  
+  observeEvent(input$btn_schedule_addSchedule, 
+               OE_btn_schedule_addSchedule(session, 
+                                           rv_Schedule))
+  
+  observeEvent(input$btn_schedule_editSchedule,
+               OE_btn_schedule_editSchedule(session, 
+                                            rv_Schedule))
+  
+  observeEvent(input$btn_schedule_addEditSchedule,
+               OE_btn_schedule_addEditSchedule(session = session, 
+                                               rv_Schedule = rv_Schedule, 
+                                               input = input, 
+                                               current_user_oid = CURRENT_USER_OID(), 
+                                               proxy = proxy_dt_schedule))
+  
+  observeEvent(input$btn_schedule_deactivate, 
+               OE_btn_schedule_activateDeactivate(activate = FALSE, 
+                                                  rv_Schedule = rv_Schedule, 
+                                                  input = input, 
+                                                  current_user_oid = CURRENT_USER_OID(), 
+                                                  proxy = proxy_dt_schedule))
+  
+  observeEvent(input$btn_schedule_activate, 
+               OE_btn_schedule_activateDeactivate(activate = TRUE, 
+                                                  rv_Schedule = rv_Schedule, 
+                                                  input = input, 
+                                                  current_user_oid = CURRENT_USER_OID(), 
+                                                  proxy = proxy_dt_schedule))
+  
+  # Schedule - Output -----------------------------------------------
+  
+  output$dt_schedule <- 
+    DT::renderDataTable({
+      querySchedule() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_schedule") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_schedule <- dataTableProxy("dt_schedule")
+  
+  output$title_schedule_addEdit <- 
+    renderText({
+      if (rv_Schedule$AddEdit == "Add"){
+        "Add a New Schedule"
+      } else {
+        sprintf("Editing Schedule %s (%s)", 
+                rv_Schedule$SelectedSchedule$ScheduleName, 
+                rv_Schedule$SelectedSchedule$OID)
+      }
+    })
+  
+  # Date Reporting Format -------------------------------------------
+  # Date Reporting Format - Reactive Values -------------------------
+  
+  rv_DateFormat <- reactiveValues(
+    DateFormat = queryDateReportingFormat(), 
+    AddEdit = "Add", 
+    SelectedDateFormat = NULL
+  )
+  
+  # Date Reporting Format - Passive Observers -----------------------
+  
+  observe({
+    toggleState(id = "btn_dateFormat_addFormat", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_dateFormat_editFormat", 
+                condition = USER_IS_REPORT_ADMIN() && 
+                            length(input$rdo_dateFormat))
+  })
+  
+  observe({
+    req(rv_DateFormat$SelectedDateFormat)
+    
+    toggleState(id = "btn_dateFormat_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                            length(input$rdo_dateFormat) && 
+                            !rv_DateFormat$SelectedDateFormat$IsActive)
+    
+    toggleState(id = "btn_dateFormat_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                            length(input$rdo_dateFormat) && 
+                            rv_DateFormat$SelectedDateFormat$IsActive)
+  })
+  
+  # Date Reporting Format - Event Observers -------------------------
+  
+  observeEvent(input$rdo_dateFormat, 
+               OE_rdo_dateFormat(rv_DateFormat = rv_DateFormat, 
+                                 input = input))
+  
+  observeEvent(input$btn_dateFormat_addFormat, 
+               OE_dateFormat_addFormat(session = session, 
+                                       rv_DateFormat = rv_DateFormat))
+  
+  observeEvent(input$btn_dateFormat_editFormat, 
+               OE_btn_dateFormat_editFormat(session = session, 
+                                            rv_DateFormat = rv_DateFormat))
+  
+  observeEvent(input$btn_dateFormat_addEditFormat, 
+               OE_btn_dateFormat_addEditFormat(session = session, 
+                                               rv_DateFormat = rv_DateFormat, 
+                                               input = input, 
+                                               current_user_oid = CURRENT_USER_OID(), 
+                                               proxy = proxy_dt_dateFormat))
+  
+  observeEvent(input$btn_dateFormat_activate, 
+               OE_btn_dateFormat_activateDeactivate(activate = TRUE, 
+                                                    rv_DateFormat = rv_DateFormat, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_dateFormat))
+  
+  observeEvent(input$btn_dateFormat_deactivate, 
+               OE_btn_dateFormat_activateDeactivate(activate = FALSE, 
+                                                    rv_DateFormat = rv_DateFormat, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_dateFormat))
+  
+  # Date Reporting Format - Output ----------------------------------
+  
+  output$dt_dateFormat <- 
+    DT::renderDataTable({
+      queryDateReportingFormat() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_dateFormat") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_dateFormat <- DT::dataTableProxy("dt_dateFormat")
+  
+  output$title_dateFormat <- 
+    renderText({
+      if (rv_DateFormat$AddEdit == "Add"){
+        "Add New Format"
+      } else {
+        sprintf("Editing Format '%s'", 
+                rv_DateFormat$SelectedDateFormat$FormatName)
+      }
+    })
+  
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
   rv_Roles <- 

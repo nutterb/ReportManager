@@ -127,6 +127,9 @@ test_that(
 test_that(
   "Generate an error if trying to add a UserRole for a User-Role that already exists", 
   {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
     expect_error(addEditUserRole(parent_user = 2, 
                                  parent_role = 5, 
                                  event_user = 1), 
@@ -180,6 +183,9 @@ test_that(
 test_that(
   "Generate an error if trying to add a UserRole for a User-Role that already exists", 
   {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
     expect_error(addEditUserRole(parent_user = 2, 
                                  parent_role = 5, 
                                  event_user = 1), 

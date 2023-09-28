@@ -155,7 +155,7 @@ validateUserInputs <- function(rv_User,
       val$invalidate(duplicate_login_message)
     } 
   } else {
-    if (login_id %in% rv_User$User$LoginId){
+    if (isTRUE(login_id %in% rv_User$User$LoginId)){
       val$invalidate(duplicate_login_message)
     }
   }

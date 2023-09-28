@@ -41,6 +41,9 @@ configureReportManager(flavor = "sql_server")
 test_that(
   "queryUserRole returns intended results", 
   {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
     UserRole <- queryUserRole()
     
     expect_data_frame(UserRole, 
@@ -69,6 +72,9 @@ configureReportManager(flavor = "sqlite")
 test_that(
   "queryUserRole returns intended results", 
   {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
     UserRole <- queryUserRole()
     
     expect_data_frame(UserRole, 
