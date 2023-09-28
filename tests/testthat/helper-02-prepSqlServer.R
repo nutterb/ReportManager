@@ -15,6 +15,10 @@ if (SQL_SERVER_READY){
     }
   }
   
+  dropTable("DisclaimerEvent", conn)
+  dropTable("Disclaimer", conn)
+  dropTable("FooterEvent", conn)
+  dropTable("Footer", conn)
   dropTable("DateReportingFormatEvent", conn)
   dropTable("DateReportingFormat", conn)
   dropTable("ScheduleEvent", conn)
