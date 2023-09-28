@@ -36,7 +36,7 @@ test_that(
                              is_internal = TRUE, 
                              is_active = TRUE, 
                              event_user = 1), 
-                 "'last_name': Must be of type 'character'")
+                 "'last_name': Must be of type 'string'")
     
     expect_error(addEditUser(oid = 1, 
                              last_name = c("Doe", "Duck"), 
@@ -47,6 +47,16 @@ test_that(
                              is_active = TRUE, 
                              event_user = 1), 
                  "'last_name': Must have length 1")
+    
+    expect_error(addEditUser(oid = 1, 
+                             last_name = randomVarchar(51), 
+                             first_name = "Jane", 
+                             login_id = "jdoe", 
+                             email = "jdoe@domain.com", 
+                             is_internal = TRUE, 
+                             is_active = TRUE, 
+                             event_user = 1), 
+                 "'last_name': All elements must have at most 50")
   }
 )
 
@@ -61,7 +71,7 @@ test_that(
                              is_internal = TRUE, 
                              is_active = TRUE, 
                              event_user = 1), 
-                 "'first_name': Must be of type 'character'")
+                 "'first_name': Must be of type 'string'")
     
     expect_error(addEditUser(oid = 1, 
                              last_name = "Doe", 
@@ -72,6 +82,16 @@ test_that(
                              is_active = TRUE, 
                              event_user = 1), 
                  "'first_name': Must have length 1")
+    
+    expect_error(addEditUser(oid = 1, 
+                             last_name = "Doe", 
+                             first_name = randomVarchar(51), 
+                             login_id = "jdoe", 
+                             email = "jdoe@domain.com", 
+                             is_internal = TRUE, 
+                             is_active = TRUE, 
+                             event_user = 1), 
+                 "'first_name': All elements must have at most 50")
   }
 )
 
@@ -86,7 +106,7 @@ test_that(
                              is_internal = TRUE, 
                              is_active = TRUE, 
                              event_user = 1), 
-                 "'login_id': Must be of type 'character'")
+                 "'login_id': Must be of type 'string'")
     
     expect_error(addEditUser(oid = 1, 
                              last_name = "Doe", 
@@ -97,6 +117,16 @@ test_that(
                              is_active = TRUE, 
                              event_user = 1), 
                  "'login_id': Must have length 1")
+    
+    expect_error(addEditUser(oid = 1, 
+                             last_name = "Doe", 
+                             first_name = "Jane", 
+                             login_id = randomVarchar(51), 
+                             email = "jdoe@domain.com", 
+                             is_internal = TRUE, 
+                             is_active = TRUE, 
+                             event_user = 1), 
+                 "'login_id': All elements must have at most 50")
   }
 )
 
@@ -111,7 +141,7 @@ test_that(
                              is_internal = TRUE, 
                              is_active = TRUE, 
                              event_user = 1), 
-                 "'email': Must be of type 'character'")
+                 "'email': Must be of type 'string'")
     
     expect_error(addEditUser(oid = 1, 
                              last_name = "Doe", 
@@ -122,6 +152,16 @@ test_that(
                              is_active = TRUE, 
                              event_user = 1), 
                  "'email': Must have length 1")
+    
+    expect_error(addEditUser(oid = 1, 
+                             last_name = "Doe", 
+                             first_name = "Jane", 
+                             login_id = "jdoe", 
+                             email = randomVarchar(101), 
+                             is_internal = TRUE, 
+                             is_active = TRUE, 
+                             event_user = 1), 
+                 "'email': All elements must have at most 100")
   }
 )
 

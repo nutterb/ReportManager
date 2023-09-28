@@ -37,9 +37,9 @@ addEditSchedule <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertCharacter(x = schedule_name, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = schedule_name, 
+                          max.chars = 50, 
+                          add = coll)
   
   checkmate::assertIntegerish(x = frequency, 
                               len = 1, 

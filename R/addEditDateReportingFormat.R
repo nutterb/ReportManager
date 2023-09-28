@@ -46,17 +46,17 @@ addEditDateReportingFormat <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertCharacter(x = format_name, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = format_name, 
+                          max.chars = 25, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = description, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = description, 
+                          max.chars = 50, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = format_code, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = format_code, 
+                          max.chars = 25, 
+                          add = coll)
   
   checkmate::assertIntegerish(x = increment_start, 
                               len = 1, 
