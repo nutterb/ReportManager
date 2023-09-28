@@ -1,3 +1,4 @@
+# Schedules ---------------------------------------------------------
 # Observe Event - rdo_schedule --------------------------------------
 
 OE_rdo_schedule <- function(rv_Schedule, input){
@@ -167,4 +168,99 @@ validateScheduleInputs <- function(rv_Schedule,
   }
   
   val
+}
+
+
+# Date Formats ------------------------------------------------------
+# Observe Event - rdo_dateFormat ------------------------------------
+
+OE_rdo_dateFormat <- function(rv_DateFormat, input){
+  oid <- as.numeric(input$rdo_dateFormat)
+  
+  rv_DateFormat$SelectedDateFormat <-  
+    rv_DateFormat$DateFormat[rv_DateFormat$DateFormat$OID == oid, ]
+}
+
+# Observe Event - btn_dateFormat_addFormat --------------------------
+
+OE_dateFormat_addFormat <- function(session, rv_DateFormat){
+  rv_DateFormat$AddEdit <- "Add"
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_formatName", 
+                  value = "")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_description", 
+                  value = "")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_formatCode", 
+                  value = "")
+  
+  updateNumericInput(session = session, 
+                     inputId = "num_dateFormat_incrementStart", 
+                     value = 0)
+  
+  updateSelectInput(session = session, 
+                    inputId = "sel_dateFormat_incrementStartUnit", 
+                    selected = "Second")
+  
+  updateNumericInput(session = session, 
+                     inputId = "num_dateFormat_incrementEnd", 
+                     value = 0)
+  
+  updateSelectInput(session = session, 
+                    inputId = "sel_dateFormat_incrementEndUnit", 
+                    selected = "Second")
+  
+  updateCheckboxInput(session = session, 
+                      inputId = "chk_dateFormat_isActive", 
+                      value = TRUE)
+  
+  toggleModal(session = session, 
+              modalId = "modal_dateFormat", 
+              toggle = "open")
+}
+
+# Observe Event - btn_dateFormat_editFormat -------------------------
+
+OE_btn_dateFormat_editFormat <- function(session, rv_DateFormat){
+  rv_DateFormat$AddEdit <- "Edit"
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_formatName", 
+                  value = rv_DateFormat$SelectedDateFormat$ScheduleName)
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_description", 
+                  value = rv_DateFormat$SelectedDateFormat$Description)
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_dateFormat_formatCode", 
+                  value = rv_DateFormat$SelectedDateFormat$ScheduleCode)
+  
+  updateNumericInput(session = session, 
+                     inputId = "num_dateFormat_incrementStart", 
+                     value = rv_DateFormat$SelectedDateFormat$IncrementStart)
+  
+  updateSelectInput(session = session, 
+                    inputId = "sel_dateFormat_incrementStartUnit", 
+                    selected = rv_DateFormat$SelectedDateFormat$IncrementStartUnit)
+  
+  updateNumericInput(session = session, 
+                     inputId = "num_dateFormat_incrementEnd", 
+                     value = rv_DateFormat$SelectedDateFormat$IncrementEnd)
+  
+  updateSelectInput(session = session, 
+                    inputId = "sel_dateFormat_incrementEndUnit", 
+                    selected = rv_DateFormat$SelectedDateFormat$IncrementEndUnit)
+  
+  updateCheckboxInput(session = session, 
+                      inputId = "chk_dateFormat_isActive", 
+                      value = rv_DateFormat$SelectedDateFormat$IsActive)
+  
+  toggleModal(session = session, 
+              modalId = "modal_dateFormat", 
+              toggle = "open")
 }

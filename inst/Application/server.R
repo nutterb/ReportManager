@@ -31,12 +31,6 @@ shinyServer(function(input, output, session){
     SelectedSchedule = NULL
   )
   
-  rv_DateFormat <- reactiveValues(
-    DateFormat = queryDateReportingFormat(), 
-    AddEdit = "Add", 
-    SelectedDateFormat = NULL
-  )
-  
   # Schedule - Passive Observers ------------------------------------
   
   observe({
@@ -117,6 +111,76 @@ shinyServer(function(input, output, session){
         sprintf("Editing Schedule %s (%s)", 
                 rv_Schedule$SelectedSchedule$ScheduleName, 
                 rv_Schedule$SelectedSchedule$OID)
+      }
+    })
+  
+  # Date Reporting Format -------------------------------------------
+  # Date Reporting Format - Reactive Values -------------------------
+  
+  rv_DateFormat <- reactiveValues(
+    DateFormat = queryDateReportingFormat(), 
+    AddEdit = "Add", 
+    SelectedDateFormat = NULL
+  )
+  
+  # Date Reporting Format - Passive Observers -----------------------
+  
+  observe({
+    toggleState(id = "btn_dateFormat_addFormat", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_dateFormat_editFormat", 
+                condition = USER_IS_REPORT_ADMIN() && 
+                            length(input$rdo_dateFormat))
+  })
+  
+  observe({
+    req(rv_DateFormat$SelectedDateFormat)
+    
+    toggleState(id = "btn_dateFormat_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                            length(input$rdo_dateFormat) && 
+                            !rv_DateFormat$SelectedDateFormat$IsActive)
+    
+    toggleState(id = "btn_dateFormat_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                            length(input$rdo_dateFormat) && 
+                            rv_DateFormat$SelectedDateFormat$IsActive)
+  })
+  
+  # Date Reporting Format - Event Observers -------------------------
+  
+  observeEvent(input$rdo_dateFormat, 
+               OE_rdo_dateFormat(rv_DateFormat = rv_DateFormat, 
+                                 input = input))
+  
+  observeEvent(input$btn_dateFormat_addFormat, 
+               OE_dateFormat_addFormat(session = session, 
+                                       rv_DateFormat = rv_DateFormat))
+  
+  observeEvent(input$btn_dateFormat_editFormat, 
+               OE_btn_dateFormat_editFormat(session = session, 
+                                            rv_DateFormat = rv_DateFormat))
+  
+  # Date Reporting Format - Output ----------------------------------
+  
+  output$dt_dateFormat <- 
+    DT::renderDataTable({
+      queryDateReportingFormat() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_dateFormat") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_dateFormat <- DT::dataTableProxy("dt_dateFormat")
+  
+  output$title_dateFormat <- 
+    renderText({
+      if (rv_DateFormat$AddEdit == "Add"){
+        "Add New Format"
+      } else {
+        sprintf("Editing Format '%s'", 
+                rv_DateFormat$SelectedDateFormat$FormatName)
       }
     })
   
