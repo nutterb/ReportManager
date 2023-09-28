@@ -89,7 +89,8 @@ addEditUser <- function(oid         = numeric(0),
                             FirstName = first_name, 
                             LoginId = login_id, 
                             EmailAddress = email, 
-                            IsInternal = as.numeric(is_internal))
+                            IsInternal = as.numeric(is_internal), 
+                            IsActive = as.numeric(is_active))
   
   EventList <- 
     data.frame(EventUser = rep(event_user, 7), 
