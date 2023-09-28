@@ -224,6 +224,65 @@ test_that(
   }
 )
 
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_schedule_oid <- max(querySchedule()$OID)
+    next_schedule_oid <- last_schedule_oid + 1
+    
+    addEditSchedule(schedule_name = "Event Test Schedule", 
+                    frequency = 1, 
+                    frequency_unit = "Day", 
+                    offset_overlap = 1, 
+                    offset_overlap_unit = "Day",
+                    is_active = FALSE, 
+                    event_user = 1)
+    
+    ScheduleEvent <- dbGetQuery(conn, 
+                                sqlInterpolate(
+                                  conn,
+                                  "SELECT * FROM dbo.ScheduleEvent WHERE ParentSchedule = ?", 
+                                  next_schedule_oid))
+    
+    expect_equal(ScheduleEvent$EventType,
+                 c("Add", "Deactivate", "EditScheduleName", "EditFrequency", "EditOverlap"))
+    expect_true(all(table(ScheduleEvent$EventType) == 1))
+    
+    addEditSchedule(oid = next_schedule_oid, 
+                    schedule_name = "Event Test Schedule change", 
+                    frequency = 2, 
+                    frequency_unit = "Week", 
+                    offset_overlap = 1, 
+                    offset_overlap_unit = "Hour",
+                    is_active = TRUE, 
+                    event_user = 1)
+    
+    
+    ScheduleEvent2 <- dbGetQuery(conn, 
+                                 sqlInterpolate(
+                                   conn,
+                                   "SELECT * FROM dbo.ScheduleEvent WHERE ParentSchedule = ?", 
+                                   next_schedule_oid))
+    
+    expect_true(
+      all(table(ScheduleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditFrequency" = 2, 
+              "EditOverlap" = 2, 
+              "EditScheduleName" = 2))
+    )
+    
+    dbDisconnect(conn)
+  }
+)
+
 # Functionality - SQL Server ----------------------------------------
 
 options(RM_sql_flavor = "sqlite")
@@ -262,5 +321,64 @@ test_that(
     
     expect_equal(NewSchedule$ScheduleName, 
                  "Rename the schedule")
+  }
+)
+
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_schedule_oid <- max(querySchedule()$OID)
+    next_schedule_oid <- last_schedule_oid + 1
+    
+    addEditSchedule(schedule_name = "Event Test Schedule", 
+                    frequency = 1, 
+                    frequency_unit = "Day", 
+                    offset_overlap = 1, 
+                    offset_overlap_unit = "Day",
+                    is_active = FALSE, 
+                    event_user = 1)
+    
+    ScheduleEvent <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM ScheduleEvent WHERE ParentSchedule = ?", 
+                              next_schedule_oid))
+    
+    expect_equal(ScheduleEvent$EventType,
+                 c("Add", "Deactivate", "EditScheduleName", "EditFrequency", "EditOverlap"))
+    expect_true(all(table(ScheduleEvent$EventType) == 1))
+    
+    addEditSchedule(oid = next_schedule_oid, 
+                    schedule_name = "Event Test Schedule change", 
+                    frequency = 2, 
+                    frequency_unit = "Week", 
+                    offset_overlap = 1, 
+                    offset_overlap_unit = "Hour",
+                    is_active = TRUE, 
+                    event_user = 1)
+    
+    
+    ScheduleEvent2 <- dbGetQuery(conn, 
+                             sqlInterpolate(
+                               conn,
+                               "SELECT * FROM ScheduleEvent WHERE ParentSchedule = ?", 
+                               next_schedule_oid))
+    
+    expect_true(
+      all(table(ScheduleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditFrequency" = 2, 
+              "EditOverlap" = 2, 
+              "EditScheduleName" = 2))
+    )
+    
+    dbDisconnect(conn)
   }
 )

@@ -141,6 +141,59 @@ test_that(
   }
 )
 
+
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_role_oid <- max(queryRole()$OID)
+    next_role_oid <- last_role_oid + 1
+    
+    addEditRole(role_name = "RoleEventTesting",
+                role_description = "testing that we record events",
+                is_active = FALSE, 
+                event_user = 1)
+    
+    RoleEvent <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM RoleEvent WHERE ParentRole = ?", 
+                              next_role_oid))
+    
+    expect_equal(RoleEvent$EventType,
+                 c("Add", "Deactivate", "EditRoleName", "EditRoleDescription"))
+    expect_true(all(table(RoleEvent$EventType) == 1))
+    
+    addEditRole(oid = next_role_oid, 
+                role_name = "RoleEventTestingChange",
+                role_description = "changing that we record events",
+                is_active = TRUE, 
+                event_user = 1)
+    
+    
+    RoleEvent2 <- dbGetQuery(conn, 
+                             sqlInterpolate(
+                               conn,
+                               "SELECT * FROM RoleEvent WHERE ParentRole = ?", 
+                               next_role_oid))
+    
+    expect_true(
+      all(table(RoleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditRoleDescription" = 2, 
+              "EditRoleName" = 2))
+    )
+    
+    dbDisconnect(conn)
+  }
+)
+
 # Functionality - SQL Server ----------------------------------------
 
 options(RM_sql_flavor = "sql_server")
@@ -180,5 +233,57 @@ test_that(
                       ncols = 4)
     
     expect_equal(NewRole$RoleName, "Edited Role Name")
+  }
+)
+
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_role_oid <- max(queryRole()$OID)
+    next_role_oid <- last_role_oid + 1
+    
+    addEditRole(role_name = "RoleEventTesting",
+                role_description = "testing that we record events",
+                is_active = FALSE, 
+                event_user = 1)
+    
+    RoleEvent <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM dbo.RoleEvent WHERE ParentRole = ?", 
+                              next_role_oid))
+    
+    expect_equal(RoleEvent$EventType,
+                 c("Add", "Deactivate", "EditRoleName", "EditRoleDescription"))
+    expect_true(all(table(RoleEvent$EventType) == 1))
+    
+    addEditRole(oid = next_role_oid, 
+                role_name = "RoleEventTestingChange",
+                role_description = "changing that we record events",
+                is_active = TRUE, 
+                event_user = 1)
+    
+    
+    RoleEvent2 <- dbGetQuery(conn, 
+                             sqlInterpolate(
+                               conn,
+                               "SELECT * FROM dbo.RoleEvent WHERE ParentRole = ?", 
+                               next_role_oid))
+    
+    expect_true(
+      all(table(RoleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditRoleDescription" = 2, 
+              "EditRoleName" = 2))
+    )
+    
+    dbDisconnect(conn)
   }
 )

@@ -77,13 +77,13 @@ addEditSchedule <- function(oid = numeric(0),
   schedule_name <- trimws(schedule_name)
   
   event_time <- Sys.time()
-  
+ 
   AddEditData <- data.frame(ScheduleName = schedule_name, 
                             Frequency = frequency, 
                             FrequencyUnit = frequency_unit, 
                             OffsetOverlap = offset_overlap, 
                             OffsetOverlapUnit = offset_overlap_unit, 
-                            IsActive = is_active, 
+                            IsActive = as.numeric(is_active), 
                             stringsAsFactors = FALSE)
   
   EventList <- 
@@ -93,7 +93,8 @@ addEditSchedule <- function(oid = numeric(0),
                              "EditScheduleName", 
                              "EditFrequency", 
                              "EditOverlap"), 
-               EventDateTime = rep(event_time, 5), 
+               EventDateTime = rep(format(event_time, 
+                                          format = "%Y-%m-%d %H:%M:%S"), 5), 
                NewValue = c("", 
                             is_active, 
                             schedule_name, 
@@ -102,6 +103,7 @@ addEditSchedule <- function(oid = numeric(0),
                stringsAsFactors = FALSE)
   
   if (length(oid) == 0){
+
     OID <- insertRecord(AddEditData, 
                         table_name = "Schedule", 
                         return_oid = TRUE)
