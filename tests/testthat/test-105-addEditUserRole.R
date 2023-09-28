@@ -137,6 +137,67 @@ test_that(
   }
 )
 
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a role for testing
+    
+    addEditRole(role_name = "UserRoleEventTest", 
+                role_description = "Role for User Role Event Testing", 
+                is_active = TRUE, 
+                event_user = 1)
+    
+    role_oid <- max(queryRole()$OID)
+    
+    # Assign a user to the role
+    
+    last_userrole_oid <- max(queryUserRole()$OID)
+    next_userrole_oid <- last_userrole_oid + 1
+    
+    addEditUserRole(parent_user = 1, 
+                    parent_role = role_oid, 
+                    is_active = FALSE, 
+                    event_user = 1)
+    
+    UserRoleEvent <- dbGetQuery(conn, 
+                                sqlInterpolate(
+                                  conn,
+                                  "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?", 
+                                  next_userrole_oid))
+    
+    expect_equal(UserRoleEvent$EventType,
+                 c("Add", "Deactivate"))
+    expect_true(all(table(UserRoleEvent$EventType) == 1))
+    
+    addEditUserRole(oid = next_userrole_oid, 
+                    parent_user = 1, 
+                    parent_role = role_oid, 
+                    is_active = TRUE,  
+                    event_user = 1)
+    
+    
+    UserRoleEvent2 <- dbGetQuery(conn, 
+                                 sqlInterpolate(
+                                   conn,
+                                   "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?", 
+                                   next_userrole_oid))
+    
+    expect_true(
+      all(table(UserRoleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1))
+    )
+    
+    dbDisconnect(conn)
+  }
+)
+
 # Functionality - SQLite --------------------------------------------
 
 options(RM_sql_flavor = "sqlite")
@@ -190,5 +251,66 @@ test_that(
                                  parent_role = 5, 
                                  event_user = 1), 
                  "A UserRole record for User.OID")
+  }
+)
+
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a role for testing
+    
+    addEditRole(role_name = "UserRoleEventTest", 
+                role_description = "Role for User Role Event Testing", 
+                is_active = TRUE, 
+                event_user = 1)
+    
+    role_oid <- max(queryRole()$OID)
+    
+    # Assign a user to the role
+    
+    last_userrole_oid <- max(queryUserRole()$OID)
+    next_userrole_oid <- last_userrole_oid + 1
+    
+    addEditUserRole(parent_user = 1, 
+                    parent_role = role_oid, 
+                    is_active = FALSE, 
+                    event_user = 1)
+    
+    UserRoleEvent <- dbGetQuery(conn, 
+                                sqlInterpolate(
+                                  conn,
+                                  "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?", 
+                                  next_userrole_oid))
+    
+    expect_equal(UserRoleEvent$EventType,
+                 c("Add", "Deactivate"))
+    expect_true(all(table(UserRoleEvent$EventType) == 1))
+    
+    addEditUserRole(oid = next_userrole_oid, 
+                    parent_user = 1, 
+                    parent_role = role_oid, 
+                    is_active = TRUE,  
+                    event_user = 1)
+    
+    
+    UserRoleEvent2 <- dbGetQuery(conn, 
+                                 sqlInterpolate(
+                                   conn,
+                                   "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?", 
+                                   next_userrole_oid))
+    
+    expect_true(
+      all(table(UserRoleEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1))
+    )
+    
+    dbDisconnect(conn)
   }
 )

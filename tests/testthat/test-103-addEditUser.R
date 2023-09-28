@@ -305,6 +305,69 @@ test_that(
   }
 )
 
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_user_oid <- max(queryUser()$OID)
+    next_user_oid <- last_user_oid + 1
+    
+    addEditUser(last_name = "EventTest", 
+                first_name = "User", 
+                login_id = "eventtest", 
+                email = "eventtest@nowhere.com", 
+                is_internal = FALSE, 
+                is_active = FALSE, 
+                event_user = 1)
+    
+    UserEvent <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM UserEvent WHERE ParentUser = ?", 
+                              next_user_oid))
+    
+    expect_equal(UserEvent$EventType,
+                 c("Add", "EditLastName", "EditFirstName", "EditLoginId", "EditEmailAddress", 
+                   "SetInternalFalse", "Deactivate"))
+    expect_true(all(table(UserEvent$EventType) == 1))
+                 
+    addEditUser(oid = next_user_oid, 
+                last_name = "EventTestEdit", 
+                first_name = "UserEdit", 
+                login_id = "LoginIdChange", 
+                email = "new@email.org", 
+                is_internal = TRUE, 
+                is_active = TRUE, 
+                event_user = 1)
+    
+
+    UserEvent2 <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM UserEvent WHERE ParentUser = ?", 
+                              next_user_oid))
+    
+    expect_true(
+      all(table(UserEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditEmailAddress" = 2, 
+              "EditFirstName" = 2, 
+              "EditLastName" = 2, 
+              "EditLoginId" = 2, 
+              "SetInternalFalse" = 1, 
+              "SetInternalTrue" = 1))
+    )
+      
+    dbDisconnect(conn)
+  }
+)
+
 # Functionality - SQLite --------------------------------------------
 
 configureReportManager(flavor = "sqlite")
@@ -312,6 +375,9 @@ configureReportManager(flavor = "sqlite")
 test_that(
   "Add a User in SQLite", 
   {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
     addEditUser(last_name = "Doe", 
                 first_name = "Jane", 
                 login_id = "jdoe", 
@@ -339,6 +405,9 @@ test_that(
 test_that(
   "Edit a User in SQLite", 
   {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
     addEditUser(oid = 2, 
                 last_name = "Duck", 
                 first_name = "John", 
@@ -359,6 +428,69 @@ test_that(
     expect_data_frame(NewUserEvent, 
                       nrows = 13, 
                       ncols = 6)
+    
+    dbDisconnect(conn)
+  }
+)
+
+test_that(
+  "Confirm events are recorded correctly", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    last_user_oid <- max(queryUser()$OID)
+    next_user_oid <- last_user_oid + 1
+    
+    addEditUser(last_name = "EventTest", 
+                first_name = "User", 
+                login_id = "eventtest", 
+                email = "eventtest@nowhere.com", 
+                is_internal = FALSE, 
+                is_active = FALSE, 
+                event_user = 1)
+    
+    UserEvent <- dbGetQuery(conn, 
+                            sqlInterpolate(
+                              conn,
+                              "SELECT * FROM UserEvent WHERE ParentUser = ?", 
+                              next_user_oid))
+    
+    expect_equal(UserEvent$EventType,
+                 c("Add", "EditLastName", "EditFirstName", "EditLoginId", "EditEmailAddress", 
+                   "SetInternalFalse", "Deactivate"))
+    expect_true(all(table(UserEvent$EventType) == 1))
+    
+    addEditUser(oid = next_user_oid, 
+                last_name = "EventTestEdit", 
+                first_name = "UserEdit", 
+                login_id = "LoginIdChange", 
+                email = "new@email.org", 
+                is_internal = TRUE, 
+                is_active = TRUE, 
+                event_user = 1)
+    
+    
+    UserEvent2 <- dbGetQuery(conn, 
+                             sqlInterpolate(
+                               conn,
+                               "SELECT * FROM UserEvent WHERE ParentUser = ?", 
+                               next_user_oid))
+    
+    expect_true(
+      all(table(UserEvent2$EventType) ==
+            c("Activate" = 1, 
+              "Add" = 1, 
+              "Deactivate" = 1, 
+              "EditEmailAddress" = 2, 
+              "EditFirstName" = 2, 
+              "EditLastName" = 2, 
+              "EditLoginId" = 2, 
+              "SetInternalFalse" = 1, 
+              "SetInternalTrue" = 1))
+    )
     
     dbDisconnect(conn)
   }

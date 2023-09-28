@@ -89,7 +89,8 @@ addEditUser <- function(oid         = numeric(0),
                             FirstName = first_name, 
                             LoginId = login_id, 
                             EmailAddress = email, 
-                            IsInternal = as.numeric(is_internal))
+                            IsInternal = as.numeric(is_internal), 
+                            IsActive = as.numeric(is_active))
   
   EventList <- 
     data.frame(EventUser = rep(event_user, 7), 
@@ -100,7 +101,8 @@ addEditUser <- function(oid         = numeric(0),
                              "EditEmailAddress", 
                              if (is_internal) "SetInternalTrue" else "SetInternalFalse", 
                              if (is_active) "Activate" else "Deactivate"), 
-               EventDateTime = rep(event_time, 7), 
+               EventDateTime = rep(format(event_time, 
+                                          format = "%Y-%m-%d %H:%M:%S"), 7), 
                NewValue = c("", 
                             last_name, 
                             first_name, 
