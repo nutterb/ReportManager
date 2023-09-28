@@ -30,7 +30,13 @@ test_that(
                              role_name = 123, 
                              role_description = "role description", 
                              event_user = 1), 
-                 "'role_name': Must be of type 'character'")
+                 "'role_name': Must be of type 'string'")
+    
+    expect_error(addEditRole(oid = 1, 
+                             role_name = randomVarchar(76), 
+                             role_description = "role description", 
+                             event_user = 1), 
+                 "'role_name': All elements must have at most 75")
   }
 )
 
@@ -47,7 +53,13 @@ test_that(
                              role_name = "role", 
                              role_description = 123, 
                              event_user = 1), 
-                 "'role_description': Must be of type 'character'")
+                 "'role_description': Must be of type 'string'")
+    
+    expect_error(addEditRole(oid = 1, 
+                             role_name = "role", 
+                             role_description = randomVarchar(251), 
+                             event_user = 1), 
+                 "'role_description': All elements must have at most 250")
   }
 )
 

@@ -42,21 +42,21 @@ addEditUser <- function(oid         = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertCharacter(x = last_name, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = last_name, 
+                          max.chars = 50, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = first_name, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = first_name, 
+                          max.chars = 50, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = login_id, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = login_id, 
+                          max.chars = 50, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = email, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = email, 
+                          max.chars = 100, 
+                          add = coll)
   
   checkmate::assertLogical(x = is_internal, 
                            len = 1, 

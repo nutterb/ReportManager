@@ -26,13 +26,19 @@ test_that(
                                             description = "15 Jan 2000", 
                                             format_code = "%d %b %Y", 
                                             event_user = 1), 
-                 "'format_name': Must be of type 'character'")
+                 "'format_name': Must be of type 'string'")
     
     expect_error(addEditDateReportingFormat(format_name = c("Date", "Format"), 
                                             description = "15 Jan 2000", 
                                             format_code = "%d %b %Y", 
                                             event_user = 1), 
                  "'format_name': Must have length 1")
+    
+    expect_error(addEditDateReportingFormat(format_name = randomVarchar(26), 
+                                            description = "15 Jan 2000", 
+                                            format_code = "%d %b %Y", 
+                                            event_user = 1), 
+                 "'format_name': All elements must have at most 25")
   }
 )
 
@@ -43,13 +49,19 @@ test_that(
                                             description = 15, 
                                             format_code = "%d %b %Y", 
                                             event_user = 1), 
-                 "'description': Must be of type 'character'")
+                 "'description': Must be of type 'string'")
     
     expect_error(addEditDateReportingFormat(format_name = "Date", 
                                             description = c("15 Jan ", "2000"), 
                                             format_code = "%d %b %Y", 
                                             event_user = 1), 
                  "'description': Must have length 1")
+    
+    expect_error(addEditDateReportingFormat(format_name = "Date", 
+                                            description = randomVarchar(51), 
+                                            format_code = "%d %b %Y", 
+                                            event_user = 1), 
+                 "'description': All elements must have at most 50")
   }
 )
 
@@ -60,13 +72,19 @@ test_that(
                                             description = "15 Jan 2000", 
                                             format_code = 123, 
                                             event_user = 1), 
-                 "'format_code': Must be of type 'character'")
+                 "'format_code': Must be of type 'string'")
     
-    expect_error(addEditDateReportingFormat(format_name = "Date", , 
+    expect_error(addEditDateReportingFormat(format_name = "Date", 
                                             description = "15 Jan 2000", 
                                             format_code = c("%d %b", " %Y"), 
                                             event_user = 1), 
                  "'format_code': Must have length 1")
+    
+    expect_error(addEditDateReportingFormat(format_name = "Date", 
+                                            description = "15 Jan 2000", 
+                                            format_code = randomVarchar(26), 
+                                            event_user = 1), 
+                 "'format_code': All elements must have at most 25")
   }
 )
 

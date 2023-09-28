@@ -36,7 +36,7 @@ test_that(
                                  offset_overlap_unit = "Day", 
                                  is_active = TRUE, 
                                  event_user = 1), 
-                 "'schedule_name': Must be of type 'character'")
+                 "'schedule_name': Must be of type 'string'")
     
     expect_error(addEditSchedule(schedule_name = c("Schedule", "Name"), 
                                  frequency = 1, 
@@ -46,6 +46,15 @@ test_that(
                                  is_active = TRUE, 
                                  event_user = 1), 
                  "'schedule_name': Must have length 1")
+    
+    expect_error(addEditSchedule(schedule_name = randomVarchar(51), 
+                                 frequency = 1, 
+                                 frequency_unit = "Day", 
+                                 offset_overlap = 0, 
+                                 offset_overlap_unit = "Day", 
+                                 is_active = TRUE, 
+                                 event_user = 1), 
+                 "'schedule_name': All elements must have at most 50")
   }
 )
 

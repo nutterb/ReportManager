@@ -27,13 +27,14 @@ addEditRole <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertCharacter(x = role_name, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = role_name, 
+                          max.chars = 75, 
+                          add = coll)
   
-  checkmate::assertCharacter(x = role_description, 
-                             len = 1, 
-                             add = coll)
+  checkmate::assertString(x = role_description, 
+                          max.chars = 250, 
+                          na.ok = TRUE,
+                          add = coll)
   
   checkmate::assertLogical(x = is_active, 
                            len = 1, 
