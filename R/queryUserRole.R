@@ -46,9 +46,9 @@ queryUserRole <- function(oid = numeric(0),
            "sqlite"     = .queryUserRole_statement_sqlite)
   
   where <- 
-    c(if (length(oid)) sprintf("UR.OID = %s", oid) else character(0), 
-      if (length(user_oid)) sprintf("U.OID = %s", user_oid) else character(0), 
-      if (length(role_oid)) sprintf("R.OID = %s", role_oid) else character(0))
+    c(if (length(oid)) sprintf("UR.[OID] = ?", oid) else character(0), 
+      if (length(user_oid)) sprintf("U.[OID] = ?", user_oid) else character(0), 
+      if (length(role_oid)) sprintf("R.[OID] = ?", role_oid) else character(0))
   
   if (length(where) > 0 ){
     where <- sprintf("WHERE %s", 
@@ -56,7 +56,16 @@ queryUserRole <- function(oid = numeric(0),
     statement <- paste(statement, where, sep = "\n")
   }
   
-  UserRole <- DBI::dbGetQuery(conn, statement)
+  param_list <- list(oid, user_oid, role_oid)
+  param_list <- param_list[lengths(param_list) > 0]
+  
+  UserRole <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     UserRole$IsActive <- as.logical(UserRole$IsActive)

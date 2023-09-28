@@ -30,13 +30,21 @@ queryDateReportingFormat <- function(oid = numeric(0)){
                       "sqlite" = .queryDateReportingFormat_statement_sqlite)
   
   if (length(oid) > 0){
-    statement <- sprintf("%s WHERE [OID] = %s", 
+    statement <- sprintf("%s WHERE [OID] = ?", 
                          statement, 
                          oid)
   }
   
-  DateReportingFormat <- DBI::dbGetQuery(conn, 
-                                         statement)
+  param_list <- list(oid)
+  param_list <- param_list[lengths(param_list) > 0]
+  
+  DateReportingFormat <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     DateReportingFormat$IsActive <- as.logical(DateReportingFormat$IsActive)

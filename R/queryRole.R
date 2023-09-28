@@ -31,10 +31,19 @@ queryRole <- function(oid = numeric(0)){
                                    getOption("RM_sql_flavor"))))
   
   if (length(oid) > 0){
-    statement <- paste0(statement, " WHERE [OID] = ", oid)
+    statement <- paste0(statement, " WHERE [OID] = ?")
   }
   
-  Role <- DBI::dbGetQuery(conn, statement)
+  param_list <- list(oid)
+  param_list <- param_list[lengths(param_list) > 0]
+  
+  Role <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     Role$IsActive <- as.logical(Role$IsActive)
