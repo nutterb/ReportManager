@@ -249,3 +249,107 @@ validateFooterInputs <- function(rv_Footer,
   
   val
 }
+
+# Logo --------------------------------------------------------------
+# Observe Event - rdo_logo ------------------------------------------
+
+OE_rdo_logo <- function(rv_Logo, input){
+  oid <- as.numeric(input$rdo_logo)
+  
+  rv_Logo$SelectedLogo <- 
+    rv_Logo$Logo[rv_Logo$Logo$OID == oid, ]
+}
+
+# Observe Event - btn_logo_add --------------------------------------
+
+OE_btn_logo_add <- function(session, 
+                            rv_Logo){
+  rv_Logo$AddEdit <- "Add"
+  
+  show("file_logo_add")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_fileName",
+                  value = "")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_description", 
+                  value = "")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_extension", 
+                  value = "")
+  
+  toggleModal(session = session, 
+              modalId = "modal_logo_addEdit", 
+              toggle = "open")
+}
+
+# Observe Event - btn_logo_edit -------------------------------------
+
+OE_btn_logo_edit <- function(session, 
+                             rv_Logo){
+  rv_Logo$AddEdit <- "Edit"
+  
+  hide(id = "file_logo_add")
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_fileName",
+                  value = rv_Logo$SelectedLogo$FileName)
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_description", 
+                  value = rv_Logo$SelectedLogo$Description)
+  
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_extension", 
+                  value = rv_Logo$SelectedLogo$FileExtension)
+  
+  toggleModal(session = session, 
+              modalId = "modal_logo_addEdit", 
+              toggle = "open")
+}
+# Observe Event - file_logo_add -------------------------------------
+
+OE_file_logo_add <- function(session, 
+                             input){
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_fileName", 
+                  value = tools::file_path_sans_ext(basename(input$file_logo_add$name[1])))
+  updateTextInput(session = session, 
+                  inputId = "txt_logo_add_extension", 
+                  value = tools::file_ext(input$file_logo_add$datapath[1]))
+}
+
+# Observe Event - btn_logo_addEdit ----------------------------------
+
+OE_btn_logo_addEdit <- function(session, 
+                                rv_Logo, 
+                                input, 
+                                proxy){
+  oid <- as.numeric(input$rdo_logo)
+  
+  if (rv_Logo$AddEdit == "Add"){
+    req(input$file_logo_add)
+    
+    addLogo(file_path = input$file_logo_add$datapath, 
+            file_name = tools::file_path_sans_ext(input$file_logo_add$name))
+  } else {
+    editLogo(oid = oid, 
+             description = input$txt_logo_add_description, 
+             file_name = input$txt_logo_add_fileName)
+  }
+  
+  RM_replaceData(query_fun = queryLogo, 
+                 reactive_list = rv_Logo, 
+                 data_slot = "Logo", 
+                 selected_slot = "SelectedLogo", 
+                 id_variable = "OID", 
+                 element_name = "rdo_logo", 
+                 oid = oid, 
+                 proxy = proxy)
+  
+  toggleModal(session = session, 
+              modalId = "modal_logo_addEdit", 
+              toggle = "close")
+}
