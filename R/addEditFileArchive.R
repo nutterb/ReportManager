@@ -88,7 +88,7 @@ addFileArchive <- function(parent_report_template = NA_real_,
   
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
-  
+
   description <- trimws(description)
   file_name <- trimws(file_name)
   file_extension <- trimws(file_extension)
@@ -108,7 +108,7 @@ addFileArchive <- function(parent_report_template = NA_real_,
                FileExtension = file_extension, 
                FileSize = file_size, 
                FileContent = I(list(content)))
-  
+
   insertRecord(AddData, 
                table_name = "FileArchive", 
                return_oid = FALSE)

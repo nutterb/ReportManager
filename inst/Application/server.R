@@ -409,20 +409,9 @@ shinyServer(function(input, output, session){
     toggleState("btn_logo_edit", 
                 condition = USER_IS_REPORT_ADMIN() && 
                   length(input$rdo_logo) > 0)
-  })
-  
-  observe({
-    req(rv_Logo$SelectedLogo)
     
-    toggleState("btn_logo_activate", 
-                condition = USER_IS_REPORT_ADMIN() && 
-                  length(input$rdo_logo) > 0 && 
-                  !rv_Logo$SelectedLogo$IsActive)
-    
-    toggleState("btn_logo_deactivate", 
-                condition = USER_IS_REPORT_ADMIN() && 
-                  length(input$rdo_logo) > 0 && 
-                  rv_Logo$SelectedLogo$IsActive)
+    hide("btn_logo_activate")
+    hide("btn_logo_deactivate")
   })
   
   # Logo - Event Observers ------------------------------------------
@@ -443,7 +432,7 @@ shinyServer(function(input, output, session){
       rv_Logo$AddEdit <- "Add"
       
       updateTextInput(session = session, 
-                      inputId = "txt_logo_add_filename",
+                      inputId = "txt_logo_add_fileName",
                       value = "")
       
       updateTextInput(session = session, 
@@ -464,11 +453,11 @@ shinyServer(function(input, output, session){
     input$btn_logo_edit, 
     {
       rv_Logo$AddEdit <- "Edit"
-      
+
       hide(id = "file_logo_add")
       
       updateTextInput(session = session, 
-                      inputId = "txt_logo_add_filename",
+                      inputId = "txt_logo_add_fileName",
                       value = rv_Logo$SelectedLogo$FileName)
       
       updateTextInput(session = session, 
@@ -497,6 +486,35 @@ shinyServer(function(input, output, session){
     }
   )
   
+  observeEvent(
+    input$btn_logo_addEdit, 
+    {
+      if (rv_Logo$AddEdit == "Add"){
+        req(input$file_logo_add)
+       
+        addLogo(file_path = input$file_logo_add$datapath, 
+                file_name = tools::file_path_sans_ext(input$file_logo_add$name))
+      } else {
+        editLogo(oid = as.numeric(input$rdo_logo), 
+                 description = input$txt_logo_add_description, 
+                 file_name = input$txt_logo_add_fileName)
+      }
+      
+      RM_replaceData(query_fun = queryLogo, 
+                     reactive_list = rv_Logo, 
+                     data_slot = "Logo", 
+                     selected_slot = "SelectedLogo", 
+                     id_variable = "OID", 
+                     element_name = "rdo_logo", 
+                     oid = oid, 
+                     proxy = proxy_dt_logo)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_logo_addEdit", 
+                  toggle = "close")
+    }
+  )
+  
   # Logo - Output ---------------------------------------------------
   
   output$dt_logo <- 
@@ -506,6 +524,26 @@ shinyServer(function(input, output, session){
                        element_name = "rdo_logo") %>% 
         RM_datatable(escape = -1)
     })
+  
+  proxy_dt_logo <- DT::dataTableProxy("dt_logo")
+  
+  output$img_logo_preview <- 
+    renderImage({
+      filepath <- 
+        if (rv_Logo$AddEdit == "Add"){
+          req(input$file_logo_add)
+          input$file_logo_add$datapath
+        } else {
+          File <- queryFromFileArchive(rv_Logo$SelectedLogo$OID, 
+                                       filedir = tempdir())
+          File$SavedTo
+        }
+      
+      list(src = filepath, 
+           width = "100px", 
+           height = "100px", 
+           alt = "logo image could not be displayed")      
+    }, deleteFile = FALSE)
   
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
