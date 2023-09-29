@@ -190,7 +190,7 @@ CREATE TABLE dbo.[DisclaimerEvent](
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
   EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  NewValue VARCHAR(2000) NULL, 
   
   
   PRIMARY KEY (OID), 
@@ -229,4 +229,174 @@ CREATE TABLE dbo.[FooterEvent](
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))
+);
+
+/* ReportTemplate **************************************************/
+
+CREATE TABLE dbo.[ReportTemplate](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  [Directory] VARCHAR(50) NOT NULL, 
+  [Title] VARCHAR(200) NOT NULL, 
+  [TitleSize] VARCHAR(15) NOT NULL, 
+  ParentSchedule INT NOT NULL, 
+  IsSignatureRequired BIT NOT NULL DEFAULT 0, 
+  IsActive BIT NOT NULL DEFAULT 0, 
+  LogoFile INT NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
+);
+
+/* ReportTemplateEvent *********************************************/
+
+CREATE TABLE dbo.[ReportTemplateEvent](
+  OID INTEGER IDENTITY(1, 1) NOT NULL,
+  ParentReportTemplate INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDirectory',
+                                                              'EditTitle', 
+                                                              'EditTitleSize',
+                                                              'EditParentSchedule', 
+                                                              'EditSignatureRequired',
+                                                              'EditLogoFile',
+                                                              'Deactivate', 
+                                                              'Activate', 
+                                                              'Add'))
+);
+
+/* ReportInstance **************************************************/
+
+CREATE TABLE dbo.[ReportInstance](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplate INT NOT NULL, 
+  StartDateTime DATETIME NOT NULL, 
+  EndDateTime DATETIME NOT NULL, 
+  IsScheduled BIT DEFAULT 0, 
+  InstanceTitle VARCHAR(200), 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID)
+);
+
+/* ReportInstanceEvent *********************************************/
+
+CREATE TABLE dbo.[ReportInstanceEvent](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportInstance INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportInstanceEventType CHECK (EventType IN ('EditStartTime',
+                                                              'EditEndTime', 
+                                                              'EditTitleSize',
+                                                              'EditIsScheduled', 
+                                                              'EditInstanceTitle',
+                                                              'Add'))
+); 
+
+/* ReportTemplateDisclaimer ****************************************/
+
+CREATE TABLE dbo.[ReportTemplateDisclaimer](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplate INT NOT NULL
+  ParentDisclaimer INT NOT NULL, 
+  IsActive BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID)
+);
+
+/* ReportTemplateDisclaimerEvent ***********************************/
+
+CREATE TABLE dbo.[ReportTemplateDisclaimerEvent] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplateDisclaimer INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplateDisclaimer) REFERENCES [ReportTemplateDisclaimer](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateDisclaimerEventType CHECK (EventType IN ('Add', 
+                                                                        'Activate', 
+                                                                        'Deactivate'))
+);
+
+/* ReportTemplateFooter ********************************************/
+
+CREATE TABLE dbo.[ReportTemplateFooter](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplate INT NOT NULL,
+  ParentFooter INT NOT NULL, 
+  IsActive BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID)
+);
+
+/* ReportTemplateFooterEvent ***************************************/
+
+CREATE TABLE dbo.[ReportTemplateFooterEvent] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplateFooter INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplateFooter) REFERENCES [ReportTemplateFooter](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
+                                                                        'Activate', 
+                                                                        'Deactivate'))
+);
+
+/* ReportTemplateSchedule ******************************************/
+
+CREATE TABLE dbo.[ReportTemplateSchedule](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplate INT NOT NULL,
+  ParentSchedule INT NOT NULL,
+  StartDateTime DATETIME NOT NULL,
+  IsActive BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
+);
+
+/* ReportTemplateScheduleEvent *************************************/
+
+CREATE TABLE dbo.[ReportTemplateScheduleEvent] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplateSchedule INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplateSchedule) REFERENCES [ReportTemplateSchedule](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'EditStartDate'))
 );
