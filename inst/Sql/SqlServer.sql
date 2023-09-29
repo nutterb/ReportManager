@@ -109,12 +109,12 @@ CREATE TABLE dbo.[Schedule] (
   OffsetOverlapUnit VARCHAR(10) NOT NULL, 
   IsActive BIT NOT NULL DEFAULT 0, 
   
-  PRIMARY KEY (OID),
+  PRIMARY KEY (OID)
 );
 
 /* ScheduleEventTable **********************************************/
 
-CREATE TABLE [ScheduleEvent](
+CREATE TABLE dbo.[ScheduleEvent](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentSchedule INT NOT NULL, 
   EventUser INT NOT NULL, 
@@ -135,7 +135,7 @@ CREATE TABLE [ScheduleEvent](
 
 /* DateReportingFormat Table ***************************************/
 
-CREATE TABLE [DateReportingFormat](
+CREATE TABLE dbo.[DateReportingFormat](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   [FormatName] VARCHAR(25) NOT NULL, 
   [Description] VARCHAR(50) NULL,
@@ -146,12 +146,12 @@ CREATE TABLE [DateReportingFormat](
   IncrementEndUnit VARCHAR(10) NOT NULL, 
   IsActive BIT NOT NULL DEFAULT 0, 
   
-  PRIMARY KEY (OID),
+  PRIMARY KEY (OID)
 );
 
 /* DateReportingFormatEvent Table **********************************/
 
-CREATE TABLE [DateReportingFormatEvent](
+CREATE TABLE dbo.[DateReportingFormatEvent](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentDateReportingFormat INT NOT NULL, 
   EventUser INT NOT NULL, 
@@ -174,17 +174,17 @@ CREATE TABLE [DateReportingFormatEvent](
 
 /* Disclaimer Table ************************************************/
 
-CREATE TABLE [Disclaimer](
+CREATE TABLE dbo.[Disclaimer](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   Disclaimer VARCHAR(2000) NOT NULL,
-  IsActive BIT DEFAULT 0
+  IsActive BIT DEFAULT 0,
   
-  PRIMARY KEY (OID), 
+  PRIMARY KEY (OID)
 );
 
 /* DisclaimerEvent Table *******************************************/
 
-CREATE TABLE [DisclaimerEventTable](
+CREATE TABLE dbo.[DisclaimerEvent](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentDisclaimer INT NOT NULL, 
   EventUser INT NOT NULL, 
@@ -199,22 +199,22 @@ CREATE TABLE [DisclaimerEventTable](
   CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
-                                                          'Add')
+                                                          'Add'))
 );
 
 /* Footer Table ****************************************************/
 
-CREATE TABLE [Footer](
+CREATE TABLE dbo.[Footer](
   OID INTEGER IDENTITY(1, 1) NOT NULL,  
   Footer VARCHAR(200) NOT NULL,
-  IsActive BIT DEFAULT 0
+  IsActive BIT DEFAULT 0,
   
-  PRIMARY KEY (OID), 
+  PRIMARY KEY (OID) 
 );
 
 /* FooterEvent Table ***********************************************/
 
-CREATE TABLE [FooterEventTable](
+CREATE TABLE dbo.[FooterEvent](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentFooter INT NOT NULL, 
   EventUser INT NOT NULL, 
@@ -228,5 +228,5 @@ CREATE TABLE [FooterEventTable](
   CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
-                                                      'Add')
+                                                      'Add'))
 );

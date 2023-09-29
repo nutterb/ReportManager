@@ -21,6 +21,8 @@ dashboardPage(
     
     MODAL_SCHEDULE,
     MODAL_DATE_REPORT_FORMAT,
+    MODAL_DISCLAIMER,
+    MODAL_FOOTER,
     MODAL_ROLES,
     MODAL_USER_ROLE,
     MODAL_USER,
@@ -39,9 +41,7 @@ dashboardPage(
       
       tabItem("tab_scheduleManagement", UI_TAB_SCHEDULE_PAGE), 
       
-      tabItem(
-        "tab_disclaimerFooter"
-      ), 
+      tabItem("tab_disclaimerFooter", UI_TAB_DISCLAIMER_FOOTER), 
       
       tabItem("tab_roles", UI_TAB_ROLES), 
       

@@ -15,16 +15,20 @@ if (SQLITE_READY){
     }
   }
   
+  dropTable("DisclaimerEvent", conn)
+  dropTable("Disclaimer", conn)
+  dropTable("FooterEvent", conn)
+  dropTable("Footer", conn)
   dropTable("DateReportingFormatEvent", conn)
   dropTable("DateReportingFormat", conn)
   dropTable("ScheduleEvent", conn)
   dropTable("Schedule", conn)
   dropTable("UserRoleEvent", conn)
   dropTable("UserRole", conn)
-  dropTable("UserEvent", conn)
-  dropTable("User", conn)
   dropTable("RoleEvent", conn)
   dropTable("Role", conn)
+  dropTable("UserEvent", conn)
+  dropTable("User", conn)
   
   DBI::dbDisconnect(conn)
   

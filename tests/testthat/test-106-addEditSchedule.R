@@ -227,8 +227,8 @@ test_that(
 test_that(
   "Confirm events are recorded correctly", 
   {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
     
     conn <- connectToReportManager()
     

@@ -147,24 +147,37 @@ initializeReportManagerDatabase <- function(filename,
   # Populate a Few Common Date Formats ------------------------------
   
   addEditDateReportingFormat(format_name = "Date", 
-                             description = "Date only (15 Jan 2000)", 
+                             description = "15 Jul 2000", 
                              format_code = "%d %b %Y", 
                              increment_end = -1, 
                              event_user = 1)
   addEditDateReportingFormat(format_name = "DateTime", 
-                             description = "Date and time (15 Jan 2000 16:30:25)", 
+                             description = "15 Jul 2000 16:30:25", 
                              format_code = "%d %b %Y %H:%M:%S", 
                              increment_end = -1, 
                              event_user = 1)
   addEditDateReportingFormat(format_name = "DateTime H", 
-                             description = "Date and time, hour only (15 Jan 2000 16:00)", 
+                             description = "15 Jul 2000 16:00", 
                              format_code = "%d %b %Y %H:00", 
                              increment_end = -1, 
                              event_user = 1)
   addEditDateReportingFormat(format_name = "DateTime HM", 
-                             description = "Date and time, hour and minute (15 Jan 2000 16:30)", 
+                             description = "15 Jul 2000 16:30", 
                              format_code = "%d %b %Y %H:%M", 
                              increment_end = -1, 
                              event_user = 1)
   
+  # Populate Disclaimers and Footers
+  
+  addEditDisclaimer(disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal only and do not meet the reporting requirements for official correspondence.", 
+                    event_user = 1)
+  
+  addEditFooter(footer = "For internal use only.", 
+                event_user = 1)
+  addEditFooter(footer = "For official use only.", 
+                event_user = 1)
+  addEditFooter(footer = "Not a record.", 
+                event_user = 1)
+  addEditFooter(footer = "Becomes a record upon completion.", 
+                event_user = 1)
 }

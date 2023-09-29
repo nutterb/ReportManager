@@ -205,6 +205,192 @@ shinyServer(function(input, output, session){
       }
     })
   
+  # Disclaimer ------------------------------------------------------
+  # Disclaimer - Reactive Values ------------------------------------
+  
+  rv_Disclaimer <- reactiveValues(
+    Disclaimer = queryDisclaimer(), 
+    AddEdit = "Add", 
+    SelectedDisclaimer = NULL
+  )
+  
+  # Disclaimer - Passive Observers ----------------------------------
+  
+  observe({
+    toggleState(id = "btn_disclaimer_add", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_disclaimer_edit", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_disclaimer) > 0)
+  })
+  
+  observe({
+    req(rv_Disclaimer$SelectedDisclaimer)
+    
+    toggleState(id = "btn_disclaimer_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_disclaimer) > 0 &&
+                  !rv_Disclaimer$SelectedDisclaimer$IsActive)
+    
+    toggleState(id = "btn_disclaimer_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_disclaimer) > 0 &&
+                  rv_Disclaimer$SelectedDisclaimer$IsActive)
+  })
+  
+  # Disclaimer - Event Observers ------------------------------------
+  
+  observeEvent(input$rdo_disclaimer, 
+               OE_rdo_disclaimer(rv_Disclaimer, 
+                                 input))
+  
+  observeEvent(input$btn_disclaimer_add, 
+               OE_btn_disclaimer_add(session = session, 
+                                     rv_Disclaimer = rv_Disclaimer, 
+                                     input = input))
+  
+  observeEvent(input$btn_disclaimer_edit, 
+               OE_btn_disclaimer_edit(session = session, 
+                                      rv_Disclaimer = rv_Disclaimer, 
+                                      input = input))
+  
+  observeEvent(input$btn_disclaimer_addEditDisclaimer, 
+               OE_btn_disclaimer_addEditDisclaimer(session = session, 
+                                                   rv_Disclaimer = rv_Disclaimer, 
+                                                   input = input, 
+                                                   current_user_oid = CURRENT_USER_OID(), 
+                                                   proxy = proxy_dt_disclaimer))
+  
+  observeEvent(input$btn_disclaimer_activate,
+               OE_btn_disclaimer_activateDeactivate(activate = TRUE, 
+                                                    rv_Disclaimer = rv_Disclaimer, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_disclaimer))
+  
+  observeEvent(input$btn_disclaimer_deactivate, 
+               OE_btn_disclaimer_activateDeactivate(activate = FALSE, 
+                                                    rv_Disclaimer = rv_Disclaimer, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_disclaimer))
+  
+  # Disclaimer - Output ---------------------------------------------
+  
+  output$dt_disclaimer <- 
+    DT::renderDataTable({
+      queryDisclaimer() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_disclaimer") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_disclaimer <- DT::dataTableProxy("dt_disclaimer")
+  
+  output$title_disclaimer_addEdit <- 
+    renderText({
+      if (rv_Disclaimer$AddEdit == "Add"){
+        "Add New Disclaimer"
+      } else {
+        sprintf("Editing Disclaimer %s", 
+                rv_Disclaimer$SelectedDisclaimer$OID)
+      }
+    })
+  
+  # Footer ----------------------------------------------------------
+  # Footer - Reactive Values ----------------------------------------
+  
+  rv_Footer <- reactiveValues(
+    Footer = queryFooter(), 
+    AddEdit = "Add", 
+    SelectedFooter = NULL
+  )
+  
+  # Footer - Passive Observers --------------------------------------
+  
+  observe({
+    toggleState(id = "btn_footer_add", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_footer_edit", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_footer) > 0)
+  })
+  
+  observe({
+    req(rv_Footer$SelectedFooter)
+    
+    toggleState(id = "btn_footer_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_footer) > 0 &&
+                  !rv_Footer$SelectedFooter$IsActive)
+    
+    toggleState(id = "btn_footer_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_footer) > 0 &&
+                  rv_Footer$SelectedFooter$IsActive)
+  })
+  
+  # Footer - Event Observers ----------------------------------------
+  
+  observeEvent(input$rdo_footer, 
+               OE_rdo_footer(rv_Footer, 
+                                 input))
+  
+  observeEvent(input$btn_footer_add, 
+               OE_btn_footer_add(session = session, 
+                                     rv_Footer = rv_Footer, 
+                                     input = input))
+  
+  observeEvent(input$btn_footer_edit, 
+               OE_btn_footer_edit(session = session, 
+                                      rv_Footer = rv_Footer, 
+                                      input = input))
+  
+  observeEvent(input$btn_footer_addEditFooter, 
+               OE_btn_footer_addEditFooter(session = session, 
+                                                   rv_Footer = rv_Footer, 
+                                                   input = input, 
+                                                   current_user_oid = CURRENT_USER_OID(), 
+                                                   proxy = proxy_dt_footer))
+  
+  observeEvent(input$btn_footer_activate,
+               OE_btn_footer_activateDeactivate(activate = TRUE, 
+                                                    rv_Footer = rv_Footer, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_footer))
+  
+  observeEvent(input$btn_footer_deactivate, 
+               OE_btn_footer_activateDeactivate(activate = FALSE, 
+                                                    rv_Footer = rv_Footer, 
+                                                    input = input, 
+                                                    current_user_oid = CURRENT_USER_OID(), 
+                                                    proxy = proxy_dt_footer))
+  
+  # Footer - Output -------------------------------------------------
+  
+  output$dt_footer <- 
+    DT::renderDataTable({
+      queryFooter() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_footer") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_footer <- DT::dataTableProxy("dt_footer")
+  
+  output$title_footer_addEdit <- 
+    renderText({
+      if (rv_Footer$AddEdit == "Add"){
+        "Add New Footer"
+      } else {
+        sprintf("Editing Footer %s", 
+                rv_Footer$SelectedFooter$OID)
+      }
+    })
+  
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
   rv_Roles <- 

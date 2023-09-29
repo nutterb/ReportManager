@@ -817,8 +817,8 @@ test_that(
 test_that(
   "Verify events are written for activating and deactivating", 
   {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
     
     conn <- connectToReportManager()
     
@@ -941,6 +941,322 @@ test_that(
                  ))
     
     expect_equal(DateReportingFormatEvent$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)
+
+# Disclaimer - SQL Server -------------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate Users", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    ObjectNow <- queryDisclaimer(oid = 1)
+    
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    expect_false(queryDisclaimer(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    expect_true(queryDisclaimer(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditDisclaimer(disclaimer = "Disclaimer for event testing", 
+                      event_user = 1)
+    
+    oid <- max(queryDisclaimer()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM dbo.DisclaimerEvent WHERE ParentDisclaimer = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)
+
+# Disclaimer - SQLite -----------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Users", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    ObjectNow <- queryDisclaimer(oid = 1)
+    
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    expect_false(queryDisclaimer(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    expect_true(queryDisclaimer(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditDisclaimer(disclaimer = "Disclaimer for event testing", 
+                      event_user = 1)
+    
+    oid <- max(queryDisclaimer()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Disclaimer", 
+                   event_table_name = "DisclaimerEvent", 
+                   parent_field_name = "ParentDisclaimer")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM DisclaimerEvent WHERE ParentDisclaimer = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)
+
+# Footer - SQL Server -----------------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate Users", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    ObjectNow <- queryFooter(oid = 1)
+    
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    expect_false(queryFooter(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    expect_true(queryFooter(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditFooter(footer = "Disclaimer for event testing", 
+                  event_user = 1)
+    
+    oid <- max(queryFooter()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM dbo.FooterEvent WHERE ParentFooter = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)
+
+# Footer - SQLite ---------------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate Users", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    ObjectNow <- queryFooter(oid = 1)
+    
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    expect_false(queryFooter(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    expect_true(queryFooter(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditFooter(footer = "Footer for event testing", 
+                      event_user = 1)
+    
+    oid <- max(queryFooter()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "Footer", 
+                   event_table_name = "FooterEvent", 
+                   parent_field_name = "ParentFooter")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM FooterEvent WHERE ParentFooter = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
                  c("Activate", "Deactivate", "Activate"))
     
     dbDisconnect(conn)

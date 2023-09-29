@@ -170,8 +170,8 @@ CREATE TABLE [Disclaimer](
 
 /* DisclaimerEvent Table *******************************************/
 
-CREATE TABLE [DisclaimerEventTable](
-  OID INTEGER PRIMARY KEY
+CREATE TABLE [DisclaimerEvent](
+  OID INTEGER PRIMARY KEY,
   ParentDisclaimer INT NOT NULL, 
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
@@ -183,7 +183,7 @@ CREATE TABLE [DisclaimerEventTable](
   CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
-                                                          'Add')
+                                                          'Add'))
 );
 
 /* Footer Table ****************************************************/
@@ -196,8 +196,8 @@ CREATE TABLE [Footer](
 
 /* FooterEvent Table ***********************************************/
 
-CREATE TABLE [FooterEventTable](
-  OID INTEGER PRIMARY KEY
+CREATE TABLE [FooterEvent](
+  OID INTEGER PRIMARY KEY,
   ParentFooter INT NOT NULL, 
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
@@ -209,5 +209,5 @@ CREATE TABLE [FooterEventTable](
   CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
-                                                      'Add')
+                                                      'Add'))
 );
