@@ -11,7 +11,7 @@ test_that(
   }
 )
 
-# Functionality - SQL Server ----------------------------------------
+# Functionality - SQLite --------------------------------------------
 
 options(RM_sql_flavor = "sql_server")
 
