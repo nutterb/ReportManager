@@ -218,6 +218,7 @@ CREATE TABLE [FileArchive](
   OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NULL, 
   ParentReportInstance INT NULL,
+  Description VARCHAR(250) NULL,
   CreatedDateTime DATETIME NOT NULL,
   IsLogo BIT NOT NULL DEFAULT 0,
   FileName VARCHAR(250) NOT NULL, 

@@ -19,10 +19,12 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    MODAL_REPORT_TEMPLATE,
     MODAL_SCHEDULE,
     MODAL_DATE_REPORT_FORMAT,
     MODAL_DISCLAIMER,
     MODAL_FOOTER,
+    MODAL_LOGO_ADD,
     MODAL_ROLES,
     MODAL_USER_ROLE,
     MODAL_USER,
@@ -35,13 +37,11 @@ dashboardPage(
         "tab_generateReport" 
       ), 
       
-      tabItem(
-        "tab_reportTemplate"
-      ), 
+      tabItem("tab_reportTemplate", UI_TAB_REPORT_TEMPLATE_PAGE), 
       
       tabItem("tab_scheduleManagement", UI_TAB_SCHEDULE_PAGE), 
       
-      tabItem("tab_disclaimerFooter", UI_TAB_DISCLAIMER_FOOTER), 
+      tabItem("tab_reportLayout", UI_TAB_REPORT_LAYOUT), 
       
       tabItem("tab_roles", UI_TAB_ROLES), 
       

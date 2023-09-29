@@ -391,6 +391,122 @@ shinyServer(function(input, output, session){
       }
     })
   
+  # Logo ------------------------------------------------------------
+  # Logo - Reactive Values ------------------------------------------
+  
+  rv_Logo <- reactiveValues(
+    Logo = queryLogo(), 
+    AddEdit = "Add", 
+    SelectedLogo = NULL
+  )
+  
+  # Logo - Passive Observers ----------------------------------------
+  
+  observe({
+    toggleState("btn_logo_add", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState("btn_logo_edit", 
+                condition = USER_IS_REPORT_ADMIN() && 
+                  length(input$rdo_logo) > 0)
+  })
+  
+  observe({
+    req(rv_Logo$SelectedLogo)
+    
+    toggleState("btn_logo_activate", 
+                condition = USER_IS_REPORT_ADMIN() && 
+                  length(input$rdo_logo) > 0 && 
+                  !rv_Logo$SelectedLogo$IsActive)
+    
+    toggleState("btn_logo_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() && 
+                  length(input$rdo_logo) > 0 && 
+                  rv_Logo$SelectedLogo$IsActive)
+  })
+  
+  # Logo - Event Observers ------------------------------------------
+  
+  observeEvent(
+    input$rdo_logo, 
+    {
+      oid <- as.numeric(input$rdo_logo)
+      
+      rv_Logo$SelectedLogo <- 
+        rv_Logo$Logo[rv_Logo$Logo$OID == oid, ]
+    }
+  )
+  
+  observeEvent(
+    input$btn_logo_add, 
+    {
+      rv_Logo$AddEdit <- "Add"
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_filename",
+                      value = "")
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_description", 
+                      value = "")
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_extension", 
+                      value = "")
+      
+      toggleModal(session = session, 
+                  modalId = "modal_logo_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_logo_edit, 
+    {
+      rv_Logo$AddEdit <- "Edit"
+      
+      hide(id = "file_logo_add")
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_filename",
+                      value = rv_Logo$SelectedLogo$FileName)
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_description", 
+                      value = rv_Logo$SelectedLogo$Description)
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_extension", 
+                      value = rv_Logo$SelectedLogo$FileExtension)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_logo_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$file_logo_add, 
+    {
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_fileName", 
+                      value = tools::file_path_sans_ext(basename(input$file_logo_add$name[1])))
+      updateTextInput(session = session, 
+                      inputId = "txt_logo_add_extension", 
+                      value = tools::file_ext(input$file_logo_add$datapath[1]))
+    }
+  )
+  
+  # Logo - Output ---------------------------------------------------
+  
+  output$dt_logo <- 
+    DT::renderDataTable({
+      queryLogo() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_logo") %>% 
+        RM_datatable(escape = -1)
+    })
+  
   # Roles -----------------------------------------------------------
   # Roles - Reactive Values -----------------------------------------
   rv_Roles <- 
