@@ -46,9 +46,9 @@ queryUserRole <- function(oid = numeric(0),
            "sqlite"     = .queryUserRole_statement_sqlite)
   
   where <- 
-    c(if (length(oid)) sprintf("UR.[OID] = ?", oid) else character(0), 
-      if (length(user_oid)) sprintf("U.[OID] = ?", user_oid) else character(0), 
-      if (length(role_oid)) sprintf("R.[OID] = ?", role_oid) else character(0))
+    c(if (length(oid)) "UR.[OID] = ?" else character(0), 
+      if (length(user_oid)) "U.[OID] = ?" else character(0), 
+      if (length(role_oid)) "R.[OID] = ?" else character(0))
   
   if (length(where) > 0 ){
     where <- sprintf("WHERE %s", 

@@ -817,8 +817,8 @@ test_that(
 test_that(
   "Verify events are written for activating and deactivating", 
   {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
     
     conn <- connectToReportManager()
     

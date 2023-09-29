@@ -31,8 +31,7 @@ queryDateReportingFormat <- function(oid = numeric(0)){
   
   if (length(oid) > 0){
     statement <- sprintf("%s WHERE [OID] = ?", 
-                         statement, 
-                         oid)
+                         statement)
   }
   
   param_list <- list(oid)
