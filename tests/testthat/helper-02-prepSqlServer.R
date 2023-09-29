@@ -15,6 +15,17 @@ if (SQL_SERVER_READY){
     }
   }
   
+  dropTable("FileArchive", conn)
+  dropTable("ReportTemplateEvent", conn)
+  dropTable("ReportInstanceEvent", conn)
+  dropTable("ReportInstance", conn)
+  dropTable("ReportTemplateDisclaimerEvent", conn)
+  dropTable("ReportTemplateFooterEvent", conn)
+  dropTable("ReportTemplateScheduleEvent", conn)
+  dropTable("ReportTemplateDisclaimer", conn)
+  dropTable("ReportTemplateFooter", conn)
+  dropTable("ReportTemplateSchedule", conn)
+  dropTable("ReportTemplate", conn)
   dropTable("DisclaimerEvent", conn)
   dropTable("Disclaimer", conn)
   dropTable("FooterEvent", conn)

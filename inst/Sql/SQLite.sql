@@ -212,6 +212,20 @@ CREATE TABLE [FooterEvent](
                                                       'Add'))
 );
 
+/* FileArchive *****************************************************/
+
+CREATE TABLE [FileArchive](
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplate INT NULL, 
+  ParentReportInstance INT NULL,
+  CreatedDateTime DATETIME NOT NULL,
+  IsLogo BIT NOT NULL DEFAULT 0,
+  FileName VARCHAR(250) NOT NULL, 
+  FileExtension VARCHAR(15) NOT NULL,
+  FileSize INT NOT NULL,
+  FileContent BLOB NOT NULL
+);
+
 /* ReportTemplate **************************************************/
 
 CREATE TABLE [ReportTemplate](
