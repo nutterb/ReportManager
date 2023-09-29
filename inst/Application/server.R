@@ -535,7 +535,7 @@ shinyServer(function(input, output, session){
           input$file_logo_add$datapath
         } else {
           File <- queryFromFileArchive(rv_Logo$SelectedLogo$OID, 
-                                       filedir = tempdir())
+                                       file_dir = tempdir())
           File$SavedTo
         }
       

@@ -4,13 +4,13 @@
 \alias{queryFromFileArchive}
 \title{Get a File from the FileArchive}
 \usage{
-queryFromFileArchive(oid, filedir = character(0))
+queryFromFileArchive(oid, file_dir = character(0))
 }
 \arguments{
 \item{oid}{\code{integerish(1)}. The OID of the file to retrieve from the
 FileArchive.}
 
-\item{filepath}{\code{character(0/1)}. A directory to which the file is to
+\item{file_dir}{\code{character(0/1)}. A directory to which the file is to
 be saved. If the length is zero, the save is skipped and only the
 data frame with the file BLOB object is returned.}
 }

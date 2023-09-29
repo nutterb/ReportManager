@@ -6,7 +6,7 @@
 #'   
 #' @param oid `integerish(1)`. The OID of the file to retrieve from the 
 #'   FileArchive. 
-#' @param filepath `character(0/1)`. A directory to which the file is to 
+#' @param file_dir `character(0/1)`. A directory to which the file is to 
 #'   be saved. If the length is zero, the save is skipped and only the
 #'   data frame with the file BLOB object is returned.
 #'
@@ -17,7 +17,7 @@
 #' @export
 
 queryFromFileArchive <- function(oid, 
-                                 filedir = character(0)){
+                                 file_dir = character(0)){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -26,7 +26,7 @@ queryFromFileArchive <- function(oid,
                               len = 1, 
                               add = coll)
   
-  checkmate::assertCharacter(x = filedir, 
+  checkmate::assertCharacter(x = file_dir, 
                              max.len = 1, 
                              add = coll)
   
@@ -54,8 +54,8 @@ queryFromFileArchive <- function(oid,
     File$IsLogo <- as.logical(File$IsLogo)
   }
   
-  if (length(filedir) > 0){
-    File$SavedTo <- file.path(filedir, 
+  if (length(file_dir) > 0){
+    File$SavedTo <- file.path(file_dir, 
                               sprintf("%s.%s", 
                                       File$FileName, 
                                       File$FileExtension))
