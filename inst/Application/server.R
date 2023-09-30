@@ -276,7 +276,27 @@ shinyServer(function(input, output, session){
   
   proxy_dt_template <- DT::dataTableProxy("dt_template")
   
+  output$title_reportTemplateTabset <- 
+    renderUI({
+      txt <- 
+        if (length(input$rdo_template) == 0){
+          "No Template Selected"
+        } else {
+          sprintf("Template Selected: %s", 
+                  rv_Template$Template$Title)
+        }
+      h3(txt)
+    })
   
+  output$title_reportTemplateModal <- 
+    renderText({
+      if (rv_Template$AddEdit == "Add"){
+        "Add a new template"
+      } else {
+        sprintf("Editing Template '%s'", 
+                rv_Template$SelectedTemplate$Title)
+      }
+    })
   
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
