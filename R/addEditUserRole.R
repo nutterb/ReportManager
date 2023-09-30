@@ -119,7 +119,5 @@ addEditUserRole <- function(oid = numeric(0),
  
   CurrentValue <- c(ThisUserRole$IsActive)
   
-  EventList[vapply(CurrentValue != EventList$NewValue, 
-                   isTRUE, 
-                   logical(1)), ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

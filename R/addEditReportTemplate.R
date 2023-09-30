@@ -135,7 +135,6 @@ addEditReportTemplate <- function(oid = numeric(0),
   }
   
   if (nrow(EventList)){
-    print(EventList)
     insertRecord(EventList, 
                  table_name = "ReportTemplateEvent", 
                  return_oid = FALSE)
@@ -160,5 +159,5 @@ addEditReportTemplate <- function(oid = numeric(0),
                     ThisReportTemplate$TitleSize, 
                     ThisReportTemplate$LogoFileArchive)
   
-  EventList[CurrentValue != EventList$NewValue , ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

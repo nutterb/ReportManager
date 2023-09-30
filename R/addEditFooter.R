@@ -104,5 +104,5 @@ addEditFooter <- function(oid = numeric(0),
   CurrentValue <- c(ThisFooter$Footer, 
                     ThisFooter$IsActive)
   
-  EventList[CurrentValue != EventList$NewValue, ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

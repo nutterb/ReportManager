@@ -172,7 +172,5 @@ addEditDateReportingFormat <- function(oid = numeric(0),
                     sprintf("%s %s", ThisDateReportFormat$IncrementStart, ThisDateReportFormat$IncrementStartUnit), 
                     sprintf("%s %s", ThisDateReportFormat$IncrementEnd, ThisDateReportFormat$IncrementEndUnit))
   
-  EventList[vapply(CurrentValue != EventList$NewValue, 
-                   isTRUE, 
-                   logical(1)), ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }
