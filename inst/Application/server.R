@@ -150,6 +150,37 @@ shinyServer(function(input, output, session){
   )
   
   observeEvent(
+    input$btn_template_addEdit, 
+    {
+      oid <- if (rv_Template$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_template)
+   
+      addEditReportTemplate(oid = oid, 
+                            template_directory = input$sel_template_directory, 
+                            template_file = input$sel_template_file, 
+                            title = input$txt_template_title, 
+                            title_size = input$sel_template_titleSize, 
+                            is_signature_required = input$chk_template_isSignatureRequired, 
+                            is_active = input$chk_template_isActive, 
+                            logo_oid = as.numeric(input$sel_template_logo), 
+                            event_user = CURRENT_USER_OID())
+      
+      RM_replaceData(query_fun = queryReportTemplate, 
+                     reactive_list = rv_Template, 
+                     data_slot = "Template", 
+                     selected_slot = "SelectedTemplate", 
+                     id_variable = "OID", 
+                     element_name = "rdo_template", 
+                     oid = oid, 
+                     proxy = proxy_dt_template, 
+                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_template_addEdit", 
+                  toggle = "close")
+    }
+  )
+  
+  observeEvent(
     input$sel_template_directory, 
     {
       req(input$sel_template_directory)
@@ -181,6 +212,54 @@ shinyServer(function(input, output, session){
                height = "100px",
                width = "100px")
         }, deleteFile = TRUE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_template_activate, 
+    {
+      oid <- as.numeric(input$rdo_template)
+      
+      activateRecord(oid, 
+                     active = TRUE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "ReportTemplate", 
+                     event_table_name = "ReportTemplateEvent", 
+                     parent_field_name = "ParentReportTemplate")
+      
+      RM_replaceData(query_fun = queryReportTemplate, 
+                     reactive_list = rv_Template, 
+                     data_slot = "Template", 
+                     selected_slot = "SelectedTemplate", 
+                     id_variable = "OID", 
+                     element_name = "rdo_template", 
+                     oid = oid, 
+                     proxy = proxy_dt_template, 
+                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
+    }
+  )
+  
+  observeEvent(
+    input$btn_template_deactivate, 
+    {
+      oid <- as.numeric(input$rdo_template)
+      
+      activateRecord(oid, 
+                     active = FALSE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "ReportTemplate", 
+                     event_table_name = "ReportTemplateEvent", 
+                     parent_field_name = "ParentReportTemplate")
+      
+      RM_replaceData(query_fun = queryReportTemplate, 
+                     reactive_list = rv_Template, 
+                     data_slot = "Template", 
+                     selected_slot = "SelectedTemplate", 
+                     id_variable = "OID", 
+                     element_name = "rdo_template", 
+                     oid = oid, 
+                     proxy = proxy_dt_template, 
+                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
     }
   )
   

@@ -90,7 +90,7 @@ addEditReportTemplate <- function(oid = numeric(0),
                             TemplateFile = template_file, 
                             Title = title, 
                             TitleSize = title_size, 
-                            IsSignatureRequired = is_signature_required, 
+                            IsSignatureRequired = as.numeric(is_signature_required), 
                             IsActive = as.numeric(is_active), 
                             LogoFileArchive = logo_oid)
   
@@ -135,6 +135,7 @@ addEditReportTemplate <- function(oid = numeric(0),
   }
   
   if (nrow(EventList)){
+    print(EventList)
     insertRecord(EventList, 
                  table_name = "ReportTemplateEvent", 
                  return_oid = FALSE)
@@ -159,5 +160,5 @@ addEditReportTemplate <- function(oid = numeric(0),
                     ThisReportTemplate$TitleSize, 
                     ThisReportTemplate$LogoFileArchive)
   
-  EventList[CurrentValue != EventList$NewValue, ]
+  EventList[CurrentValue != EventList$NewValue , ]
 }
