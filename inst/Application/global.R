@@ -5,3 +5,8 @@ library(shinyjs)
 library(DT)
 library(magrittr)
 library(ReportManager)
+
+TEMPLATE_FOLDERS <- system.file(package = "ReportManager")
+TEMPLATE_FOLDERS <- file.path(TEMPLATE_FOLDERS, "ReportTemplate")
+TEMPLATE_FOLDERS <- list.dirs(TEMPLATE_FOLDERS, recursive = FALSE)
+TEMPLATE_FOLDERS <- basename(TEMPLATE_FOLDERS)

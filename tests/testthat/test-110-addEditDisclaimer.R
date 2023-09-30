@@ -152,7 +152,7 @@ test_that(
 options(RM_sql_flavor = "sqlite")
 
 test_that(
-  "addEditDisclaimer functionality for SQL Server", 
+  "addEditDisclaimer functionality for SQLite", 
   {
     skip_if_not(SQLITE_READY, 
                 SQLITE_READY_MESSAGE)

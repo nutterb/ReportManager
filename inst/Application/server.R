@@ -22,6 +22,183 @@ shinyServer(function(input, output, session){
   # Global - Passive Observer ---------------------------------------
   # Global - Event Observer -----------------------------------------
   
+  # Report Template -------------------------------------------------
+  # Report Template - Reactive Values -------------------------------
+  
+  rv_Template <- reactiveValues(
+    Template = queryReportTemplate(), 
+    AddEdit = "Add", 
+    SelectedTemplate = NULL
+  )
+  
+  # Report Template - Passive Observers -----------------------------
+  
+  # Populate the Logo Choices
+  observe({
+    current_logo <- input$sel_template_logo
+
+    .choices <- rv_Logo$Logo$OID 
+    names(.choices) <- rv_Logo$Logo$FileName
+    
+    updateSelectInput(session = session, 
+                      inputId = "sel_template_logo", 
+                      choices = .choices, 
+                      selected = current_logo)
+  })
+  
+  observe({
+    toggleState(id = "btn_template_add", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState(id = "btn_template_edit", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0)
+  })
+  
+  observe({
+    req(rv_Template$SelectedTemplate)
+    
+    toggleState(id = "btn_template_activate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0 &&
+                  !rv_Template$SelectedTemplate$IsActive)
+    
+    toggleState(id = "btn_template_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0 &&
+                  rv_Template$SelectedTemplate$IsActive)
+  })
+  
+  # Report Template - Event Observers -------------------------------
+  
+  observeEvent(
+    input$rdo_template, 
+    {
+      oid <- as.numeric(input$rdo_template)
+      
+      rv_Template$SelectedTemplate <- 
+        rv_Template$Template[rv_Template$Template$OID == oid, ]
+    }
+  )
+  
+  observeEvent(
+    input$btn_template_add, 
+    {
+      rv_Template$AddEdit <- "Add"
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_template_title", 
+                      value = "")
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_directory", 
+                        selected = TEMPLATE_FOLDERS[1])
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_file", 
+                        selected = character(0))
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_template_isSignatureRequired", 
+                          value = FALSE)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_template_isActive", 
+                          value = TRUE)
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_titleSize", 
+                        selected = "LARGE")
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_logo", 
+                        selected = character(0))
+      
+      output$img_template_logo_preview <- NULL
+      
+      toggleModal(session = session, 
+                  modalId = "modal_template_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_template_edit, 
+    {
+      rv_Template$AddEdit <- "Edit"
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_template_title", 
+                      value = rv_Template$SelectedTemplate$Title)
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_directory", 
+                        selected = rv_Template$SelectedTemplate$TemplateDirectory)
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_file", 
+                        selected = rv_Template$SelectedTemplate$TemplateFile)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_template_isSignatureRequired", 
+                          value = rv_Template$SelectedTemplate$IsSignatureRequired)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_template_isActive", 
+                          value = rv_Template$SelectedTemplate$IsActive)
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_titleSize", 
+                        selected = rv_Template$SelectedTemplate$TitleSize)
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_logo", 
+                        selected = rv_Template$SelectedTemplate$LogoFileArchive)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_template_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$sel_template_directory, 
+    {
+      req(input$sel_template_directory)
+      
+      dir <- system.file("ReportTemplate", package = "ReportManager")
+      dir <- file.path(dir, input$sel_template_directory)
+      
+      files <- list.files(dir, 
+                          pattern = ".Rmd$")
+
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_file", 
+                        choices = files, 
+                        selected = files[1])
+    }
+  )
+  
+  observeEvent(
+    input$sel_template_logo, 
+    {
+      output$img_template_logo_preview <- 
+        renderImage({
+          display <- input$sel_template_logo != ""
+          
+          Logo <- queryFromFileArchive(oid = as.numeric(input$sel_template_logo),
+                                       file_dir = tempdir())
+          
+          list(src = Logo$SavedTo,
+               height = "100px",
+               width = "100px")
+        }, deleteFile = TRUE)
+    }
+  )
+  
+  
+  # Report Template - Output ----------------------------------------
+  
+  output$dt_template <- 
+    DT::renderDataTable({
+      queryReportTemplate()[REPORT_TEMPLATE_DISPLAY_PROPERTIES] %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_template") %>% 
+        RM_datatable(escape = -1)
+    })
+  
+  proxy_dt_template <- DT::dataTableProxy("dt_template")
+  
+  
+  
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
   

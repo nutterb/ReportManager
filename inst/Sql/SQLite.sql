@@ -231,15 +231,15 @@ CREATE TABLE [FileArchive](
 
 CREATE TABLE [ReportTemplate](
   OID INTEGER PRIMARY KEY, 
-  [Directory] VARCHAR(50) NOT NULL, 
+  [TemplateDirectory] VARCHAR(50) NOT NULL,
+  [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
   [TitleSize] VARCHAR(15) NOT NULL, 
-  ParentSchedule INT NOT NULL, 
   IsSignatureRequired BIT NOT NULL DEFAULT 0, 
   IsActive BIT NOT NULL DEFAULT 0, 
-  LogoFile INT NULL, 
+  LogoFileArchive INT NULL, 
   
-  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
+  FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
 );
 
 /* ReportTemplateEvent *********************************************/
@@ -254,11 +254,12 @@ CREATE TABLE [ReportTemplateEvent](
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDirectory',
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditTemplateFolder',
+                                                              'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
-                                                              'EditParentSchedule', 
-                                                              'EditSignatureRequired',
+                                                              'SetSignatureRequiredFalse',
+                                                              'SetSignatureRequiredTrue',
                                                               'EditLogoFile',
                                                               'Deactivate', 
                                                               'Activate', 

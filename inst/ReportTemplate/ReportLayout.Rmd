@@ -1,0 +1,18 @@
+---
+output:
+  html_document:
+    toc: true
+  pdf_document: 
+    keep_tex: true
+    toc: true
+params:
+  report_template_oid: 1
+  report_instance_oid: 1
+toc-title: 'Contents'
+title: 'Title'
+signature: 'Signature Block'
+narrative: 'Narrative Block'
+---
+
+```{r, child = 'SampleReport/00-Template.Rmd'}
+```

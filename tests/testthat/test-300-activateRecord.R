@@ -1262,3 +1262,173 @@ test_that(
     dbDisconnect(conn)
   }
 )
+
+# ReportTemplate - SQL Server ---------------------------------------
+
+configureReportManager(flavor = "sql_server")
+
+test_that(
+  "Activate and Deactivate ReportTemplates", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    ObjectNow <- queryReportTemplate(oid = 1)
+    
+    expect_false(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_true(queryReportTemplate(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_true(queryFooter(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQL_SERVER_READY, 
+                SQL_SERVER_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditReportTemplate(template_directory = "EventDirectory", 
+                          template_file = "EventFile",
+                          title = "Testing events are written", 
+                          title_size = "LARGE", 
+                          is_signature_required = TRUE, 
+                          is_active = TRUE,
+                          logo_oid = 2,
+                          event_user = 1)
+    
+    oid <- max(queryReportTemplate()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)
+
+# ReportTemplate - SQLite -------------------------------------------
+
+configureReportManager(flavor = "sqlite")
+
+test_that(
+  "Activate and Deactivate ReportTemplates", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    ObjectNow <- queryReportTemplate(oid = 1)
+    
+    expect_false(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_true(queryReportTemplate(oid = 1)$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_true(queryFooter(oid = 1)$IsActive)
+  }
+)
+
+test_that(
+  "Verify events are written for activating and deactivating", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    
+    conn <- connectToReportManager()
+    
+    # Make a new user for the test
+    addEditReportTemplate(template_directory = "EventDirectory", 
+                          template_file = "EventFile",
+                          title = "Testing events are written", 
+                          title_size = "LARGE", 
+                          is_signature_required = TRUE, 
+                          is_active = TRUE,
+                          logo_oid = 2,
+                          event_user = 1)
+    
+    oid <- max(queryReportTemplate()$OID)
+    
+    activateRecord(oid = oid, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    activateRecord(oid = oid, 
+                   active = TRUE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    EventTable <- 
+      dbGetQuery(conn, 
+                 sqlInterpolate(
+                   conn, 
+                   "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ? AND EventType IN (?, ?)", 
+                   oid, 
+                   "Activate", 
+                   "Deactivate"
+                 ))
+    
+    expect_equal(EventTable$EventType, 
+                 c("Activate", "Deactivate", "Activate"))
+    
+    dbDisconnect(conn)
+  }
+)

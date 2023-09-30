@@ -6,6 +6,8 @@
 \alias{SUPPORTED_SQL_FLAVOR}
 \alias{UNIT_OF_TIME}
 \alias{UNIT_OF_TIME_WITH_NONE}
+\alias{REPORT_TEMPLATE_DISPLAY_PROPERTIES}
+\alias{FONT_SIZES}
 \title{Constants for the ReportManager application}
 \format{
 An object of class \code{character} of length 2.
@@ -13,6 +15,10 @@ An object of class \code{character} of length 2.
 An object of class \code{character} of length 7.
 
 An object of class \code{character} of length 8.
+
+An object of class \code{character} of length 5.
+
+An object of class \code{character} of length 10.
 }
 \usage{
 SUPPORTED_SQL_FLAVOR
@@ -20,6 +26,10 @@ SUPPORTED_SQL_FLAVOR
 UNIT_OF_TIME
 
 UNIT_OF_TIME_WITH_NONE
+
+REPORT_TEMPLATE_DISPLAY_PROPERTIES
+
+FONT_SIZES
 }
 \description{
 Commonly used values to simplify maintenance of the package.
