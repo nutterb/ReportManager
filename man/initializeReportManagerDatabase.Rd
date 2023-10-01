@@ -2,6 +2,7 @@
 % Please edit documentation in R/initializeReportManagerDatabase.R
 \name{initializeReportManagerDatabase}
 \alias{initializeReportManagerDatabase}
+\alias{initializeUiTestingDatabase}
 \title{Intialize the Report Manager Database}
 \usage{
 initializeReportManagerDatabase(
@@ -10,6 +11,15 @@ initializeReportManagerDatabase(
   first_name,
   login_id,
   email
+)
+
+initializeUiTestingDatabase(
+  filename,
+  include = c("User", "Role", "UserRole"),
+  last_name = "Testing-LastName",
+  first_name = "Testing-FirstName",
+  login_id = Sys.info()["user"],
+  email = "email@somewhere.net"
 )
 }
 \arguments{

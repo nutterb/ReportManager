@@ -28,7 +28,13 @@ shinyServer(function(input, output, session){
   rv_Template <- reactiveValues(
     Template = queryReportTemplate(), 
     AddEdit = "Add", 
-    SelectedTemplate = NULL
+    SelectedTemplate = NULL, 
+    SelectedTemplateSchedule = NULL, 
+    SelectedTemplateDisclaimer = NULL, 
+    SelectedTemplateFooter = NULL,
+    SelectedTemplateSignature = NULL, 
+    SelectedTemplateDistribution = NULL, 
+    SelectedTemplatePermission = NULL
   )
   
   # Report Template - Passive Observers -----------------------------
@@ -78,6 +84,12 @@ shinyServer(function(input, output, session){
       
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
+      
+      
+      
+      # updateCheckboxGroupInput(session = session, 
+      #                          inputId = "chkgrp_reportTemplate_disclaimer", 
+      #                          choices = rv_Disclaimer$Disclaimer$OID)
     }
   )
   
@@ -298,6 +310,64 @@ shinyServer(function(input, output, session){
       }
     })
   
+  # Report Template Layout ------------------------------------------
+  # Report Template Layout - Passive Observers ----------------------
+  
+  observe({
+    toggle(id = "chkgrp_reportTemplate_disclaimer", 
+           condition = length(input$rdo_template) > 0)
+    
+    toggleState(id = "chkgrp_reportTemplate_disclaimer", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggle(id = "rdo_reportTemplate_footer", 
+           condition = length(input$rdo_template) > 0)
+    
+    toggleState(id = "rdo_reportTemplate_footer", 
+                condition = USER_IS_REPORT_ADMIN())
+  })
+  
+  observe({
+    disclaim <- rv_Disclaimer$Disclaimer$OID
+    names(disclaim) <- rv_Disclaimer$Disclaimer$Disclaimer
+    
+    updateCheckboxGroupInput(session = session, 
+                             inputId = "chkgrp_reportTemplate_disclaimer", 
+                             choices = disclaim)
+  })
+  
+  observe({
+    footer <- rv_Footer$Footer$OID
+    names(footer) <- rv_Footer$Footer$Footer
+    
+    updateRadioButtons(session = session, 
+                       inputId = "rdo_reportTemplate_footer", 
+                       choices = footer, 
+                       selected = character(0))
+  })
+  
+  # Report Template Layout - Event Observers ------------------------
+  # Report Template Signature ---------------------------------------
+  # Report Template Signature - Passive Observers -------------------
+  
+  observe({
+    toggleState(id = "btn_templateSignature_edit", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
+  })
+  
+  # Report Template Signature - Event Observers ---------------------
+  
+  observeEvent(
+    input$btn_templateSignature_edit, 
+    {
+      toggleModal(session = session, 
+                  modalId = "modal_templateSignature_edit", 
+                  toggle = "open")
+    }
+  )
+  
+  # Report Template Signature - Output ------------------------------
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
   

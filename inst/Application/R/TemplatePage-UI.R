@@ -12,10 +12,32 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
       title = "Schedule"
     ),
     tabPanel(
-      title = "Layout"
+      title = "Layout", 
+      tabsetPanel(
+        id = "tabset_reportTemplateLayout", 
+        type = "pills", 
+        tabPanel(
+          title = "Disclaimers",
+          checkboxGroupInput(inputId = "chkgrp_reportTemplate_disclaimer",
+                             label = "Disclaimers to Include", 
+                             choices = "Initialization", 
+                             width = "100%")
+        ),
+        tabPanel(
+          title = "Footers", 
+          radioButtons(inputId = "rdo_reportTemplate_footer", 
+                       label = "Footers to Include", 
+                       choices = "Initialization", 
+                       selected = character(0))
+        )
+      )
     ),
     tabPanel(
-      title = "Signatures"
+      title = "Signatures", 
+      RM_tabLayout("templateSignature", 
+                   add = FALSE, 
+                   edit = TRUE, 
+                   activate = FALSE)
     ),
     tabPanel(
       title = "Distribution"
@@ -64,4 +86,20 @@ MODAL_REPORT_TEMPLATE <-
         imageOutput("img_template_logo_preview")
       )
     )
+  )
+
+# MODAL_REPORT_TEMPLATE_SIGNATURE -----------------------------------
+
+MODAL_REPORT_TEMPLATE_SIGNATURE <- 
+  bsModal(
+    id = "modal_templateSignature_edit", 
+    title = "Edit Template Signatures", 
+    trigger = "trg_none", 
+    size = "large", 
+    multiSelect(inputId = "templateSignature", 
+                label = "Required Signatures", 
+                choices = character(0), 
+                selected = character(0), 
+                size = 15,
+                up_down = TRUE)
   )
