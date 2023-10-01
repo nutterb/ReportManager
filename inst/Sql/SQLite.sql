@@ -269,7 +269,7 @@ CREATE TABLE [ReportTemplateEvent](
 /* ReportInstance **************************************************/
 
 CREATE TABLE [ReportInstance](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL, 
   StartDateTime DATETIME NOT NULL, 
   EndDateTime DATETIME NOT NULL, 
@@ -282,7 +282,7 @@ CREATE TABLE [ReportInstance](
 /* ReportInstanceEvent *********************************************/
 
 CREATE TABLE [ReportInstanceEvent](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportInstance INT NOT NULL, 
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
@@ -302,7 +302,7 @@ CREATE TABLE [ReportInstanceEvent](
 /* ReportTemplateDisclaimer ****************************************/
 
 CREATE TABLE [ReportTemplateDisclaimer](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentDisclaimer INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
@@ -331,7 +331,7 @@ CREATE TABLE [ReportTemplateDisclaimerEvent] (
 /* ReportTemplateFooter ********************************************/
 
 CREATE TABLE [ReportTemplateFooter](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentFooter INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
@@ -360,7 +360,7 @@ CREATE TABLE [ReportTemplateFooterEvent] (
 /* ReportTemplateSchedule ******************************************/
 
 CREATE TABLE [ReportTemplateSchedule](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentSchedule INT NOT NULL,
   StartDateTime DATETIME NOT NULL,

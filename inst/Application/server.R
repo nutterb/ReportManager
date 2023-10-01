@@ -85,11 +85,8 @@ shinyServer(function(input, output, session){
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
       
-      
-      
-      # updateCheckboxGroupInput(session = session, 
-      #                          inputId = "chkgrp_reportTemplate_disclaimer", 
-      #                          choices = rv_Disclaimer$Disclaimer$OID)
+      rv_Template$SelectedTemplateDisclaimer <- 
+        queryReportTemplateDisclaimer(parent_report_template = oid)
     }
   )
   
@@ -331,9 +328,13 @@ shinyServer(function(input, output, session){
     disclaim <- rv_Disclaimer$Disclaimer$OID
     names(disclaim) <- rv_Disclaimer$Disclaimer$Disclaimer
     
+    sel <- rv_Template$SelectedTemplateDisclaimer$OID
+    sel <- sel[rv_Template$SelectedTemplateDisclaimer$IsActive]
+    
     updateCheckboxGroupInput(session = session, 
                              inputId = "chkgrp_reportTemplate_disclaimer", 
-                             choices = disclaim)
+                             choices = disclaim, 
+                             selected = sel)
   })
   
   observe({
@@ -347,6 +348,34 @@ shinyServer(function(input, output, session){
   })
   
   # Report Template Layout - Event Observers ------------------------
+  
+  observeEvent(
+    input$chkgrp_reportTemplate_disclaimer, 
+    {
+      print(input$chkgrp_reportTemplate_disclaimer)
+      disclaim <- as.numeric(input$chkgrp_reportTemplate_disclaimer)
+      Input <- data.frame(ParentDisclaimer = disclaim)
+      Input <- merge(Input, 
+                     rv_Template$SelectedTemplateDisclaimer, 
+                     by = "ParentDisclaimer", 
+                     all.x = TRUE, 
+                     all.y = TRUE)
+      
+      print(Input)
+      
+      for(i in seq_len(nrow(Input))){
+        addEditReportTemplateDisclaimer(
+          oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i], 
+          parent_report_template = as.numeric(input$rdo_template), 
+          parent_disclaimer = Input$ParentDisclaimer[i], 
+          is_active = isTRUE(Input$ParentDisclaimer %in% disclaim), 
+          event_user = CURRENT_USER_OID()
+        )
+      }
+    }, 
+    ignoreInit = TRUE
+  )
+  
   # Report Template Signature ---------------------------------------
   # Report Template Signature - Passive Observers -------------------
   
