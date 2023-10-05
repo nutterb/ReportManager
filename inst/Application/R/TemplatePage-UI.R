@@ -18,17 +18,19 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
         type = "pills", 
         tabPanel(
           title = "Disclaimers",
-          checkboxGroupInput(inputId = "chkgrp_reportTemplate_disclaimer",
-                             label = "Disclaimers to Include", 
-                             choices = "Initialization", 
-                             width = "100%")
+          RM_tabLayout("reportTemplate_disclaimer", 
+                       add = FALSE, 
+                       activate = FALSE)
         ),
         tabPanel(
           title = "Footers", 
-          radioButtons(inputId = "rdo_reportTemplate_footer", 
-                       label = "Footers to Include", 
-                       choices = "Initialization", 
-                       selected = character(0))
+          RM_tabLayout("reportTemplate_footer", 
+                       add = FALSE, 
+                       activate = FALSE)
+          # radioButtons(inputId = "rdo_reportTemplate_footer", 
+          #              label = "Footers to Include", 
+          #              choices = "Initialization", 
+          #              selected = character(0))
         )
       )
     ),
@@ -102,4 +104,20 @@ MODAL_REPORT_TEMPLATE_SIGNATURE <-
                 selected = character(0), 
                 size = 15,
                 up_down = TRUE)
+  )
+
+# MODAL_REPORT_TEMPLATE_DISCLAIMER ----------------------------------
+
+MODAL_REPORT_TEMPLATE_DISCLAIMER <- 
+  bsModal(
+    id = "modal_templateDisclaimer_edit", 
+    title = "Assign Disclaimers to Template", 
+    trigger = "trg_none", 
+    size = "large", 
+    checkboxGroupInput(inputId = "chkgrp_reportTemplate_disclaimer",
+                       label = "Disclaimers to Include",
+                       choices = "Initialization",
+                       width = "100%"), 
+    actionButton(inputId = "btn_reportTemplate_disclaimer_addEdit", 
+                 label = "Save")
   )

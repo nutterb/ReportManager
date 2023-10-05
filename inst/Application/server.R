@@ -87,6 +87,9 @@ shinyServer(function(input, output, session){
       
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
+      
+      # rv_Template$SelectedTemplateFooter <- 
+      #   queryReportTemplateFooter(parent_report_template = oid)
     }
   )
   
@@ -322,19 +325,9 @@ shinyServer(function(input, output, session){
     
     toggleState(id = "rdo_reportTemplate_footer", 
                 condition = USER_IS_REPORT_ADMIN())
-  })
-  
-  observe({
-    disclaim <- rv_Disclaimer$Disclaimer$OID
-    names(disclaim) <- rv_Disclaimer$Disclaimer$Disclaimer
     
-    sel <- rv_Template$SelectedTemplateDisclaimer$OID
-    sel <- sel[rv_Template$SelectedTemplateDisclaimer$IsActive]
-    
-    updateCheckboxGroupInput(session = session, 
-                             inputId = "chkgrp_reportTemplate_disclaimer", 
-                             choices = disclaim, 
-                             selected = sel)
+    toggleState(id = "btn_reportTemplate_disclaimer_edit", 
+                condition = USER_IS_REPORT_ADMIN())
   })
   
   observe({
@@ -350,31 +343,67 @@ shinyServer(function(input, output, session){
   # Report Template Layout - Event Observers ------------------------
   
   observeEvent(
-    input$chkgrp_reportTemplate_disclaimer, 
+    input$btn_reportTemplate_disclaimer_edit, 
+    {
+      disclaim <- rv_Disclaimer$Disclaimer$OID
+      names(disclaim) <- rv_Disclaimer$Disclaimer$Disclaimer
+      
+      sel <- rv_Template$SelectedTemplateDisclaimer$OID
+      sel <- sel[rv_Template$SelectedTemplateDisclaimer$IsActive]
+      
+      updateCheckboxGroupInput(session = session, 
+                               inputId = "chkgrp_reportTemplate_disclaimer", 
+                               choices = disclaim, 
+                               selected = sel)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_templateDisclaimer_edit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_reportTemplate_disclaimer_addEdit,
     {
       print(input$chkgrp_reportTemplate_disclaimer)
       disclaim <- as.numeric(input$chkgrp_reportTemplate_disclaimer)
       Input <- data.frame(ParentDisclaimer = disclaim)
-      Input <- merge(Input, 
-                     rv_Template$SelectedTemplateDisclaimer, 
-                     by = "ParentDisclaimer", 
-                     all.x = TRUE, 
+      Input <- merge(Input,
+                     rv_Template$SelectedTemplateDisclaimer,
+                     by = "ParentDisclaimer",
+                     all.x = TRUE,
                      all.y = TRUE)
-      
+
       print(Input)
-      
+
       for(i in seq_len(nrow(Input))){
         addEditReportTemplateDisclaimer(
-          oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i], 
-          parent_report_template = as.numeric(input$rdo_template), 
-          parent_disclaimer = Input$ParentDisclaimer[i], 
-          is_active = isTRUE(Input$ParentDisclaimer %in% disclaim), 
+          oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
+          parent_report_template = as.numeric(input$rdo_template),
+          parent_disclaimer = Input$ParentDisclaimer[i],
+          is_active = isTRUE(Input$ParentDisclaimer %in% disclaim),
           event_user = CURRENT_USER_OID()
         )
       }
-    }, 
-    ignoreInit = TRUE
+      
+      New <- queryReportTemplateDisclaimer(parent_report_template = rv_Template$SelectedTemplateDisclaimer$OID)
+      rv_Template$SelectedTemplateDisclaimer <- New
+      DT::replaceData(proxy = proxy_dt_reportTemplate_disclaimer, 
+                      data = New, 
+                      resetPaging = FALSE, 
+                      rownames = FALSE)
+    }
   )
+  
+  # Report Template Layout - Output ---------------------------------
+  
+  output$dt_reportTemplate_disclaimer <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplateDisclaimer)
+      makeTemplateDisclaimerData(rv_Template$SelectedTemplateDisclaimer, 
+                                 rv_Disclaimer$Disclaimer) %>% 
+        RM_datatable()
+    })
   
   # Report Template Signature ---------------------------------------
   # Report Template Signature - Passive Observers -------------------
