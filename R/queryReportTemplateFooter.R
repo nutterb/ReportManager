@@ -10,7 +10,7 @@
 #' @param parent_report_template `integerish(0/1)`. When length is 1, the 
 #'   OID of the ReportTemplate to include in the query clause. Otherwise, 
 #'   all records are returned.
-#' @param parent_disclaimer `integerish(0/1)`. When length is 1, the OID
+#' @param parent_footer `integerish(0/1)`. When length is 1, the OID
 #'   of the Disclaimer to include in the query clause. Otherwise, all 
 #'   records are returned.
 #'   
@@ -23,7 +23,7 @@
 
 queryReportTemplateFooter <- function(oid = numeric(0), 
                                           parent_report_template = numeric(0), 
-                                          parent_disclaimer = numeric(0)){
+                                          parent_footer = numeric(0)){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -36,7 +36,7 @@ queryReportTemplateFooter <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertIntegerish(x = parent_disclaimer, 
+  checkmate::assertIntegerish(x = parent_footer, 
                               max.len = 1, 
                               add = coll)
   
@@ -55,7 +55,7 @@ queryReportTemplateFooter <- function(oid = numeric(0),
   where <- 
     c(if (length(oid)) "OID = ?" else character(0), 
       if (length(parent_report_template)) "ParentReportTemplate = ?" else character(0), 
-      if (length(parent_disclaimer)) "ParentDisclaimer = ?" else character(0))
+      if (length(parent_footer)) "ParentFooter = ?" else character(0))
   
   if (length(where) > 0 ){
     where <- sprintf("WHERE %s", 
@@ -63,9 +63,9 @@ queryReportTemplateFooter <- function(oid = numeric(0),
     statement <- paste(statement, where, sep = "\n")
   }
   
-  param_list <- list(oid, parent_report_template, parent_disclaimer)
+  param_list <- list(oid, parent_report_template, parent_footer)
   param_list <- param_list[lengths(param_list) > 0]
-  
+
   ReportTemplateFooter <- 
     DBI::dbGetQuery(
       conn, 

@@ -3,14 +3,14 @@
 test_that(
   "Return an error when oid is not integerish(0/1)", 
   {
-    expect_error(queryReportTemplateDisclaimer(oid = "1", 
+    expect_error(queryReportTemplateFooter(oid = "1", 
                                                parent_report_template = 1, 
-                                               parent_disclaimer = 1), 
+                                               parent_footer = 1), 
                  "'oid': Must be of type 'integerish'")
     
-    expect_error(queryReportTemplateDisclaimer(oid = 1:2, 
+    expect_error(queryReportTemplateFooter(oid = 1:2, 
                                                parent_report_template = 1, 
-                                               parent_disclaimer = 1), 
+                                               parent_footer = 1), 
                  "'oid': Must have length <= 1")
   }
 )
@@ -18,30 +18,30 @@ test_that(
 test_that(
   "Return an error when parent_report_template is not integerish(0/1)", 
   {
-    expect_error(queryReportTemplateDisclaimer(oid = 1, 
+    expect_error(queryReportTemplateFooter(oid = 1, 
                                                parent_report_template = "1", 
-                                               parent_disclaimer = 1), 
+                                               parent_footer = 1), 
                  "'parent_report_template': Must be of type 'integerish'")
     
-    expect_error(queryReportTemplateDisclaimer(oid = 1, 
+    expect_error(queryReportTemplateFooter(oid = 1, 
                                                parent_report_template = 1:2, 
-                                               parent_disclaimer = 1), 
+                                               parent_footer = 1), 
                  "'parent_report_template': Must have length <= 1")
   }
 )
 
 test_that(
-  "Return an error when parent_disclaimer is not integerish(0/1)", 
+  "Return an error when parent_footer is not integerish(0/1)", 
   {
-    expect_error(queryReportTemplateDisclaimer(oid = 1, 
+    expect_error(queryReportTemplateFooter(oid = 1, 
                                                parent_report_template = 1, 
-                                               parent_disclaimer = "1"), 
-                 "'parent_disclaimer': Must be of type 'integerish'")
+                                               parent_footer = "1"), 
+                 "'parent_footer': Must be of type 'integerish'")
     
-    expect_error(queryReportTemplateDisclaimer(oid = 1, 
+    expect_error(queryReportTemplateFooter(oid = 1, 
                                                parent_report_template = 1, 
-                                               parent_disclaimer = 1:2), 
-                 "'parent_disclaimer': Must have length <= 1")
+                                               parent_footer = 1:2), 
+                 "'parent_footer': Must have length <= 1")
   }
 )
 
@@ -57,28 +57,28 @@ test_that(
     
     # Add an extra record just so there are more than 1
     
-    addEditReportTemplateDisclaimer(parent_report_template = 2, 
-                                    parent_disclaimer = 3, 
+    addEditReportTemplateFooter(parent_report_template = 2, 
+                                    parent_footer = 3, 
                                     event_user = 1)
     
-    Test <- queryReportTemplateDisclaimer()
+    Test <- queryReportTemplateFooter()
     
     expect_data_frame(Test)
     expect_true(nrow(Test) > 0)
     
     
-    Test <- queryReportTemplateDisclaimer(oid = 1)
+    Test <- queryReportTemplateFooter(oid = 1)
     expect_data_frame(Test, 
                       nrows = 1)
     expect_equal(Test$OID, 1)
     
     
-    Test <- queryReportTemplateDisclaimer(parent_report_template = 1)
+    Test <- queryReportTemplateFooter(parent_report_template = 1)
     expect_data_frame(Test)
     expect_true(all(Test$ParentReportTemplate == 1))
     
     
-    Test <- queryReportTemplateDisclaimer(parent_disclaimer = 3)
+    Test <- queryReportTemplateFooter(parent_footer = 3)
     expect_data_frame(Test)
     expect_true(all(Test$ParentDisclaimer == 3))
   }
@@ -96,29 +96,29 @@ test_that(
     
     # Add an extra record just so there are more than 1
     
-    addEditReportTemplateDisclaimer(parent_report_template = 2, 
-                                    parent_disclaimer = 3, 
+    addEditReportTemplateFooter(parent_report_template = 2, 
+                                    parent_footer = 3, 
                                     order = 3,
                                     event_user = 1)
     
-    Test <- queryReportTemplateDisclaimer()
+    Test <- queryReportTemplateFooter()
     
     expect_data_frame(Test)
     expect_true(nrow(Test) > 0)
     
     
-    Test <- queryReportTemplateDisclaimer(oid = 1)
+    Test <- queryReportTemplateFooter(oid = 1)
     expect_data_frame(Test, 
                       nrows = 1)
     expect_equal(Test$OID, 1)
     
     
-    Test <- queryReportTemplateDisclaimer(parent_report_template = 1)
+    Test <- queryReportTemplateFooter(parent_report_template = 1)
     expect_data_frame(Test)
     expect_true(all(Test$ParentReportTemplate == 1))
     
     
-    Test <- queryReportTemplateDisclaimer(parent_disclaimer = 3)
+    Test <- queryReportTemplateFooter(parent_footer = 3)
     expect_data_frame(Test)
     expect_true(all(Test$ParentDisclaimer == 3))
   }

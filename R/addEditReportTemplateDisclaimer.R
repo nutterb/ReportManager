@@ -19,7 +19,8 @@
 
 addEditReportTemplateDisclaimer <- function(oid = numeric(0), 
                                             parent_report_template, 
-                                            parent_disclaimer, 
+                                            parent_disclaimer,
+                                            order,
                                             is_active = TRUE, 
                                             event_user){
   # Argument Validation ---------------------------------------------
@@ -35,6 +36,10 @@ addEditReportTemplateDisclaimer <- function(oid = numeric(0),
                               add = coll)
   
   checkmate::assertIntegerish(x = parent_disclaimer, 
+                              len = 1, 
+                              add = coll)
+  
+  checkmate::assertIntegerish(x = order, 
                               len = 1, 
                               add = coll)
   
@@ -68,18 +73,21 @@ addEditReportTemplateDisclaimer <- function(oid = numeric(0),
   on.exit({ DBI::dbDisconnect(conn) })
   
   AddEditData <- data.frame(ParentReportTemplate = parent_report_template, 
-                            ParentDisclaimer = parent_disclaimer, 
+                            ParentDisclaimer = parent_disclaimer,
+                            Order = order,
                             IsActive   = is_active)
   
   event_time <- Sys.time()
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 2), 
+    data.frame(EventUser = rep(event_user, 3), 
                EventType = c("Add", 
+                             "Reorder",
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 2), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
                NewValue = c("", 
+                            order,
                             is_active), 
                stringsAsFactors = FALSE)
   
@@ -92,8 +100,8 @@ addEditReportTemplateDisclaimer <- function(oid = numeric(0),
                                                       nrow(EventList))
   } else {
     EventList <- .addEditReportTemplateDisclaimer_editedEventList(EventList = EventList,
-                                                                    oid       = oid,
-                                                                    conn      = conn)
+                                                                  oid       = oid,
+                                                                  conn      = conn)
     
     if (nrow(EventList) > 0){
       updateRecord(data = AddEditData, 
@@ -120,7 +128,8 @@ addEditReportTemplateDisclaimer <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisRTD <- queryReportTemplateDisclaimer(oid)
   
-  CurrentValue <- c(ThisRTD$IsActive)
+  CurrentValue <- c(ThisRTD$Order,
+                    ThisRTD$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

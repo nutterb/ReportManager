@@ -142,6 +142,6 @@ MODAL_REPORT_TEMPLATE_FOOTER <-
                 up_down = TRUE), 
     br(),
     br(),
-    actionButton(inputId = "btn_reportTemplate_Footer_addEdit", 
+    actionButton(inputId = "btn_reportTemplate_footer_addEdit", 
                  label = "Save")
   )

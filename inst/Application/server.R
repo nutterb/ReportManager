@@ -84,196 +84,52 @@ shinyServer(function(input, output, session){
       
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
-      
+  
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
-      
+
       rv_Template$SelectedTemplateFooter <-
         queryReportTemplateFooter(parent_report_template = oid)
     }
   )
   
-  observeEvent(
-    input$btn_template_add, 
-    {
-      rv_Template$AddEdit <- "Add"
-      
-      updateTextInput(session = session, 
-                      inputId = "txt_template_title", 
-                      value = "")
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_directory", 
-                        selected = TEMPLATE_FOLDERS[1])
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_file", 
-                        selected = character(0))
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_template_isSignatureRequired", 
-                          value = FALSE)
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_template_isActive", 
-                          value = TRUE)
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_titleSize", 
-                        selected = "LARGE")
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_logo", 
-                        selected = character(0))
-      
-      output$img_template_logo_preview <- NULL
-      
-      toggleModal(session = session, 
-                  modalId = "modal_template_addEdit", 
-                  toggle = "open")
-    }
-  )
+  observeEvent(input$btn_template_add, 
+               OE_btn_template_add(session = session, 
+                                   rv_Template = rv_Template, 
+                                   output = output))
   
-  observeEvent(
-    input$btn_template_edit, 
-    {
-      rv_Template$AddEdit <- "Edit"
-      
-      updateTextInput(session = session, 
-                      inputId = "txt_template_title", 
-                      value = rv_Template$SelectedTemplate$Title)
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_directory", 
-                        selected = rv_Template$SelectedTemplate$TemplateDirectory)
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_file", 
-                        selected = rv_Template$SelectedTemplate$TemplateFile)
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_template_isSignatureRequired", 
-                          value = rv_Template$SelectedTemplate$IsSignatureRequired)
-      updateCheckboxInput(session = session, 
-                          inputId = "chk_template_isActive", 
-                          value = rv_Template$SelectedTemplate$IsActive)
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_titleSize", 
-                        selected = rv_Template$SelectedTemplate$TitleSize)
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_logo", 
-                        selected = rv_Template$SelectedTemplate$LogoFileArchive)
-      
-      toggleModal(session = session, 
-                  modalId = "modal_template_addEdit", 
-                  toggle = "open")
-    }
-  )
+  observeEvent(input$btn_template_edit, 
+               OE_btn_template_edit(session = session, 
+                                    rv_Template = rv_Template))
   
-  observeEvent(
-    input$btn_template_addEdit, 
-    {
-      oid <- if (rv_Template$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_template)
-   
-      addEditReportTemplate(oid = oid, 
-                            template_directory = input$sel_template_directory, 
-                            template_file = input$sel_template_file, 
-                            title = input$txt_template_title, 
-                            title_size = input$sel_template_titleSize, 
-                            is_signature_required = input$chk_template_isSignatureRequired, 
-                            is_active = input$chk_template_isActive, 
-                            logo_oid = as.numeric(input$sel_template_logo), 
-                            event_user = CURRENT_USER_OID())
-      
-      RM_replaceData(query_fun = queryReportTemplate, 
-                     reactive_list = rv_Template, 
-                     data_slot = "Template", 
-                     selected_slot = "SelectedTemplate", 
-                     id_variable = "OID", 
-                     element_name = "rdo_template", 
-                     oid = oid, 
-                     proxy = proxy_dt_template, 
-                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
-      
-      toggleModal(session = session, 
-                  modalId = "modal_template_addEdit", 
-                  toggle = "close")
-    }
-  )
+  observeEvent(input$btn_template_addEdit, 
+               OE_btn_template_add_edit(session = session, 
+                                        rv_Template = rv_Template, 
+                                        input = input, 
+                                        current_user_oid = CURRENT_USER_OID(), 
+                                        proxy = proxy_dt_template))
   
-  observeEvent(
-    input$sel_template_directory, 
-    {
-      req(input$sel_template_directory)
-      
-      dir <- system.file("ReportTemplate", package = "ReportManager")
-      dir <- file.path(dir, input$sel_template_directory)
-      
-      files <- list.files(dir, 
-                          pattern = ".Rmd$")
-
-      updateSelectInput(session = session, 
-                        inputId = "sel_template_file", 
-                        choices = files, 
-                        selected = files[1])
-    }
-  )
+  observeEvent(input$sel_template_directory, 
+               OE_sel_template_directory(session = session, 
+                                         input = input))
   
-  observeEvent(
-    input$sel_template_logo, 
-    {
-      output$img_template_logo_preview <- 
-        renderImage({
-          display <- input$sel_template_logo != ""
-          
-          Logo <- queryFromFileArchive(oid = as.numeric(input$sel_template_logo),
-                                       file_dir = tempdir())
-          
-          list(src = Logo$SavedTo,
-               height = "100px",
-               width = "100px")
-        }, deleteFile = TRUE)
-    }
-  )
+  observeEvent(input$sel_template_logo, 
+               OE_sel_template_logo(input = input, 
+                                    output = output))
   
-  observeEvent(
-    input$btn_template_activate, 
-    {
-      oid <- as.numeric(input$rdo_template)
-      
-      activateRecord(oid, 
-                     active = TRUE, 
-                     event_user = CURRENT_USER_OID(), 
-                     table_name = "ReportTemplate", 
-                     event_table_name = "ReportTemplateEvent", 
-                     parent_field_name = "ParentReportTemplate")
-      
-      RM_replaceData(query_fun = queryReportTemplate, 
-                     reactive_list = rv_Template, 
-                     data_slot = "Template", 
-                     selected_slot = "SelectedTemplate", 
-                     id_variable = "OID", 
-                     element_name = "rdo_template", 
-                     oid = oid, 
-                     proxy = proxy_dt_template, 
-                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
-    }
-  )
+  observeEvent(input$btn_template_activate, 
+               OE_btn_template_activate_deactivate(activate = TRUE, 
+                                                   input = input, 
+                                                   current_user_oid = CURRENT_USER_OID(), 
+                                                   rv_Template = rv_Template, 
+                                                   proxy = proxy_dt_template))
   
-  observeEvent(
-    input$btn_template_deactivate, 
-    {
-      oid <- as.numeric(input$rdo_template)
-      
-      activateRecord(oid, 
-                     active = FALSE, 
-                     event_user = CURRENT_USER_OID(), 
-                     table_name = "ReportTemplate", 
-                     event_table_name = "ReportTemplateEvent", 
-                     parent_field_name = "ParentReportTemplate")
-      
-      RM_replaceData(query_fun = queryReportTemplate, 
-                     reactive_list = rv_Template, 
-                     data_slot = "Template", 
-                     selected_slot = "SelectedTemplate", 
-                     id_variable = "OID", 
-                     element_name = "rdo_template", 
-                     oid = oid, 
-                     proxy = proxy_dt_template, 
-                     cols = REPORT_TEMPLATE_DISPLAY_PROPERTIES)
-    }
-  )
+  observeEvent(input$btn_template_deactivate, 
+               OE_btn_template_activate_deactivate(activate = FALSE, 
+                                                   input = input, 
+                                                   current_user_oid = CURRENT_USER_OID(), 
+                                                   rv_Template = rv_Template, 
+                                                   proxy = proxy_dt_template))
   
   
   # Report Template - Output ----------------------------------------
@@ -315,10 +171,12 @@ shinyServer(function(input, output, session){
   
   observe({
     toggleState(id = "btn_reportTemplate_disclaimer_edit", 
-                condition = USER_IS_REPORT_ADMIN())
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
     
     toggleState(id = "btn_reportTemplate_footer_edit", 
-                condition = USER_IS_REPORT_ADMIN())
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
   })
 
   
@@ -403,38 +261,12 @@ shinyServer(function(input, output, session){
     }
   )
   
-  observeEvent(
-    input$btn_reportTemplate_disclaimer_addEdit,
-    {
-      print(input$chkgrp_reportTemplate_disclaimer)
-      disclaim <- as.numeric(input$chkgrp_reportTemplate_disclaimer)
-      Input <- data.frame(ParentDisclaimer = disclaim)
-      Input <- merge(Input,
-                     rv_Template$SelectedTemplateDisclaimer,
-                     by = "ParentDisclaimer",
-                     all.x = TRUE,
-                     all.y = TRUE)
-
-      print(Input)
-
-      for(i in seq_len(nrow(Input))){
-        addEditReportTemplateDisclaimer(
-          oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
-          parent_report_template = as.numeric(input$rdo_template),
-          parent_disclaimer = Input$ParentDisclaimer[i],
-          is_active = isTRUE(Input$ParentDisclaimer %in% disclaim),
-          event_user = CURRENT_USER_OID()
-        )
-      }
-      
-      New <- queryReportTemplateDisclaimer(parent_report_template = rv_Template$SelectedTemplateDisclaimer$OID)
-      rv_Template$SelectedTemplateDisclaimer <- New
-      DT::replaceData(proxy = proxy_dt_reportTemplate_disclaimer, 
-                      data = New, 
-                      resetPaging = FALSE, 
-                      rownames = FALSE)
-    }
-  )
+  observeEvent(input$btn_reportTemplate_disclaimer_addEdit,
+               OE_btn_reportTemplate_disclaimer_addEdit(session = session,
+                                                        input = input, 
+                                                        rv_Template = rv_Template,
+                                                        current_user_oid = CURRENT_USER_OID(),
+                                                        proxy = proxy_dt_reportTemplate_disclaimer))
   
   
   observeEvent(
@@ -516,6 +348,13 @@ shinyServer(function(input, output, session){
     }
   )
   
+  observeEvent(input$btn_reportTemplate_footer_addEdit,
+               OE_btn_reportTemplate_footer_addEdit(session = session,
+                                                    input = input, 
+                                                    rv_Template = rv_Template,
+                                                    current_user_oid = CURRENT_USER_OID(),
+                                                    proxy = proxy_dt_reportTemplate_footer))
+  
   # Report Template Layout - Output ---------------------------------
   
   output$dt_reportTemplate_disclaimer <- 
@@ -525,6 +364,21 @@ shinyServer(function(input, output, session){
                                  rv_Disclaimer$Disclaimer) %>% 
         RM_datatable()
     })
+  
+  proxy_dt_reportTemplate_disclaimer <- DT::dataTableProxy("dt_reportTemplate_disclaimer")
+  
+  
+  output$dt_reportTemplate_footer <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplateFooter)
+
+      makeTemplateFooterData(rv_Template$SelectedTemplateFooter, 
+                                 rv_Footer$Footer) %>% 
+        RM_datatable()
+    })
+  
+  proxy_dt_reportTemplate_footer <- DT::dataTableProxy("dt_reportTemplate_footer")
+  
   
   # Report Template Signature ---------------------------------------
   # Report Template Signature - Passive Observers -------------------

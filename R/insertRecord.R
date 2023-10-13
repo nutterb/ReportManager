@@ -220,12 +220,12 @@ updateRecord <- function(data,
                     if (flavor == "sql_server") "dbo." else "", 
                     table_name)
   
-  set <- sprintf("%s = ?", 
+  set <- sprintf("[%s] = ?", 
                  names(data))
   set <- paste0(set, collapse = ",\n    ")
   set <- paste0("SET ", set)
   
-  where <- sprintf("%s = ?", 
+  where <- sprintf("[%s] = ?", 
                    names(where_data))
   where <- paste0(where, collapse = ",\n      AND ")
   where <- paste0("WHERE ", where)
