@@ -1,11 +1,11 @@
-#' @name queryReportTemplateDisclaimer
-#' @title Retrieve ReportTemplateDisclaimer Objects
+#' @name queryReportTemplateFooter
+#' @title Retrieve ReportTemplateFooter Objects
 #' 
 #' @description Provides the user with an interface to retrieve 
-#'   ReportTemplateDisclaimer objects.
+#'   ReportTemplateFooter objects.
 #'   
 #' @param oid `integerish(0/1)`. When length is 1, the OID of the 
-#'   ReportTemplateDisclaimer to be retrieved. Otherwise, all 
+#'   ReportTemplateFooter to be retrieved. Otherwise, all 
 #'   records are returned.
 #' @param parent_report_template `integerish(0/1)`. When length is 1, the 
 #'   OID of the ReportTemplate to include in the query clause. Otherwise, 
@@ -21,7 +21,7 @@
 #'   
 #' @export
 
-queryReportTemplateDisclaimer <- function(oid = numeric(0), 
+queryReportTemplateFooter <- function(oid = numeric(0), 
                                           parent_report_template = numeric(0), 
                                           parent_disclaimer = numeric(0)){
   # Argument Validation ---------------------------------------------
@@ -49,8 +49,8 @@ queryReportTemplateDisclaimer <- function(oid = numeric(0),
   
   statement <- 
     switch(getOption("RM_sql_flavor"), 
-           "sql_server" = .queryReportTemplateDisclaimer_statement_sqlServer, 
-           "sqlite"     = .queryReportTemplateDisclaimer_statement_sqlite)
+           "sql_server" = .queryReportTemplateFooter_statement_sqlServer, 
+           "sqlite"     = .queryReportTemplateFooter_statement_sqlite)
   
   where <- 
     c(if (length(oid)) "OID = ?" else character(0), 
@@ -66,7 +66,7 @@ queryReportTemplateDisclaimer <- function(oid = numeric(0),
   param_list <- list(oid, parent_report_template, parent_disclaimer)
   param_list <- param_list[lengths(param_list) > 0]
   
-  ReportTemplateDisclaimer <- 
+  ReportTemplateFooter <- 
     DBI::dbGetQuery(
       conn, 
       DBI::sqlInterpolate(
@@ -75,29 +75,29 @@ queryReportTemplateDisclaimer <- function(oid = numeric(0),
         .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
-    ReportTemplateDisclaimer$IsActive <- as.logical(ReportTemplateDisclaimer$IsActive)
+    ReportTemplateFooter$IsActive <- as.logical(ReportTemplateFooter$IsActive)
   }
   
-  ReportTemplateDisclaimer
+  ReportTemplateFooter
 }
 
 
 # Unexported --------------------------------------------------------
 
-.queryReportTemplateDisclaimer_statement_sqlServer <- "
+.queryReportTemplateFooter_statement_sqlServer <- "
   SELECT [OID], 
          [ParentReportTemplate], 
-         [ParentDisclaimer], 
+         [ParentFooter], 
          [IsActive],
          [Order]
-  FROM dbo.[ReportTemplateDisclaimer]
+  FROM dbo.[ReportTemplateFooter]
 "
 
-.queryReportTemplateDisclaimer_statement_sqlite <- "
+.queryReportTemplateFooter_statement_sqlite <- "
   SELECT [OID], 
          [ParentReportTemplate], 
-         [ParentDisclaimer], 
+         [ParentFooter], 
          [IsActive], 
          [Order]
-  FROM [ReportTemplateDisclaimer]
+  FROM [ReportTemplateFooter]
 "

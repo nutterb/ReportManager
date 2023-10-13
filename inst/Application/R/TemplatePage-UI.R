@@ -27,10 +27,6 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
           RM_tabLayout("reportTemplate_footer", 
                        add = FALSE, 
                        activate = FALSE)
-          # radioButtons(inputId = "rdo_reportTemplate_footer", 
-          #              label = "Footers to Include", 
-          #              choices = "Initialization", 
-          #              selected = character(0))
         )
       )
     ),
@@ -98,12 +94,16 @@ MODAL_REPORT_TEMPLATE_SIGNATURE <-
     title = "Edit Template Signatures", 
     trigger = "trg_none", 
     size = "large", 
-    multiSelect(inputId = "templateSignature", 
+    multiSelect(inputId = "reportTemplate_signature", 
                 label = "Required Signatures", 
                 choices = character(0), 
                 selected = character(0), 
                 size = 15,
-                up_down = TRUE)
+                up_down = TRUE), 
+    br(),
+    br(),
+    actionButton(inputId = "btn_reportTemplate_signature_addEdit", 
+                 label = "Save")
   )
 
 # MODAL_REPORT_TEMPLATE_DISCLAIMER ----------------------------------
@@ -114,10 +114,34 @@ MODAL_REPORT_TEMPLATE_DISCLAIMER <-
     title = "Assign Disclaimers to Template", 
     trigger = "trg_none", 
     size = "large", 
-    checkboxGroupInput(inputId = "chkgrp_reportTemplate_disclaimer",
-                       label = "Disclaimers to Include",
-                       choices = "Initialization",
-                       width = "100%"), 
+    multiSelect(inputId = "reportTemplate_disclaimer", 
+                label = "Disclaimers", 
+                choices = character(0), 
+                selected = character(0), 
+                size = 10,
+                up_down = TRUE), 
+    br(),
+    br(),
     actionButton(inputId = "btn_reportTemplate_disclaimer_addEdit", 
+                 label = "Save")
+  )
+
+# MODAL_REPORT_TEMPLATE_FootER --------------------------------------
+
+MODAL_REPORT_TEMPLATE_FOOTER <- 
+  bsModal(
+    id = "modal_templateFooter_edit", 
+    title = "Assign Footers to Template", 
+    trigger = "trg_none", 
+    size = "large", 
+    multiSelect(inputId = "reportTemplate_footer", 
+                label = "Footers", 
+                choices = character(0), 
+                selected = character(0), 
+                size = 10,
+                up_down = TRUE), 
+    br(),
+    br(),
+    actionButton(inputId = "btn_reportTemplate_Footer_addEdit", 
                  label = "Save")
   )

@@ -1069,7 +1069,8 @@ test_that(
     conn <- connectToReportManager()
     
     # Make a new user for the test
-    addEditDisclaimer(disclaimer = "Disclaimer for event testing", 
+    addEditDisclaimer(title = "Title", 
+                      disclaimer = "Disclaimer for event testing", 
                       event_user = 1)
     
     oid <- max(queryDisclaimer()$OID)
@@ -1227,8 +1228,9 @@ test_that(
     conn <- connectToReportManager()
     
     # Make a new user for the test
-    addEditFooter(footer = "Footer for event testing", 
-                      event_user = 1)
+    addEditFooter(title = "Title", 
+                  footer = "Footer for event testing", 
+                  event_user = 1)
     
     oid <- max(queryFooter()$OID)
     

@@ -169,16 +169,21 @@ initializeReportManagerDatabase <- function(filename,
   
   # Populate Disclaimers and Footers
   
-  addEditDisclaimer(disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
+  addEditDisclaimer(title = "Preliminary Data", 
+                    disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
                     event_user = 1)
   
-  addEditFooter(footer = "For internal use only.", 
+  addEditFooter(title = "Internal use", 
+                footer = "For internal use only.", 
                 event_user = 1)
-  addEditFooter(footer = "For official use only.", 
+  addEditFooter(title = "Official use", 
+                footer = "For official use only.", 
                 event_user = 1)
-  addEditFooter(footer = "Not a record.", 
+  addEditFooter(title = "Not a record", 
+                footer = "Not a record.", 
                 event_user = 1)
-  addEditFooter(footer = "Becomes a record upon completion.", 
+  addEditFooter(title = "Becomes a record", 
+                footer = "Becomes a record upon completion.", 
                 event_user = 1)
 }
 
