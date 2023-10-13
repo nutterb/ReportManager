@@ -24,7 +24,7 @@ test_that(
     Footer <- queryFooter()
     
     expect_data_frame(Footer, 
-                      ncols = 3)
+                      ncols = 4)
   }
 )
 
@@ -42,6 +42,6 @@ test_that(
     Footer <- queryFooter()
     
     expect_data_frame(Footer, 
-                      ncols = 3)
+                      ncols = 4)
   }
 )

@@ -169,15 +169,131 @@ initializeReportManagerDatabase <- function(filename,
   
   # Populate Disclaimers and Footers
   
-  addEditDisclaimer(disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal only and do not meet the reporting requirements for official correspondence.", 
+  addEditDisclaimer(title = "Preliminary Data", 
+                    disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
                     event_user = 1)
   
-  addEditFooter(footer = "For internal use only.", 
+  addEditFooter(title = "Internal use", 
+                footer = "For internal use only.", 
                 event_user = 1)
-  addEditFooter(footer = "For official use only.", 
+  addEditFooter(title = "Official use", 
+                footer = "For official use only.", 
                 event_user = 1)
-  addEditFooter(footer = "Not a record.", 
+  addEditFooter(title = "Not a record", 
+                footer = "Not a record.", 
                 event_user = 1)
-  addEditFooter(footer = "Becomes a record upon completion.", 
+  addEditFooter(title = "Becomes a record", 
+                footer = "Becomes a record upon completion.", 
                 event_user = 1)
 }
+
+#' @rdname initializeReportManagerDatabase
+#' @export
+# Database For Testing the UI ---------------------------------------
+
+initializeUiTestingDatabase <- function(filename, 
+                                        include = c("User", "Role", "UserRole"),
+                                        last_name = "Testing-LastName", 
+                                        first_name = "Testing-FirstName", 
+                                        login_id = Sys.info()["user"], 
+                                        email = "email@somewhere.net"){
+  
+  initializeReportManagerDatabase(filename, 
+                                  last_name = last_name, 
+                                  first_name = first_name, 
+                                  login_id = login_id, 
+                                  email = email)
+  
+  if ("User" %in% include){
+    mapply(addEditUser, 
+           last_name = TestUser$last_name, 
+           first_name = TestUser$first_name, 
+           login_id = TestUser$login_id, 
+           email = TestUser$email, 
+           is_internal = TestUser$is_internal, 
+           is_active = TestUser$is_active, 
+           MoreArgs = list(event_user = 1))
+  }
+  
+  if ("Role" %in% include){
+    mapply(addEditRole, 
+           role_name = TestRole$role_name, 
+           role_description = TestRole$role_description, 
+           is_active = TestRole$is_active, 
+           MoreArgs = list(event_user = 1))
+  }
+  
+  if ("UserRole" %in% include){
+    mapply(addEditUserRole, 
+           parent_user = TestUserRole$parent_user, 
+           parent_role = TestUserRole$parent_role, 
+           is_active = TestUserRole$is_active, 
+           event_user = 1)
+  }
+}
+
+# Unexported - Test Data --------------------------------------------
+
+# Users -------------------------------------------------------------
+
+TestUser <- 
+  data.frame(last_name = c("Manager", 
+                           "Manager", 
+                           "Manager", 
+                           "Reviewer", 
+                           "Reviewer", 
+                           "Support", 
+                           "Oversight", 
+                           "Employee"), 
+             first_name = c("General", 
+                            "Production", 
+                            "Quality",
+                            "Production", 
+                            "Quality", 
+                            "Admin", 
+                            "Government", 
+                            "Retired"), 
+             login_id = c("genmanager", 
+                          "productionmanager", 
+                          "qualitymanager",
+                          "productionreviewer", 
+                          "qualityreviewer", 
+                          "adminsupport", 
+                          "oversight", 
+                          "retiredemployee"), 
+             is_internal = c(rep(TRUE, 6), FALSE, TRUE), 
+             is_active = c(rep(TRUE, 7), FALSE), 
+             stringsAsFactors = FALSE)
+TestUser$email <- sprintf("%s@business.com", 
+                          TestUser$login_id)
+TestUser$email[7] <- "oversight@government.gov"
+
+# Roles -------------------------------------------------------------
+
+TestRole <- 
+  data.frame(
+    role_name = c("Management", 
+                  "Production Report Pepare", 
+                  "Production Shift Managers",
+                  "Quality Report Review", 
+                  "Administrative Support", 
+                  "Government Oversight", 
+                  "Obsolete Role"), 
+    role_description = c("General Managers and Department Level Managers", 
+                         "Individuals Authorized to Prepare Report for the External Client", 
+                         "Production Shift Managers and Team Leads", 
+                         "Authorized to review reports prior to client submission.",
+                         "Administrative support personnel",
+                         "Government oversight group.", 
+                         "Inventory management specialists"), 
+    is_active = c(rep(TRUE, 6), FALSE),
+    stringsAsFactors = FALSE)
+
+# UserRole Assignment -----------------------------------------------
+
+TestUserRole <- 
+  data.frame(
+    parent_user = c(2, 3, 3, 4, 4, 4,  5, 6, 7, 8, 9), 
+    parent_role = c(4, 4, 5, 5, 6, 10, 6, 7, 8, 9, 10), 
+    is_active = rep(TRUE, 11)
+  )

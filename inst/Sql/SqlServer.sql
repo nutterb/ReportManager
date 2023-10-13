@@ -176,6 +176,7 @@ CREATE TABLE dbo.[DateReportingFormatEvent](
 
 CREATE TABLE dbo.[Disclaimer](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  Title VARCHAR(100) NOT NULL,
   Disclaimer VARCHAR(2000) NOT NULL,
   IsActive BIT DEFAULT 0,
   
@@ -196,7 +197,8 @@ CREATE TABLE dbo.[DisclaimerEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditTitle', 
+                                                          'EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
@@ -206,6 +208,7 @@ CREATE TABLE dbo.[DisclaimerEvent](
 
 CREATE TABLE dbo.[Footer](
   OID INTEGER IDENTITY(1, 1) NOT NULL,  
+  Title VARCHAR(100) NOT NULL,
   Footer VARCHAR(200) NOT NULL,
   IsActive BIT DEFAULT 0,
   
@@ -225,7 +228,8 @@ CREATE TABLE dbo.[FooterEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditTitle', 
+                                                      'EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))
@@ -250,16 +254,16 @@ CREATE TABLE dbo.[FileArchive](
 
 CREATE TABLE dbo.[ReportTemplate](
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  [Directory] VARCHAR(50) NOT NULL, 
+  [TemplateDirectory] VARCHAR(50) NOT NULL, 
+  [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
   [TitleSize] VARCHAR(15) NOT NULL, 
-  ParentSchedule INT NOT NULL, 
   IsSignatureRequired BIT NOT NULL DEFAULT 0, 
   IsActive BIT NOT NULL DEFAULT 0, 
-  LogoFile INT NULL, 
+  LogoFileArchive INT NULL, 
   
   PRIMARY KEY (OID), 
-  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
+  FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
 );
 
 /* ReportTemplateEvent *********************************************/
@@ -275,11 +279,12 @@ CREATE TABLE dbo.[ReportTemplateEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDirectory',
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditTemplateFolder',
+                                                              'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
-                                                              'EditParentSchedule', 
-                                                              'EditSignatureRequired',
+                                                              'SetSignatureRequiredFalse',
+                                                              'SetSignatureRequiredTrue',
                                                               'EditLogoFile',
                                                               'Deactivate', 
                                                               'Activate', 
@@ -328,6 +333,7 @@ CREATE TABLE dbo.[ReportTemplateDisclaimer](
   ParentReportTemplate INT NOT NULL
   ParentDisclaimer INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
+  [Order] INT,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -349,7 +355,8 @@ CREATE TABLE dbo.[ReportTemplateDisclaimerEvent] (
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateDisclaimerEventType CHECK (EventType IN ('Add', 
                                                                         'Activate', 
-                                                                        'Deactivate'))
+                                                                        'Deactivate',
+                                                                        'Reorder'))
 );
 
 /* ReportTemplateFooter ********************************************/
@@ -359,6 +366,7 @@ CREATE TABLE dbo.[ReportTemplateFooter](
   ParentReportTemplate INT NOT NULL,
   ParentFooter INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
+  Order INT,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -379,8 +387,9 @@ CREATE TABLE dbo.[ReportTemplateFooterEvent] (
   FOREIGN KEY (ParentReportTemplateFooter) REFERENCES [ReportTemplateFooter](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
-                                                                        'Activate', 
-                                                                        'Deactivate'))
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'Reorder'))
 );
 
 /* ReportTemplateSchedule ******************************************/

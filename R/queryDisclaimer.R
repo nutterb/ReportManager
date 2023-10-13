@@ -56,12 +56,14 @@ queryDisclaimer <- function(oid = numeric(0)){
 
 .queryDisclaimer_sqlite <- 
   "SELECT [OID], 
+      [Title],
       [Disclaimer],
       [IsActive]
     FROM [Disclaimer]"
 
 .queryDisclaimer_sqlServer <- 
   "SELECT [OID], 
+      [Title],
       [Disclaimer],
       [IsActive]
     FROM dbo.[Disclaimer]"

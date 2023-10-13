@@ -47,10 +47,10 @@
 #' 
 #' * `[inputId]_unselected` - the `selectInput` on the left giving choices available for selection.
 #' * `[inputId]_selected` - the `selectInput` on the right giving the choices selected.
-#' * `[inputId]_move_right_all` - an `actionButton` that moves all choices from the left side to the right side.
+#' * `[inputId]_move_all_right` - an `actionButton` that moves all choices from the left side to the right side.
 #' * `[inputId]_move_right` - an `actionButton` that moves the selected items in the left side to the right side.
 #' * `[inputId]_move_left` - an `actionButton` that moves the selected items in the right side to the left side. 
-#' * `[inputId]_move_right` - an `actionButton` that moves all the items on the right side to the left side. 
+#' * `[inputId]_move_all_left` - an `actionButton` that moves all the items on the right side to the left side. 
 #' * `[inputId]_move_up` - an `actionButton` that moves the selected item in the right side up one space.
 #' * `[inputId]_move_down` - an `actionButton` that moves the selected item in the right side down one space.
 #' 

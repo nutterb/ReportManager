@@ -164,6 +164,7 @@ CREATE TABLE [DateReportingFormatEvent](
 
 CREATE TABLE [Disclaimer](
   OID INTEGER PRIMARY KEY, 
+  Title VARCHAR(100) NOT NULL,
   Disclaimer VARCHAR(2000) NOT NULL,
   IsActive BIT DEFAULT 0
 );
@@ -180,7 +181,8 @@ CREATE TABLE [DisclaimerEvent](
   
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditTitle', 
+                                                          'EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
@@ -189,7 +191,8 @@ CREATE TABLE [DisclaimerEvent](
 /* Footer Table ****************************************************/
 
 CREATE TABLE [Footer](
-  OID INTEGER PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY,
+  Title VARCHAR(100) NOT NULL,
   Footer VARCHAR(200) NOT NULL,
   IsActive BIT DEFAULT 0
 );
@@ -206,7 +209,8 @@ CREATE TABLE [FooterEvent](
   
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditTitle', 
+                                                      'EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))
@@ -231,15 +235,15 @@ CREATE TABLE [FileArchive](
 
 CREATE TABLE [ReportTemplate](
   OID INTEGER PRIMARY KEY, 
-  [Directory] VARCHAR(50) NOT NULL, 
+  [TemplateDirectory] VARCHAR(50) NOT NULL,
+  [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
   [TitleSize] VARCHAR(15) NOT NULL, 
-  ParentSchedule INT NOT NULL, 
   IsSignatureRequired BIT NOT NULL DEFAULT 0, 
   IsActive BIT NOT NULL DEFAULT 0, 
-  LogoFile INT NULL, 
+  LogoFileArchive INT NULL, 
   
-  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
+  FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
 );
 
 /* ReportTemplateEvent *********************************************/
@@ -254,11 +258,12 @@ CREATE TABLE [ReportTemplateEvent](
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDirectory',
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditTemplateFolder',
+                                                              'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
-                                                              'EditParentSchedule', 
-                                                              'EditSignatureRequired',
+                                                              'SetSignatureRequiredFalse',
+                                                              'SetSignatureRequiredTrue',
                                                               'EditLogoFile',
                                                               'Deactivate', 
                                                               'Activate', 
@@ -268,7 +273,7 @@ CREATE TABLE [ReportTemplateEvent](
 /* ReportInstance **************************************************/
 
 CREATE TABLE [ReportInstance](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL, 
   StartDateTime DATETIME NOT NULL, 
   EndDateTime DATETIME NOT NULL, 
@@ -281,7 +286,7 @@ CREATE TABLE [ReportInstance](
 /* ReportInstanceEvent *********************************************/
 
 CREATE TABLE [ReportInstanceEvent](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportInstance INT NOT NULL, 
   EventUser INT NOT NULL, 
   EventType VARCHAR(25) NOT NULL, 
@@ -301,10 +306,11 @@ CREATE TABLE [ReportInstanceEvent](
 /* ReportTemplateDisclaimer ****************************************/
 
 CREATE TABLE [ReportTemplateDisclaimer](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentDisclaimer INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
+  [Order] INT,
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID)
@@ -324,16 +330,18 @@ CREATE TABLE [ReportTemplateDisclaimerEvent] (
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateDisclaimerEventType CHECK (EventType IN ('Add', 
                                                                         'Activate', 
-                                                                        'Deactivate'))
+                                                                        'Deactivate',
+                                                                        'Reorder'))
 );
 
 /* ReportTemplateFooter ********************************************/
 
 CREATE TABLE [ReportTemplateFooter](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentFooter INT NOT NULL, 
   IsActive BIT DEFAULT 0, 
+  [Order] INT,
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID)
@@ -352,14 +360,15 @@ CREATE TABLE [ReportTemplateFooterEvent] (
   FOREIGN KEY (ParentReportTemplateFooter) REFERENCES [ReportTemplateFooter](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
-                                                                        'Activate', 
-                                                                        'Deactivate'))
+                                                                    'Activate', 
+                                                                    'Deactivate',
+                                                                    'Reorder'))
 );
 
 /* ReportTemplateSchedule ******************************************/
 
 CREATE TABLE [ReportTemplateSchedule](
-  OID INT PRIMARY KEY, 
+  OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentSchedule INT NOT NULL,
   StartDateTime DATETIME NOT NULL,

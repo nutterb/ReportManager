@@ -146,7 +146,5 @@ addEditSchedule <- function(oid = numeric(0),
                     sprintf("%s %s", ThisSchedule$Frequency, ThisSchedule$FrequencyUnit), 
                     sprintf("%s %s", ThisSchedule$OffsetOverlap, ThisSchedule$OffsetOverlapUnit))
 
-  EventList[vapply(CurrentValue != EventList$NewValue, 
-                   isTRUE, 
-                   logical(1)), ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

@@ -21,7 +21,7 @@
 addLogo <- function(file_path, 
                     description = "", 
                     file_name = tools::file_path_sans_ext(basename(file_path)), 
-                    file_extension = tools::file_ext(file_name)){
+                    file_extension = tools::file_ext(file_path)){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -53,7 +53,9 @@ addLogo <- function(file_path,
   
   addFileArchive(description = description, 
                  is_logo = TRUE, 
-                 file_path = file_path)
+                 file_path = file_path, 
+                 file_name = file_name, 
+                 file_extension = file_extension)
 }
 
 #' @rdname addEditLogo

@@ -13,7 +13,7 @@ UI_TAB_REPORT_LAYOUT <-
       RM_tabLayout("footer")
     ),
     tabPanel(
-      title = "Logos", 
+      title = "Logo", 
       RM_tabLayout("logo")
     )
   )
@@ -25,6 +25,8 @@ MODAL_DISCLAIMER <-
     title = uiOutput("title_disclaimer_addEdit"), 
     size = "large", 
     trigger = "trg_none", 
+    textInput(inputId = "txt_disclaimer_title", 
+              label = "Title"),
     textAreaInput(inputId = "txt_disclaimer_text", 
                   label = "Disclaimer", 
                   width = "400px", 
@@ -43,7 +45,9 @@ MODAL_FOOTER <-
     id = "modal_footer_addEdit", 
     title = uiOutput("title_footer_addEdit"), 
     size = "large", 
-    trigger = "trg_none", 
+    trigger = "trg_none",
+    textInput(inputId = "txt_footer_title", 
+              label = "Title"),
     textInput(inputId = "txt_footer_text", 
               label = "Footer"),
     checkboxInput(inputId = "chk_footer_isActive", 
@@ -61,14 +65,21 @@ MODAL_LOGO_ADD <-
     title = "Add a New Logo File", 
     size = "large", 
     trigger = "trg_none", 
-    fileInput(inputId = "file_logo_add", 
-              label = "Select a File"), 
-    textInput(inputId = "txt_logo_add_fileName", 
-              label = "File Name"), 
-    textInput(inputId = "txt_logo_add_description", 
-              label = "Description"),
-    disabled(textInput(inputId = "txt_logo_add_extension", 
-                       label = "File Extension")), 
-    actionButton(inputId = "btn_logo_addEdit", 
-                 label = "Save")
+    fluidRow(
+      column(width = 6,
+             fileInput(inputId = "file_logo_add", 
+                       label = "Select a File"), 
+             textInput(inputId = "txt_logo_add_fileName", 
+                       label = "File Name"), 
+             textInput(inputId = "txt_logo_add_description", 
+                       label = "Description"),
+             disabled(textInput(inputId = "txt_logo_add_extension", 
+                                label = "File Extension")), 
+             actionButton(inputId = "btn_logo_addEdit", 
+                          label = "Save")
+      ),
+      column(width = 6, 
+             imageOutput("img_logo_preview")
+      )
+    )
   )

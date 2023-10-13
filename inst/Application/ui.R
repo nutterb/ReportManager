@@ -20,6 +20,9 @@ dashboardPage(
     # Modals --------------------------------------------------------
     
     MODAL_REPORT_TEMPLATE,
+    MODAL_REPORT_TEMPLATE_SIGNATURE,
+    MODAL_REPORT_TEMPLATE_DISCLAIMER,
+    MODAL_REPORT_TEMPLATE_FOOTER,
     MODAL_SCHEDULE,
     MODAL_DATE_REPORT_FORMAT,
     MODAL_DISCLAIMER,

@@ -154,5 +154,5 @@ addEditUser <- function(oid         = numeric(0),
                     ThisUser$IsInternal, 
                     ThisUser$IsActive)
   
-  EventList[CurrentValue != EventList$NewValue, ]
+  EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }
