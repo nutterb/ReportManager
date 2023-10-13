@@ -99,7 +99,8 @@ shinyServer(function(input, output, session){
                                    output = output))
   
   observeEvent(input$btn_template_edit, 
-               OE_btn_template_edit(session = session, 
+               OE_btn_template_edit(session = session,
+                                    output = output,
                                     rv_Template = rv_Template))
   
   observeEvent(input$btn_template_addEdit, 
@@ -201,65 +202,41 @@ shinyServer(function(input, output, session){
     }
   )
   
-  observeEvent(
-    input$templateDisclaimer_move_all_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_all_right")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_all_right"))
   
-  observeEvent(
-    input$templateDisclaimer_move_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_right")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_right"))
   
-  observeEvent(
-    input$templateDisclaimer_move_all_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_all_left")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_all_left"))
   
-  observeEvent(
-    input$templateDisclaimer_move_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_left")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_left"))
   
-  observeEvent(
-    input$templateDisclaimer_move_up, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_up")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_up"))
   
-  observeEvent(
-    input$templateDisclaimer_move_down, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_down")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_down"))
   
   observeEvent(input$btn_templateDisclaimer_addEdit,
                OE_btn_templateDisclaimer_addEdit(session = session,
@@ -288,65 +265,41 @@ shinyServer(function(input, output, session){
     }
   )
   
-  observeEvent(
-    input$templateFooter_move_all_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_all_right")
-    }
-  )
+  observeEvent(input$templateFooter_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_all_right"))
   
-  observeEvent(
-    input$templateFooter_move_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_right")
-    }
-  )
+  observeEvent(input$templateFooter_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_right"))
   
-  observeEvent(
-    input$templateFooter_move_all_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_all_left")
-    }
-  )
+  observeEvent(input$templateFooter_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_all_left"))
   
-  observeEvent(
-    input$templateFooter_move_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_left")
-    }
-  )
+  observeEvent(input$templateFooter_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_left"))
   
-  observeEvent(
-    input$templateFooter_move_up, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_up")
-    }
-  )
+  observeEvent(input$templateFooter_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_up"))
   
-  observeEvent(
-    input$templateFooter_move_down, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_down")
-    }
-  )
+  observeEvent(input$templateFooter_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_down"))
   
   observeEvent(input$btn_templateFooter_addEdit,
                OE_btn_templateFooter_addEdit(session = session,
@@ -837,7 +790,7 @@ shinyServer(function(input, output, session){
         } else {
           File <- queryFromFileArchive(rv_Logo$SelectedLogo$OID, 
                                        file_dir = tempdir())
-          File$SavedTo
+          if (nrow(File)) File$SavedTo
         }
       
       list(src = filepath, 

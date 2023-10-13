@@ -37,6 +37,7 @@ OE_btn_template_add <- function(session,
 # Observe Event - btn_template_edit ---------------------------------
 
 OE_btn_template_edit <- function(session, 
+                                 output,
                                  rv_Template){
   rv_Template$AddEdit <- "Edit"
   
@@ -58,9 +59,14 @@ OE_btn_template_edit <- function(session,
   updateSelectInput(session = session, 
                     inputId = "sel_template_titleSize", 
                     selected = rv_Template$SelectedTemplate$TitleSize)
+  
   updateSelectInput(session = session, 
                     inputId = "sel_template_logo", 
                     selected = rv_Template$SelectedTemplate$LogoFileArchive)
+  
+  if (is.na(rv_Template$SelectedTemplate$LogoFileArchive)){
+    output$img_template_logo_preview <- NULL
+  }
   
   toggleModal(session = session, 
               modalId = "modal_template_addEdit", 
@@ -123,17 +129,22 @@ OE_sel_template_directory <- function(session,
 
 OE_sel_template_logo <- function(input, 
                                  output){
-  output$img_template_logo_preview <- 
-    renderImage({
-      display <- input$sel_template_logo != ""
-      
-      Logo <- queryFromFileArchive(oid = as.numeric(input$sel_template_logo),
-                                   file_dir = tempdir())
-      
-      list(src = Logo$SavedTo,
-           height = "100px",
-           width = "100px")
-    }, deleteFile = TRUE)
+  display <- input$sel_template_logo != ""
+
+  if (display){
+    output$img_template_logo_preview <- 
+      renderImage({
+        Logo <- queryFromFileArchive(oid = as.numeric(input$sel_template_logo),
+                                     file_dir = tempdir())
+        
+        list(src = Logo$SavedTo,
+             height = "100px",
+             width = "100px")
+        
+      }, deleteFile = TRUE)
+  } else {
+    NULL
+  }
 }
 
 # Observe Event - btn_template_activate/deactivate ------------------
