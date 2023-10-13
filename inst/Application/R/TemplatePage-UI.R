@@ -18,13 +18,13 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
         type = "pills", 
         tabPanel(
           title = "Disclaimers",
-          RM_tabLayout("reportTemplate_disclaimer", 
+          RM_tabLayout("templateDisclaimer", 
                        add = FALSE, 
                        activate = FALSE)
         ),
         tabPanel(
           title = "Footers", 
-          RM_tabLayout("reportTemplate_footer", 
+          RM_tabLayout("templateFooter", 
                        add = FALSE, 
                        activate = FALSE)
         )
@@ -114,7 +114,7 @@ MODAL_REPORT_TEMPLATE_DISCLAIMER <-
     title = "Assign Disclaimers to Template", 
     trigger = "trg_none", 
     size = "large", 
-    multiSelect(inputId = "reportTemplate_disclaimer", 
+    multiSelect(inputId = "templateDisclaimer", 
                 label = "Disclaimers", 
                 choices = character(0), 
                 selected = character(0), 
@@ -122,7 +122,7 @@ MODAL_REPORT_TEMPLATE_DISCLAIMER <-
                 up_down = TRUE), 
     br(),
     br(),
-    actionButton(inputId = "btn_reportTemplate_disclaimer_addEdit", 
+    actionButton(inputId = "btn_templateDisclaimer_addEdit", 
                  label = "Save")
   )
 
@@ -134,7 +134,7 @@ MODAL_REPORT_TEMPLATE_FOOTER <-
     title = "Assign Footers to Template", 
     trigger = "trg_none", 
     size = "large", 
-    multiSelect(inputId = "reportTemplate_footer", 
+    multiSelect(inputId = "templateFooter", 
                 label = "Footers", 
                 choices = character(0), 
                 selected = character(0), 
@@ -142,6 +142,6 @@ MODAL_REPORT_TEMPLATE_FOOTER <-
                 up_down = TRUE), 
     br(),
     br(),
-    actionButton(inputId = "btn_reportTemplate_footer_addEdit", 
+    actionButton(inputId = "btn_templateFooter_addEdit", 
                  label = "Save")
   )

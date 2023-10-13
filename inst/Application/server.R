@@ -151,7 +151,7 @@ shinyServer(function(input, output, session){
           "No Template Selected"
         } else {
           sprintf("Template Selected: %s", 
-                  rv_Template$Template$Title)
+                  rv_Template$SelectedTemplate$Title)
         }
       h3(txt)
     })
@@ -170,11 +170,11 @@ shinyServer(function(input, output, session){
   # Report Template Layout - Passive Observers ----------------------
   
   observe({
-    toggleState(id = "btn_reportTemplate_disclaimer_edit", 
+    toggleState(id = "btn_templateDisclaimer_edit", 
                 condition = USER_IS_REPORT_ADMIN() & 
                   length(input$rdo_template) > 0)
     
-    toggleState(id = "btn_reportTemplate_footer_edit", 
+    toggleState(id = "btn_templateFooter_edit", 
                 condition = USER_IS_REPORT_ADMIN() & 
                   length(input$rdo_template) > 0)
   })
@@ -183,14 +183,14 @@ shinyServer(function(input, output, session){
   # Report Template Layout - Event Observers ------------------------
   
   observeEvent(
-    input$btn_reportTemplate_disclaimer_edit, 
+    input$btn_templateDisclaimer_edit, 
     {
       Selected <- rv_Template$SelectedTemplateDisclaimer
       Selected <- Selected[order(Selected$Order), ]
       Selected <- Selected[Selected$IsActive, ]
       
       replaceMultiSelect(session = session, 
-                         inputId = "reportTemplate_disclaimer", 
+                         inputId = "templateDisclaimer", 
                          choices = as.character(rv_Disclaimer$Disclaimer$OID), 
                          selected = as.character(Selected$OID), 
                          names = rv_Disclaimer$Disclaimer$Title)
@@ -202,82 +202,82 @@ shinyServer(function(input, output, session){
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_all_right, 
+    input$templateDisclaimer_move_all_right, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_all_right")
     }
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_right, 
+    input$templateDisclaimer_move_right, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_right")
     }
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_all_left, 
+    input$templateDisclaimer_move_all_left, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_all_left")
     }
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_left, 
+    input$templateDisclaimer_move_left, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_left")
     }
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_up, 
+    input$templateDisclaimer_move_up, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_up")
     }
   )
   
   observeEvent(
-    input$reportTemplate_disclaimer_move_down, 
+    input$templateDisclaimer_move_down, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_disclaimer", 
+                        inputId = "templateDisclaimer", 
                         input = input,
                         action = "move_down")
     }
   )
   
-  observeEvent(input$btn_reportTemplate_disclaimer_addEdit,
-               OE_btn_reportTemplate_disclaimer_addEdit(session = session,
-                                                        input = input, 
-                                                        rv_Template = rv_Template,
-                                                        current_user_oid = CURRENT_USER_OID(),
-                                                        proxy = proxy_dt_reportTemplate_disclaimer))
+  observeEvent(input$btn_templateDisclaimer_addEdit,
+               OE_btn_templateDisclaimer_addEdit(session = session,
+                                                 input = input, 
+                                                 rv_Template = rv_Template,
+                                                 current_user_oid = CURRENT_USER_OID(),
+                                                 proxy = proxy_dt_templateDisclaimer))
   
   
   observeEvent(
-    input$btn_reportTemplate_footer_edit, 
+    input$btn_templateFooter_edit, 
     {
       Selected <- rv_Template$SelectedTemplateFooter
       Selected <- Selected[order(Selected$Order), ]
       Selected <- Selected[Selected$IsActive, ]
       
       replaceMultiSelect(session = session, 
-                         inputId = "reportTemplate_footer", 
+                         inputId = "templateFooter", 
                          choices = as.character(rv_Footer$Footer$OID), 
                          selected = as.character(Selected$OID), 
                          names = rv_Footer$Footer$Title)
@@ -289,75 +289,75 @@ shinyServer(function(input, output, session){
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_all_right, 
+    input$templateFooter_move_all_right, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_all_right")
     }
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_right, 
+    input$templateFooter_move_right, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_right")
     }
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_all_left, 
+    input$templateFooter_move_all_left, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_all_left")
     }
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_left, 
+    input$templateFooter_move_left, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_left")
     }
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_up, 
+    input$templateFooter_move_up, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_up")
     }
   )
   
   observeEvent(
-    input$reportTemplate_footer_move_down, 
+    input$templateFooter_move_down, 
     {
       updateMultiSelect(session = session, 
-                        inputId = "reportTemplate_footer", 
+                        inputId = "templateFooter", 
                         input = input,
                         action = "move_down")
     }
   )
   
-  observeEvent(input$btn_reportTemplate_footer_addEdit,
-               OE_btn_reportTemplate_footer_addEdit(session = session,
-                                                    input = input, 
-                                                    rv_Template = rv_Template,
-                                                    current_user_oid = CURRENT_USER_OID(),
-                                                    proxy = proxy_dt_reportTemplate_footer))
+  observeEvent(input$btn_templateFooter_addEdit,
+               OE_btn_templateFooter_addEdit(session = session,
+                                             input = input, 
+                                             rv_Template = rv_Template,
+                                             current_user_oid = CURRENT_USER_OID(),
+                                             proxy = proxy_dt_templateFooter))
   
   # Report Template Layout - Output ---------------------------------
   
-  output$dt_reportTemplate_disclaimer <- 
+  output$dt_templateDisclaimer <- 
     DT::renderDataTable({
       req(rv_Template$SelectedTemplateDisclaimer)
       makeTemplateDisclaimerData(rv_Template$SelectedTemplateDisclaimer, 
@@ -365,10 +365,10 @@ shinyServer(function(input, output, session){
         RM_datatable()
     })
   
-  proxy_dt_reportTemplate_disclaimer <- DT::dataTableProxy("dt_reportTemplate_disclaimer")
+  proxy_dt_templateDisclaimer <- DT::dataTableProxy("dt_templateDisclaimer")
   
   
-  output$dt_reportTemplate_footer <- 
+  output$dt_templateFooter <- 
     DT::renderDataTable({
       req(rv_Template$SelectedTemplateFooter)
 
@@ -377,7 +377,7 @@ shinyServer(function(input, output, session){
         RM_datatable()
     })
   
-  proxy_dt_reportTemplate_footer <- DT::dataTableProxy("dt_reportTemplate_footer")
+  proxy_dt_templateFooter <- DT::dataTableProxy("dt_templateFooter")
   
   
   # Report Template Signature ---------------------------------------

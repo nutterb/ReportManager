@@ -165,12 +165,12 @@ OE_btn_template_activate_deactivate <- function(activate,
 
 # Observe Event - btn_reportTemplate_disclaimer_addEdit -------------
 
-OE_btn_reportTemplate_disclaimer_addEdit <- function(session,
+OE_btn_templateDisclaimer_addEdit <- function(session,
                                                      input, 
                                                      rv_Template,
                                                      current_user_oid,
                                                      proxy){
-  Disclaimer <- jsonlite::fromJSON(input$reportTemplate_disclaimer)
+  Disclaimer <- jsonlite::fromJSON(input$templateDisclaimer)
   
   Input <- Disclaimer[c("choices", "order", "selected")]
   names(Input) <- c("ParentDisclaimer", "Order", "IsActive")
@@ -206,15 +206,15 @@ OE_btn_reportTemplate_disclaimer_addEdit <- function(session,
 
 # Observe Event - btn_reportTemplate_footer_addEdit -----------------
 
-OE_btn_reportTemplate_footer_addEdit <- function(session,
-                                                 input, 
-                                                 rv_Template,
-                                                 current_user_oid,
-                                                 proxy){
-  Footer <- jsonlite::fromJSON(input$reportTemplate_footer)
+OE_btn_templateFooter_addEdit <- function(session,
+                                          input, 
+                                          rv_Template,
+                                          current_user_oid,
+                                          proxy){
+  Footer <- jsonlite::fromJSON(input$templateFooter)
   
   Input <- Footer[c("choices", "order", "selected")]
-  names(Input) <- c("ParentDisclaimer", "Order", "IsActive")
+  names(Input) <- c("ParentFooter", "Order", "IsActive")
   
   Input <- merge(Input, 
                  rv_Template$SelectedTemplateFooter[c("OID", "ParentFooter", "ParentReportTemplate")], 
