@@ -85,6 +85,14 @@ shinyServer(function(input, output, session){
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
   
+      rv_Template$SelectedTemplateSchedule <- 
+        queryReportTemplateSchedule(parent_report_template = oid)
+      
+      print(rv_Template$SelectedTemplateSchedule$ParentSchedule)
+      updateSelectInput(session = session, 
+                        inputId = "sel_templateSchedule", 
+                        selected = as.character(rv_Template$SelectedSchedule$ParentSchedule))
+      
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
 
@@ -166,6 +174,39 @@ shinyServer(function(input, output, session){
                 rv_Template$SelectedTemplate$Title)
       }
     })
+  
+  # Report Template Schedule ----------------------------------------
+  # Report Template Schedule - Passive Observers --------------------
+  
+  observe({
+    toggleState(id = "sel_templateSchedule", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0)
+    
+    toggleState(id = "dttm_templateSchedule", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0)
+    
+    toggleState(id = "btn_templateSchedule_save", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0)
+  })
+  
+  # Report Template Schedule - Event Observers ----------------------
+  
+  observeEvent(
+    input$btn_templateSchedule_save, 
+    {
+      addEditReportTemplateSchedule(
+        oid = rv_Template$SelectedTemplateSchedule$OID,
+        parent_report_template = as.numeric(input$rdo_template),
+        parent_schedule = as.numeric(input$sel_templateSchedule),
+        start_date = input$dttm_templateSchedule,
+        is_active = TRUE, 
+        event_user = CURRENT_USER_OID()
+      )
+    }
+  )
   
   # Report Template Layout ------------------------------------------
   # Report Template Layout - Passive Observers ----------------------
@@ -386,6 +427,15 @@ shinyServer(function(input, output, session){
                 condition = USER_IS_REPORT_ADMIN() &&
                   length(input$rdo_schedule) > 0 &&
                   isTRUE(rv_Schedule$SelectedSchedule$IsActive))
+  })
+  
+  observe({
+    choice <- rv_Schedule$Schedule$OID
+    names(choice) <- rv_Schedule$Schedule$ScheduleName
+    
+    updateSelectInput(session = session, 
+                      inputId = "sel_templateSchedule", 
+                      choices = choice)
   })
   
   # Schedule - Event Observers --------------------------------------

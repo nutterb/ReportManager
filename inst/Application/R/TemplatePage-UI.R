@@ -9,7 +9,18 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
       RM_tabLayout("template")
     ),
     tabPanel(
-      title = "Schedule"
+      title = "Schedule", 
+      selectInput(inputId = "sel_templateSchedule", 
+                  label = "Schedule", 
+                  width = "300px", 
+                  choices = character(0),
+                  selected = character(0)),
+      shinyWidgets::airDatepickerInput(inputId = "dttm_templateSchedule", 
+                                       label = "Schedule Start Time", 
+                                       timepicker = TRUE, 
+                                       value = Sys.Date()),
+      actionButton(inputId = "btn_templateSchedule_save", 
+                   label = "Save"),
     ),
     tabPanel(
       title = "Layout", 
