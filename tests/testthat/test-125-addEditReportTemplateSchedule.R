@@ -344,7 +344,7 @@ test_that(
             c("Activate" = 1, 
               "Add" = 1, 
               "Deactivate" = 1,
-              "EditStartDate" = 1))
+              "EditStartDate" = 2))
     )
     
     dbDisconnect(conn)

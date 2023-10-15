@@ -52,7 +52,11 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
                    activate = FALSE)
     ),
     tabPanel(
-      title = "Distribution"
+      title = "Distribution", 
+      RM_tabLayout("templateDistribution", 
+                   add = FALSE, 
+                   edit = TRUE, 
+                   activate = FALSE)
     ),
     tabPanel(
       title = "Permissions"
@@ -100,26 +104,6 @@ MODAL_REPORT_TEMPLATE <-
     )
   )
 
-# MODAL_REPORT_TEMPLATE_SIGNATURE -----------------------------------
-
-MODAL_REPORT_TEMPLATE_SIGNATURE <- 
-  bsModal(
-    id = "modal_templateSignature_edit", 
-    title = "Edit Template Signatures", 
-    trigger = "trg_none", 
-    size = "large", 
-    multiSelect(inputId = "reportTemplate_signature", 
-                label = "Required Signatures", 
-                choices = character(0), 
-                selected = character(0), 
-                size = 15,
-                up_down = TRUE), 
-    br(),
-    br(),
-    actionButton(inputId = "btn_reportTemplate_signature_addEdit", 
-                 label = "Save")
-  )
-
 # MODAL_REPORT_TEMPLATE_DISCLAIMER ----------------------------------
 
 MODAL_REPORT_TEMPLATE_DISCLAIMER <- 
@@ -157,5 +141,45 @@ MODAL_REPORT_TEMPLATE_FOOTER <-
     br(),
     br(),
     actionButton(inputId = "btn_templateFooter_addEdit", 
+                 label = "Save")
+  )
+
+# MODAL_REPORT_TEMPLATE_SIGNATURE -----------------------------------
+
+MODAL_REPORT_TEMPLATE_SIGNATURE <- 
+  bsModal(
+    id = "modal_templateSignature_edit", 
+    title = "Edit Template Signatures", 
+    trigger = "trg_none", 
+    size = "large", 
+    multiSelect(inputId = "templateSignature", 
+                label = "Required Signatures", 
+                choices = character(0), 
+                selected = character(0), 
+                size = 15,
+                up_down = TRUE), 
+    br(),
+    br(),
+    actionButton(inputId = "btn_reportTemplate_signature_addEdit", 
+                 label = "Save")
+  )
+
+# MODAL_REPORT_TEMPLATE_DISTRIBUTION --------------------------------
+
+MODAL_REPORT_TEMPLATE_DISTRIBUTION <- 
+  bsModal(
+    id = "modal_templateDistribution_edit", 
+    title = "Edit Template Distribution", 
+    trigger = "trg_none", 
+    size = "large", 
+    multiSelect(inputId = "templateDistribution", 
+                label = "Recipients", 
+                choices = character(0), 
+                selected = character(0), 
+                size = 15,
+                up_down = TRUE), 
+    br(),
+    br(),
+    actionButton(inputId = "btn_templateDistribution_addEdit", 
                  label = "Save")
   )

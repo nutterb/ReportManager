@@ -424,3 +424,65 @@ CREATE TABLE dbo.[ReportTemplateScheduleEvent] (
                                                                     'Deactivate', 
                                                                     'EditStartDate'))
 );
+
+/* ReportTemplateSignature *****************************************/
+
+CREATE TABLE dbo.[ReportTemplateSignature](
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplate INT NOT NULL,
+  ParentRole INT NOT NULL,
+  [ORDER] INT NOT NULL,
+  IsActive BIT DEFAULT 0, 
+  
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
+);
+
+/* ReportTemplateSignatureEvent ************************************/
+
+CREATE TABLE dbo.[ReportTemplateSignatureEvent] (
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplateSignature INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentReportTemplateSignature) REFERENCES [ReportTemplateSignature](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateSignatureEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'Reorder'))
+);
+
+/* ReportTemplateDistribution **************************************/
+
+CREATE TABLE dbo.[ReportTemplateDistribution](
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplate INT NOT NULL,
+  ParentUser INT NOT NULL,
+  [ORDER] INT NOT NULL,
+  IsActive BIT DEFAULT 0, 
+  
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
+/* ReportTemplateSignatureEvent ************************************/
+
+CREATE TABLE dbo.[ReportTemplateDistributionEvent] (
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplateDistribution INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentReportTemplateDistribution) REFERENCES [ReportTemplateDistribution](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateDistributionEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'Reorder'))
+);

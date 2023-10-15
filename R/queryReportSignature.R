@@ -1,0 +1,103 @@
+#' @name queryReportTemplateSignature
+#' @title Retrieve ReportTemplateSignature Objects
+#' 
+#' @description Provides the user with an interface to retrieve 
+#'   ReportTemplateSignature objects.
+#'   
+#' @param oid `integerish(0/1)`. When length is 1, the OID of the 
+#'   ReportTemplateSignature to be retrieved. Otherwise, all 
+#'   records are returned.
+#' @param parent_report_template `integerish(0/1)`. When length is 1, the 
+#'   OID of the ReportTemplate to include in the query clause. Otherwise, 
+#'   all records are returned.
+#' @param parent_role `integerish(0/1)`. When length is 1, the OID
+#'   of the Role to include in the query clause. Otherwise, all 
+#'   records are returned.
+#'   
+#' @details The WHERE clause for the query is constructed using any of the
+#'   `oid`, `parent_report_template`, or `parent_role` arguments 
+#'   that have a non-zero length. The query returns all records that 
+#'   satisfy all of the conditions.
+#'   
+#' @export
+
+queryReportTemplateSignature <- function(oid = numeric(0), 
+                                         parent_report_template = numeric(0), 
+                                         parent_role = numeric(0)){
+  # Argument Validation ---------------------------------------------
+  
+  coll <- checkmate::makeAssertCollection()
+  
+  checkmate::assertIntegerish(x = oid, 
+                              max.len = 1, 
+                              add = coll)
+  
+  checkmate::assertIntegerish(x = parent_report_template, 
+                              max.len = 1, 
+                              add = coll)
+  
+  checkmate::assertIntegerish(x = parent_role, 
+                              max.len = 1, 
+                              add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  # Functionality ---------------------------------------------------
+  
+  conn <- connectToReportManager()
+  on.exit({ DBI::dbDisconnect(conn) })
+  
+  statement <- 
+    switch(getOption("RM_sql_flavor"), 
+           "sql_server" = .queryReportTemplateSignature_statement_sqlServer, 
+           "sqlite"     = .queryReportTemplateSignature_statement_sqlite)
+  
+  where <- 
+    c(if (length(oid)) "OID = ?" else character(0), 
+      if (length(parent_report_template)) "ParentReportTemplate = ?" else character(0), 
+      if (length(parent_role)) "ParentRole = ?" else character(0))
+  
+  if (length(where) > 0 ){
+    where <- sprintf("WHERE %s", 
+                     paste0(where, collapse = " AND "))
+    statement <- paste(statement, where, sep = "\n")
+  }
+  
+  param_list <- list(oid, parent_report_template, parent_role)
+  param_list <- param_list[lengths(param_list) > 0]
+
+  ReportTemplateSignature <- 
+    DBI::dbGetQuery(
+      conn, 
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        .dots = param_list))
+  
+  if (getOption("RM_sql_flavor") == "sqlite"){
+    ReportTemplateSignature$IsActive <- as.logical(ReportTemplateSignature$IsActive)
+  }
+  
+  ReportTemplateSignature
+}
+
+
+# Unexported --------------------------------------------------------
+
+.queryReportTemplateSignature_statement_sqlServer <- "
+  SELECT [OID], 
+         [ParentReportTemplate], 
+         [ParentRole], 
+         [IsActive],
+         [Order]
+  FROM dbo.[ReportTemplateSignature]
+"
+
+.queryReportTemplateSignature_statement_sqlite <- "
+  SELECT [OID], 
+         [ParentReportTemplate], 
+         [ParentRole], 
+         [IsActive], 
+         [Order]
+  FROM [ReportTemplateSignature]
+"

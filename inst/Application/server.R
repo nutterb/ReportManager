@@ -421,6 +421,27 @@ shinyServer(function(input, output, session){
   )
   
   # Report Template Signature - Output ------------------------------
+  # Report Template Distribution ------------------------------------
+  # Report Template Distribution - Passive Observers ----------------
+  
+  observe({
+    toggleState(id = "btn_templateDistribution_edit", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
+  })
+  
+  # Report Template Distribution - Event Observers ------------------
+  
+  observeEvent(
+    input$btn_templateDistribution_edit, 
+    {
+      toggleModal(session = session, 
+                  modalId = "modal_templateDistribution_edit", 
+                  toggle = "open")
+    }
+  )
+  
+  # Report Template Distribution - Output ---------------------------
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
   
