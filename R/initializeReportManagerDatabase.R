@@ -7,7 +7,9 @@
 #' @param filename `character(1)`. A filename of SQL code. Usually 
 #'   one found in `system.file("Sql", package = "ReportManager")`
 #' @inheritParams addEditUser
-#' 
+#' @param include `character`. A subset of `c("User", "Role", "UserRole")`. 
+#'   Designates which objects to pre-populate for the user interface testing.
+#'   
 #' @details `last_name`, `first_name`, `login_id`, and `email` are 
 #'   the values assigned for the first user in the database. This user
 #'   will be given the UserAdministrator and ReportAdministrator roles, 

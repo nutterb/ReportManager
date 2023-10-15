@@ -6,6 +6,9 @@
 #'   
 #' @param oid `integerish(0/1)`. The OID of the Disclaimer object to be 
 #'   edited. When length is 0, a new Disclaimer object is added.
+#' @param title `character(1)`. The Title for the Disclaimer object. This 
+#'   is used to give an abbreviated identifier when selecting disclaimers
+#'   to associate with a template.
 #' @param disclaimer `character(1)`. The text of the disclaimer. Limited to
 #'   2000 characters.
 #' @param is_active `logical(1)`. When `TRUE`, the disclaimer is marked

@@ -1,6 +1,12 @@
 shinyServer(function(input, output, session){
   
   # Global ----------------------------------------------------------
+  
+  # Set the Time Zone to UTC. It will be reset to the current timezone
+  # when the app closes.
+  initial_tz <- Sys.timezone()
+  Sys.setenv(TZ='UTC')
+  
   # Global - Reactive Values ----------------------------------------
   
   CURRENT_USER_OID <- 
@@ -179,20 +185,21 @@ shinyServer(function(input, output, session){
   # Report Template Schedule - Passive Observers --------------------
   
   observe({
-    toggleState(id = "sel_templateSchedule", 
-                condition = USER_IS_REPORT_ADMIN() &&
-                  length(input$rdo_template) > 0)
-    
-    toggleState(id = "dttm_templateSchedule", 
-                condition = USER_IS_REPORT_ADMIN() &&
-                  length(input$rdo_template) > 0)
-    
-    toggleState(id = "btn_templateSchedule_save", 
+    toggleState(id = "btn_templateSchedule_edit", 
                 condition = USER_IS_REPORT_ADMIN() &&
                   length(input$rdo_template) > 0)
   })
   
   # Report Template Schedule - Event Observers ----------------------
+  
+  observeEvent(
+    input$btn_templateSchedule_edit, 
+    {
+      enable("sel_templateSchedule")
+      enable("dttm_templateSchedule")
+      enable("btn_templateSchedule_save")
+    }
+  )
   
   observeEvent(
     input$btn_templateSchedule_save, 
@@ -205,6 +212,10 @@ shinyServer(function(input, output, session){
         is_active = TRUE, 
         event_user = CURRENT_USER_OID()
       )
+      
+      disable("sel_templateSchedule")
+      disable("dttm_templateSchedule")
+      disable("btn_templateSchedule_save")
     }
   )
   
@@ -1090,5 +1101,8 @@ shinyServer(function(input, output, session){
     })
   
   # Stop App when Session Ends --------------------------------------
-  session$onSessionEnded(function(){ stopApp() })
+  session$onSessionEnded(function(){ 
+    Sys.setenv(TZ = initial_tz)
+    stopApp()
+  })
 })

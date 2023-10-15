@@ -51,9 +51,9 @@ test_that(
                  "'footer': Must have length 1")
     
     expect_error(addEditFooter(title = "Title",
-                               footer = randomVarchar(2001), 
+                               footer = randomVarchar(201), 
                                event_user = 1), 
-                 "'footer': All elements must have at most 2000")
+                 "'footer': All elements must have at most 200")
   }
 )
 

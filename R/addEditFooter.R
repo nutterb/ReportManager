@@ -6,6 +6,9 @@
 #'   
 #' @param oid `integerish(0/1)`. The OID of the Footer object to be 
 #'   edited. When length is 0, a new Footer object is added.
+#' @param title `character(1)`. The title to give the footer. This can be
+#'   a shortened name for use when selecting footers to associate with 
+#'   a template.
 #' @param footer `character(1)`. The text of the footer. Limited to
 #'   200 characters.
 #' @param is_active `logical(1)`. When `TRUE`, the footer is marked
@@ -33,7 +36,7 @@ addEditFooter <- function(oid = numeric(0),
                           add = coll)
   
   checkmate::assertString(x = footer, 
-                          max.chars = 2000, 
+                          max.chars = 200, 
                           add = coll)
   
   checkmate::assertLogical(x = is_active, 

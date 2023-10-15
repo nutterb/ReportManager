@@ -35,6 +35,9 @@ one found in \code{system.file("Sql", package = "ReportManager")}}
 \item{email}{\code{character(0/1)}. The e-mail address of the user. If not
 provided, the user will not receive reports distributed by e-mail but
 may use the application otherwise.}
+
+\item{include}{\code{character}. A subset of \code{c("User", "Role", "UserRole")}.
+Designates which objects to pre-populate for the user interface testing.}
 }
 \description{
 Retrieves the SQL code to define the Report Manager

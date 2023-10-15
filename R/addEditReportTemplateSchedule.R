@@ -76,7 +76,8 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
   
   AddEditData <- data.frame(ParentReportTemplate = parent_report_template, 
                             ParentSchedule = parent_schedule,
-                            StartDateTime = start_date,
+                            StartDateTime = format(start_date, 
+                                                   format = "%Y-%m-%d %H:%M:%S"),
                             IsActive   = is_active)
   
   event_time <- Sys.time()
@@ -129,9 +130,10 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
   
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisRTS <- queryReportTemplateSchedule(oid)
-  
-  CurrentValue <- c(ThisRTS$StartDateTime,
+
+  CurrentValue <- c(format(ThisRTS$StartDateTime,
+                           format = "%Y-%M-%d %H:%M:%S"),
                     ThisRTS$IsActive)
-  
+
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }
