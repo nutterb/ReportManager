@@ -76,8 +76,6 @@ queryReportTemplateSchedule <- function(oid = numeric(0),
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     ReportTemplateSchedule$IsActive <- as.logical(ReportTemplateSchedule$IsActive)
-    ReportTemplateSchedule$StartDateTime <- as.POSIXct(ReportTemplateSchedule$StartDateTime, 
-                                                       origin = "1970-01-01 00:00:00")
   }
   
   ReportTemplateSchedule

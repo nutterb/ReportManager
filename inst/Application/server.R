@@ -2,11 +2,6 @@ shinyServer(function(input, output, session){
   
   # Global ----------------------------------------------------------
   
-  # Set the Time Zone to UTC. It will be reset to the current timezone
-  # when the app closes.
-  initial_tz <- Sys.timezone()
-  Sys.setenv(TZ='UTC')
-  
   # Global - Reactive Values ----------------------------------------
   
   CURRENT_USER_OID <- 
@@ -81,6 +76,15 @@ shinyServer(function(input, output, session){
                   rv_Template$SelectedTemplate$IsActive)
   })
   
+  # observe({
+  #   choice <- rv_Schedule$Schedule$OID
+  #   names(choice) <- rv_Schedule$Schedule$ScheduleName
+  #   print(choice)
+  #   updateSelectInput(session = session, 
+  #                     inputId = "sel_templateSchedule", 
+  #                     choices = choice)
+  # })
+  
   # Report Template - Event Observers -------------------------------
   
   observeEvent(
@@ -94,10 +98,21 @@ shinyServer(function(input, output, session){
       rv_Template$SelectedTemplateSchedule <- 
         queryReportTemplateSchedule(parent_report_template = oid)
       
-      print(rv_Template$SelectedTemplateSchedule$ParentSchedule)
+      choice <- rv_Schedule$Schedule$OID
+      names(choice) <- rv_Schedule$Schedule$ScheduleName
+      
+      sel <- rv_Template$SelectedTemplateSchedule$ParentSchedule
+      sel = choice[choice == sel]
+      
       updateSelectInput(session = session, 
                         inputId = "sel_templateSchedule", 
-                        selected = as.character(rv_Template$SelectedSchedule$ParentSchedule))
+                        choices = choice,
+                        selected = sel)
+
+      updateAirDateInput(session = session,
+                         inputId = "dttm_templateSchedule",
+                         value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
+                                        format = "%Y-%m-%d %H:%M:%S"))
       
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
@@ -438,15 +453,6 @@ shinyServer(function(input, output, session){
                 condition = USER_IS_REPORT_ADMIN() &&
                   length(input$rdo_schedule) > 0 &&
                   isTRUE(rv_Schedule$SelectedSchedule$IsActive))
-  })
-  
-  observe({
-    choice <- rv_Schedule$Schedule$OID
-    names(choice) <- rv_Schedule$Schedule$ScheduleName
-    
-    updateSelectInput(session = session, 
-                      inputId = "sel_templateSchedule", 
-                      choices = choice)
   })
   
   # Schedule - Event Observers --------------------------------------
@@ -1102,7 +1108,6 @@ shinyServer(function(input, output, session){
   
   # Stop App when Session Ends --------------------------------------
   session$onSessionEnded(function(){ 
-    Sys.setenv(TZ = initial_tz)
     stopApp()
   })
 })
