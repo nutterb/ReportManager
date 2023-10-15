@@ -78,6 +78,11 @@ queryReportTemplateSignature <- function(oid = numeric(0),
     ReportTemplateSignature$IsActive <- as.logical(ReportTemplateSignature$IsActive)
   }
   
+  if ("ORDER" %in% names(ReportTemplateSignature)){
+    names(ReportTemplateSignature)[names(ReportTemplateSignature) %in% "ORDER"] <- 
+      "Order"
+  }
+  
   ReportTemplateSignature
 }
 

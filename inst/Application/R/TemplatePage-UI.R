@@ -160,7 +160,7 @@ MODAL_REPORT_TEMPLATE_SIGNATURE <-
                 up_down = TRUE), 
     br(),
     br(),
-    actionButton(inputId = "btn_reportTemplate_signature_addEdit", 
+    actionButton(inputId = "btn_templateSignature_addEdit", 
                  label = "Save")
   )
 

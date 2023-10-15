@@ -119,6 +119,9 @@ shinyServer(function(input, output, session){
 
       rv_Template$SelectedTemplateFooter <-
         queryReportTemplateFooter(parent_report_template = oid)
+      
+      rv_Template$SelectedTemplateSignature <- 
+        queryReportTemplateSignature(parent_report_template = oid)
     }
   )
   
@@ -414,13 +417,80 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templateSignature_edit, 
     {
+      Selected <- rv_Template$SelectedTemplateFooter
+      Selected <- Selected[order(Selected$Order), ]
+      Selected <- Selected[Selected$IsActive, ]
+      
+      replaceMultiSelect(session = session, 
+                         inputId = "templateSignature", 
+                         choices = as.character(rv_Roles$Roles$OID), 
+                         selected = as.character(Selected$OID), 
+                         names = rv_Roles$Roles$RoleName)
+      
       toggleModal(session = session, 
                   modalId = "modal_templateSignature_edit", 
                   toggle = "open")
     }
   )
   
+  observeEvent(input$templateSignature_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_all_right"))
+  
+  observeEvent(input$templateSignature_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_right"))
+  
+  observeEvent(input$templateSignature_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_all_left"))
+  
+  observeEvent(input$templateSignature_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_left"))
+  
+  observeEvent(input$templateSignature_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_up"))
+  
+  observeEvent(input$templateSignature_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_down"))
+  
+  observeEvent(input$btn_templateSignature_addEdit,
+               OE_btn_templateSignature_addEdit(session = session,
+                                                input = input, 
+                                                rv_Template = rv_Template,
+                                                current_user_oid = CURRENT_USER_OID(),
+                                                proxy = proxy_dt_templateSignature))
+  
+  
   # Report Template Signature - Output ------------------------------
+  
+  output$dt_templateSignature <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplateSignature)
+      
+      makeTemplateSignatureData(rv_Template$SelectedTemplateSignature, 
+                                rv_Roles$Roles) %>% 
+        RM_datatable()
+    })
+  
+  proxy_dt_templateSignature <- DT::dataTableProxy("dt_templateSignature")
+  
+  
   # Report Template Distribution ------------------------------------
   # Report Template Distribution - Passive Observers ----------------
   

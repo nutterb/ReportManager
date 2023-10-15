@@ -256,6 +256,47 @@ OE_btn_templateFooter_addEdit <- function(session,
               toggle = "close")
 }
 
+# Observe Event - btn_reportTemplate_footer_addEdit -----------------
+
+OE_btn_templateSignature_addEdit <- function(session,
+                                             input, 
+                                             rv_Template,
+                                             current_user_oid,
+                                             proxy){
+  Footer <- jsonlite::fromJSON(input$templateSignature)
+  print("HERE")
+  Input <- Footer[c("choices", "order", "selected")]
+  names(Input) <- c("ParentRole", "Order", "IsActive")
+  
+  Input <- merge(Input, 
+                 rv_Template$SelectedTemplateSignature[c("OID", "ParentRole", "ParentReportTemplate")], 
+                 by = "ParentRole", 
+                 all.x = TRUE, 
+                 all.y = TRUE)
+  
+  for(i in seq_len(nrow(Input))){
+    addEditReportTemplateSignature(
+      oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
+      parent_report_template = as.numeric(input$rdo_template),
+      parent_role = as.numeric(Input$ParentRole[i]),
+      order = Input$Order[i],
+      is_active = isTRUE(Input$IsActive[i]),
+      event_user = current_user_oid
+    )
+  }
+  
+  New <- queryReportTemplateSignature(parent_report_template = as.numeric(input$rdo_template))
+  rv_Template$SelectedTemplateSignature <- New
+  DT::replaceData(proxy = proxy,
+                  data = New,
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+  
+  toggleModal(session = session, 
+              modalId = "modal_templateSignature_edit", 
+              toggle = "close")
+}
+
 # makeTemplateDisclaimerData ----------------------------------------
 
 makeTemplateDisclaimerData <- function(SelectedTemplateDisclaimer, 
@@ -296,4 +337,27 @@ makeTemplateFooterData <- function(SelectedTemplateFooter,
   Footer <- Footer[is_active, ]
   Footer <- Footer[order(Footer$Order), ]
   Footer[c("Footer")]
+}
+
+# makeTemplateSignatureData -----------------------------------------
+
+makeTemplateSignatureData <- function(SelectedTemplateSignature, 
+                                      Signature){
+  Signature <- 
+    merge(Signature, 
+          SelectedTemplateSignature, 
+          by.x = "OID", 
+          by.y = "ParentRole", 
+          all.x = TRUE)
+  
+  print(Signature)
+  
+  is_active <- vapply(Signature$IsActive.x & 
+                        Signature$IsActive.y, 
+                      isTRUE, 
+                      logical(1))
+  
+  Signature <- Signature[is_active, ]
+  Signature <- Signature[order(Signature$Order), ]
+  Signature[c("RoleName")]
 }
