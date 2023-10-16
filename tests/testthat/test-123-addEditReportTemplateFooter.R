@@ -186,7 +186,7 @@ test_that(
     last_oid <- max(queryReportTemplateFooter()$OID)
     next_oid <- last_oid + 1
     
-    addEditReportTemplateFooter(parent_report_template = 3,
+    addEditReportTemplateFooter(parent_report_template = 2,
                                 parent_footer = 3,
                                 order = 1,
                                 is_active = TRUE,
@@ -203,7 +203,7 @@ test_that(
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplateFooter(oid = next_oid, 
-                                parent_report_template = 3, 
+                                parent_report_template = 2, 
                                 parent_footer = 3,
                                 order = 2, 
                                 is_active = FALSE,

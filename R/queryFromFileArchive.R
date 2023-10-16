@@ -81,7 +81,7 @@ queryFromFileArchive <- function(oid,
          [FileSize], 
          [FileContent]
   FROM dbo.[FileArchive]
-  WHRE [OID] = ?
+  WHERE [OID] = ?
 "
 
 .queryFromFileArchive_statement_sqlite <- "

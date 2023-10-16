@@ -57,8 +57,9 @@ test_that(
     
     # Add an extra record just so there are more than 1
     
-    addEditReportTemplateDisclaimer(parent_report_template = 2, 
+    addEditReportTemplateDisclaimer(parent_report_template = 1, 
                                     parent_disclaimer = 3, 
+                                    order = 1,
                                     event_user = 1)
     
     Test <- queryReportTemplateDisclaimer()

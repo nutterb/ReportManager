@@ -186,7 +186,7 @@ test_that(
     last_oid <- max(queryReportTemplateSchedule()$OID)
     next_oid <- last_oid + 1
     
-    addEditReportTemplateSchedule(parent_report_template = 3,
+    addEditReportTemplateSchedule(parent_report_template = 2,
                                   parent_schedule = 3,
                                   start_date = Sys.time(),
                                   is_active = TRUE,
@@ -203,7 +203,7 @@ test_that(
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplateSchedule(oid = next_oid, 
-                                  parent_report_template = 3, 
+                                  parent_report_template = 2, 
                                   parent_schedule = 3,
                                   start_date = Sys.time(), 
                                   is_active = FALSE,
@@ -215,7 +215,7 @@ test_that(
                                    conn,
                                    "SELECT * FROM ReportTemplateScheduleEvent WHERE ParentReportTemplateSchedule = ?", 
                                    next_oid))
-    
+    print(table(TemplateEvent2$EventType))
     expect_true(
       all(table(TemplateEvent2$EventType) ==
             c("Activate" = 1, 

@@ -186,7 +186,7 @@ test_that(
     last_oid <- max(queryReportTemplateSignature()$OID)
     next_oid <- last_oid + 1
     
-    addEditReportTemplateSignature(parent_report_template = 3,
+    addEditReportTemplateSignature(parent_report_template = 2,
                                    parent_role = 3,
                                    order = 1,
                                    is_active = TRUE,
@@ -203,7 +203,7 @@ test_that(
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplateSignature(oid = next_oid, 
-                                   parent_report_template = 3, 
+                                   parent_report_template = 2, 
                                    parent_role = 3,
                                    order = 2, 
                                    is_active = FALSE,

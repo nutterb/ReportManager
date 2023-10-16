@@ -7,7 +7,7 @@
 addEditReportTemplateFooter(
   oid = numeric(0),
   parent_report_template,
-  parent_role,
+  parent_footer,
   order,
   is_active = TRUE,
   event_user
@@ -20,6 +20,9 @@ object to be edited. Use \code{numeric(0)} to add a new object.}
 \item{parent_report_template}{\code{integerish(1)}. The OID of the ReportTemplate
 object being associated with a disclaimer.}
 
+\item{parent_footer}{\code{integerish(1)}. The OID of the Footer
+object being associated with the ReportTemplate.}
+
 \item{order}{\code{integerish(1)}. The ordered position in which the
 footer is displayed on the report.}
 
@@ -27,9 +30,6 @@ footer is displayed on the report.}
 as active.}
 
 \item{event_user}{\code{integerish(1)}. The OID of the User performing the action.}
-
-\item{parent_footer}{\code{integerish(1)}. The OID of the Footer
-object being associated with the ReportTemplate.}
 }
 \description{
 Enables the user to add ReportTemplateFooter objects

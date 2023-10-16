@@ -1,8 +1,29 @@
 if (SQL_SERVER_READY){
+  # Drop Constraints Statement --------------------------------------
+  statement <- "DECLARE @sql NVARCHAR(MAX);
+  SET @sql = N'';
+  
+  SELECT @sql = @sql + N'
+  ALTER TABLE ' + QUOTENAME(s.name) + N'.'
+  + QUOTENAME(t.name) + N' DROP CONSTRAINT '
+  + QUOTENAME(c.name) + ';'
+  FROM sys.objects AS c
+  INNER JOIN sys.tables AS t
+  ON c.parent_object_id = t.[object_id]
+  INNER JOIN sys.schemas AS s 
+  ON t.[schema_id] = s.[schema_id]
+  WHERE c.[type] IN ('D','C','F','PK','UQ')
+  ORDER BY c.[type];
+  
+  EXEC sys.sp_executesql @sql;"
+  
   # Drop Existing Tables --------------------------------------------
   options(RM_sql_flavor = "sql_server")
   
   conn <- connectToReportManager()
+  
+  res <- DBI::dbSendStatement(conn, statement)
+  DBI::dbClearResult(res)
   
   dropTable <- function(table, conn){
     tables <- DBI::dbListTables(conn, schema = "dbo")
@@ -15,7 +36,10 @@ if (SQL_SERVER_READY){
     }
   }
   
-  dropTable("FileArchive", conn)
+  dropTable("ReportTemplateDistribution", conn)
+  dropTable("ReportTemplateDistributionEvent", conn)
+  dropTable("ReportTemplateSignature", conn)
+  dropTable("ReportTemplateSignatureEvent", conn)
   dropTable("ReportTemplateEvent", conn)
   dropTable("ReportInstanceEvent", conn)
   dropTable("ReportInstance", conn)
@@ -26,6 +50,7 @@ if (SQL_SERVER_READY){
   dropTable("ReportTemplateFooter", conn)
   dropTable("ReportTemplateSchedule", conn)
   dropTable("ReportTemplate", conn)
+  dropTable("FileArchive", conn)
   dropTable("DisclaimerEvent", conn)
   dropTable("Disclaimer", conn)
   dropTable("FooterEvent", conn)

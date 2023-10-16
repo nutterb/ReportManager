@@ -58,7 +58,7 @@ test_that(
     # Add an extra record just so there are more than 1
     
     addEditReportTemplateSignature(parent_report_template = 2, 
-                                   parent_role = 3, 
+                                   parent_role = 1, 
                                    order = 3,
                                    event_user = 1)
     
@@ -79,9 +79,9 @@ test_that(
     expect_true(all(Test$ParentReportTemplate == 1))
     
     
-    Test <- queryReportTemplateSignature(parent_footer = 3)
+    Test <- queryReportTemplateSignature(parent_role = 1)
     expect_data_frame(Test)
-    expect_true(all(Test$ParentRole == 3))
+    expect_true(all(Test$ParentRole == 1))
   }
 )
 

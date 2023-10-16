@@ -58,7 +58,8 @@ test_that(
     # Add an extra record just so there are more than 1
     
     addEditReportTemplateFooter(parent_report_template = 2, 
-                                    parent_footer = 3, 
+                                    parent_footer = 4,
+                                order = 1,
                                     event_user = 1)
     
     Test <- queryReportTemplateFooter()
@@ -78,9 +79,9 @@ test_that(
     expect_true(all(Test$ParentReportTemplate == 1))
     
     
-    Test <- queryReportTemplateFooter(parent_footer = 3)
+    Test <- queryReportTemplateFooter(parent_footer = 4)
     expect_data_frame(Test)
-    expect_true(all(Test$ParentFooter == 3))
+    expect_true(all(Test$ParentFooter == 4))
   }
 )
 

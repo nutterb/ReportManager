@@ -21,9 +21,9 @@
 #'   
 #' @export
 
-queryReportTemplateSignature <- function(oid = numeric(0), 
-                                         parent_report_template = numeric(0), 
-                                         parent_user = numeric(0)){
+queryReportTemplateDistribution <- function(oid = numeric(0), 
+                                            parent_report_template = numeric(0), 
+                                            parent_user = numeric(0)){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()

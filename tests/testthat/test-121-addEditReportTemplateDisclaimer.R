@@ -186,7 +186,7 @@ test_that(
     last_oid <- max(queryReportTemplateDisclaimer()$OID)
     next_oid <- last_oid + 1
     
-    addEditReportTemplateDisclaimer(parent_report_template = 3,
+    addEditReportTemplateDisclaimer(parent_report_template = 2,
                                     parent_disclaimer = 3,
                                     order = 1,
                                     is_active = TRUE,
@@ -203,7 +203,7 @@ test_that(
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplateDisclaimer(oid = next_oid, 
-                                    parent_report_template = 3, 
+                                    parent_report_template = 2, 
                                     parent_disclaimer = 3,
                                     order = 2, 
                                     is_active = FALSE,

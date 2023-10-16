@@ -58,7 +58,7 @@ test_that(
     # Add an extra record just so there are more than 1
     
     addEditReportTemplateSchedule(parent_report_template = 2, 
-                                  parent_schedule = 3, 
+                                  parent_schedule = 4, 
                                   start_date = Sys.time(),
                                   event_user = 1)
     
@@ -79,9 +79,9 @@ test_that(
     expect_true(all(Test$ParentReportSchedule == 1))
     
     
-    Test <- queryReportTemplateFooter(parent_schedule = 3)
+    Test <- queryReportTemplateSchedule(parent_schedule = 4)
     expect_data_frame(Test)
-    expect_true(all(Test$ParentSchedule == 3))
+    expect_true(all(Test$ParentSchedule == 4))
   }
 )
 

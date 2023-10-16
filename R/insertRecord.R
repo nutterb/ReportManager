@@ -66,7 +66,7 @@ insertRecord <- function(data,
                                                  flavor     = flavor,
                                                  id_field   = id_field, 
                                                  schema     = schema)
-
+# cat(statement)
   .insertRecord_insertRecord(statement  = statement, 
                              data       = data, 
                              id_field   = id_field, 

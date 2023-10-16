@@ -2,13 +2,12 @@
 % Please edit documentation in R/addEditReportTemplateDistribution.R
 \name{addEditReportTemplateDistribution}
 \alias{addEditReportTemplateDistribution}
-\alias{addEditReportTemplateFooter}
 \title{Add or Edit ReportTemplateDistribution Objects}
 \usage{
-addEditReportTemplateFooter(
+addEditReportTemplateDistribution(
   oid = numeric(0),
   parent_report_template,
-  parent_role,
+  parent_user,
   order,
   is_active = TRUE,
   event_user
@@ -21,6 +20,9 @@ object to be edited. Use \code{numeric(0)} to add a new object.}
 \item{parent_report_template}{\code{integerish(1)}. The OID of the ReportTemplate
 object being associated with a disclaimer.}
 
+\item{parent_user}{\code{integerish(1)}. The OID of the User object being
+designated as a recipient.}
+
 \item{order}{\code{integerish(1)}. The ordered position in which the
 signature is displayed on the report.}
 
@@ -28,9 +30,6 @@ signature is displayed on the report.}
 as active.}
 
 \item{event_user}{\code{integerish(1)}. The OID of the User performing the action.}
-
-\item{parent_user}{\code{integerish(1)}. The OID of the User object being
-designated as a recipient.}
 }
 \description{
 Enables the user to add ReportTemplateDistribution objects

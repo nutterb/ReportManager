@@ -2,10 +2,9 @@
 % Please edit documentation in R/addEditReportTemplateSignature.R
 \name{addEditReportTemplateSignature}
 \alias{addEditReportTemplateSignature}
-\alias{addEditReportTemplateFooter}
 \title{Add or Edit ReportTemplateSignature Objects}
 \usage{
-addEditReportTemplateFooter(
+addEditReportTemplateSignature(
   oid = numeric(0),
   parent_report_template,
   parent_role,
