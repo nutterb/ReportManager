@@ -194,7 +194,15 @@ initializeReportManagerDatabase <- function(filename,
 # Database For Testing the UI ---------------------------------------
 
 initializeUiTestingDatabase <- function(filename, 
-                                        include = c("User", "Role", "UserRole"),
+                                        include = c("User", 
+                                                    "Role", 
+                                                    "UserRole", 
+                                                    "ReportTemplate", 
+                                                    "ReportTemplateDisclaimer", 
+                                                    "ReportTemplateFooter", 
+                                                    "ReportTemplateSchedule", 
+                                                    "ReportTemplateSignature", 
+                                                    "ReportTemplateDistribution"),
                                         last_name = "Testing-LastName", 
                                         first_name = "Testing-FirstName", 
                                         login_id = Sys.info()["user"], 
@@ -230,6 +238,18 @@ initializeUiTestingDatabase <- function(filename,
            parent_user = TestUserRole$parent_user, 
            parent_role = TestUserRole$parent_role, 
            is_active = TestUserRole$is_active, 
+           event_user = 1)
+  }
+  
+  if ("ReportTemplate" %in% include){
+    mapply(addEditReportTemplate, 
+           title = TestReportTemplate$Title, 
+           template_directory = TestReportTemplate$TemplateDirectory, 
+           template_file = TestReportTemplate$TemplateFile, 
+           title_size = TestReportTemplate$TitleSize, 
+           is_signature_required = TestReportTemplate$IsSignatureRequired, 
+           is_active = TestReportTemplate$IsActive, 
+           logo_oid = TestReportTemplate$LogFileArchive,
            event_user = 1)
   }
 }
@@ -299,3 +319,15 @@ TestUserRole <-
     parent_role = c(4, 4, 5, 5, 6, 10, 6, 7, 8, 9, 10), 
     is_active = rep(TRUE, 11)
   )
+
+# Template Definition -----------------------------------------------
+
+TestReportTemplate <- 
+  data.frame(Title = "First Report Template", 
+             TitleSize = "Large", 
+             TemplateDirectory = "SampleReport", 
+             TemplateFile = "00-Template.Rmd", 
+             IsSignatureRequired = FALSE, 
+             IsActive = TRUE, 
+             LogoFileArchive = NA, 
+             stringsAsFactors = FALSE)
