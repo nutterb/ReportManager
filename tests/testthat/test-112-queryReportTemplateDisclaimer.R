@@ -57,11 +57,6 @@ test_that(
     
     # Add an extra record just so there are more than 1
     
-    addEditReportTemplateDisclaimer(parent_report_template = 1, 
-                                    parent_disclaimer = 3, 
-                                    order = 1,
-                                    event_user = 1)
-    
     Test <- queryReportTemplateDisclaimer()
     
     expect_data_frame(Test)
@@ -94,13 +89,6 @@ test_that(
   {
     skip_if_not(SQLITE_READY, 
                 SQLITE_READY_MESSAGE)
-    
-    # Add an extra record just so there are more than 1
-    
-    addEditReportTemplateDisclaimer(parent_report_template = 2, 
-                                    parent_disclaimer = 3, 
-                                    order = 3,
-                                    event_user = 1)
     
     Test <- queryReportTemplateDisclaimer()
     

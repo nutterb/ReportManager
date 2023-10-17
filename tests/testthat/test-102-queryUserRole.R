@@ -47,7 +47,7 @@ test_that(
     UserRole <- queryUserRole()
     
     expect_data_frame(UserRole, 
-                      nrows = 3)
+                      nrows = 5)
     
     UserRole_UserAdmin <- queryUserRole(role_oid = 1)
     expect_data_frame(UserRole_UserAdmin, 
@@ -55,7 +55,7 @@ test_that(
     
     UserRole_Jdoe <- queryUserRole(user_oid = 1)
     expect_data_frame(UserRole_Jdoe, 
-                      nrows = 3)
+                      nrows = 4)
     
     
     UserRole_Dual <- queryUserRole(user_oid = 1, 
@@ -78,7 +78,7 @@ test_that(
     UserRole <- queryUserRole()
     
     expect_data_frame(UserRole, 
-                      nrows = 3)
+                      nrows = 5)
     
     UserRole_UserAdmin <- queryUserRole(role_oid = 1)
     expect_data_frame(UserRole_UserAdmin, 
@@ -86,7 +86,7 @@ test_that(
     
     UserRole_Jdoe <- queryUserRole(user_oid = 1)
     expect_data_frame(UserRole_Jdoe, 
-                      nrows = 3)
+                      nrows = 4)
     
     
     UserRole_Dual <- queryUserRole(user_oid = 1, 

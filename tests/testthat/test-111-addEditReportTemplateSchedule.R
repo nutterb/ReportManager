@@ -108,7 +108,15 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
+if (SQL_SERVER_READY){
+  configureReportManager(flavor = "sql_server")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/SqlServer.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
+
 
 test_that(
   "Record can be added", 
@@ -205,7 +213,7 @@ test_that(
     addEditReportTemplateSchedule(oid = next_oid, 
                                   parent_report_template = 2, 
                                   parent_schedule = 3,
-                                  start_date = Sys.time(), 
+                                  start_date = Sys.time() + 365, 
                                   is_active = FALSE,
                                   event_user = 1)
     
@@ -215,7 +223,7 @@ test_that(
                                    conn,
                                    "SELECT * FROM ReportTemplateScheduleEvent WHERE ParentReportTemplateSchedule = ?", 
                                    next_oid))
-    print(table(TemplateEvent2$EventType))
+
     expect_true(
       all(table(TemplateEvent2$EventType) ==
             c("Activate" = 1, 
@@ -231,7 +239,15 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-options(RM_sql_flavor = "sqlite")
+if (SQLITE_READY){
+  configureReportManager(flavor = "sqlite")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/Sqlite.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
+
 
 test_that(
   "Record can be added", 
@@ -328,7 +344,7 @@ test_that(
     addEditReportTemplateSchedule(oid = next_oid, 
                                     parent_report_template = 3, 
                                     parent_schedule = 3,
-                                    start_date = Sys.time(), 
+                                    start_date = Sys.time() + 365, 
                                     is_active = FALSE,
                                     event_user = 1)
     

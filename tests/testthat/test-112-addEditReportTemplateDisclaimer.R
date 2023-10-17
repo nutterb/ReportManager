@@ -108,7 +108,14 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
+if (SQL_SERVER_READY){
+  configureReportManager(flavor = "sql_server")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/SqlServer.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
 
 test_that(
   "Record can be added", 
@@ -155,6 +162,10 @@ test_that(
   {
     skip_if_not(SQL_SERVER_READY, 
                 SQL_SERVER_READY_MESSAGE)
+    
+    addEditDisclaimer(title = "Disclaimer 2", 
+                      disclaimer = "This is a second disclaimer for testings", 
+                      event_user = 1)
     
     addEditReportTemplateDisclaimer(oid = 1, 
                                     parent_report_template = 1, 
@@ -187,7 +198,7 @@ test_that(
     next_oid <- last_oid + 1
     
     addEditReportTemplateDisclaimer(parent_report_template = 2,
-                                    parent_disclaimer = 3,
+                                    parent_disclaimer = 1,
                                     order = 1,
                                     is_active = TRUE,
                                     event_user = 1)
@@ -204,7 +215,7 @@ test_that(
     
     addEditReportTemplateDisclaimer(oid = next_oid, 
                                     parent_report_template = 2, 
-                                    parent_disclaimer = 3,
+                                    parent_disclaimer = 2,
                                     order = 2, 
                                     is_active = FALSE,
                                     event_user = 1)
@@ -232,7 +243,16 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-options(RM_sql_flavor = "sqlite")
+
+if (SQLITE_READY){
+  configureReportManager(flavor = "sqlite")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/Sqlite.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
+
 
 test_that(
   "Record can be added", 
@@ -280,6 +300,10 @@ test_that(
     skip_if_not(SQLITE_READY, 
                 SQLITE_READY_MESSAGE)
     
+    addEditDisclaimer(title = "Disclaimer 2", 
+                      disclaimer = "This is a second disclaimer for testings", 
+                      event_user = 1)
+    
     addEditReportTemplateDisclaimer(oid = 1, 
                                     parent_report_template = 1, 
                                     parent_disclaimer = 2, 
@@ -311,7 +335,7 @@ test_that(
     next_oid <- last_oid + 1
     
     addEditReportTemplateDisclaimer(parent_report_template = 3,
-                                    parent_disclaimer = 3,
+                                    parent_disclaimer = 1,
                                     order = 1,
                                     is_active = TRUE,
                                     event_user = 1)

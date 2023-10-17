@@ -84,12 +84,9 @@ test_that(
 if (SQL_SERVER_READY){
   configureReportManager(flavor = "sql_server")
   purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
+  initializeUiTestingDatabase(system.file("Sql/SqlServer.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role"))
 }
 
 test_that(
@@ -209,12 +206,9 @@ test_that(
 if (SQLITE_READY){
   configureReportManager(flavor = "sqlite")
   purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
+  initializeUiTestingDatabase(system.file("Sql/Sqlite.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role"))
 }
 
 test_that(

@@ -1,3 +1,7 @@
+temp_file <- tempfile(fileext = ".txt")
+writeLines("Testing addEditFileArchive", 
+           temp_file)
+
 # Argument Validation -----------------------------------------------
 
 test_that(
@@ -204,6 +208,10 @@ if (SQL_SERVER_READY){
                                   first_name = "Jane", 
                                   login_id = "jdoe", 
                                   email = "jdoe@domain.com")
+  addLogo(file_path = temp_file, 
+          description = "This is a logo")
+  addLogo(file_path = temp_file, 
+          description = "This is another logo")
 }
 
 test_that(
@@ -296,7 +304,7 @@ test_that(
                           title_size = "large", 
                           is_signature_required = FALSE, 
                           is_active = TRUE,
-                          logo_oid = 3,
+                          logo_oid = 1,
                           event_user = 1)
     
     
@@ -336,6 +344,10 @@ if (SQLITE_READY){
                                   first_name = "Jane", 
                                   login_id = "jdoe", 
                                   email = "jdoe@domain.com")
+  addLogo(file_path = temp_file, 
+          description = "This is a logo")
+  addLogo(file_path = temp_file, 
+          description = "This is another logo")
 }
 
 test_that(
@@ -428,7 +440,7 @@ test_that(
                           title_size = "large", 
                           is_signature_required = FALSE, 
                           is_active = TRUE,
-                          logo_oid = 3,
+                          logo_oid = 1,
                           event_user = 1)
     
     
@@ -455,3 +467,6 @@ test_that(
     dbDisconnect(conn)
   }
 )
+
+
+unlink(temp_file)

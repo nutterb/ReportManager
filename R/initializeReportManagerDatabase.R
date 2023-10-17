@@ -249,7 +249,7 @@ initializeUiTestingDatabase <- function(filename,
            title_size = TestReportTemplate$TitleSize, 
            is_signature_required = TestReportTemplate$IsSignatureRequired, 
            is_active = TestReportTemplate$IsActive, 
-           logo_oid = TestReportTemplate$LogFileArchive,
+           logo_oid = TestReportTemplate$LogoFileArchive,
            MoreArgs = list(event_user = 1))
     
     if ("ReportTemplateSchedule" %in% include){
