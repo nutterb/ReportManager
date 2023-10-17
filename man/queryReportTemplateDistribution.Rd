@@ -2,13 +2,12 @@
 % Please edit documentation in R/queryReportDistribution.R
 \name{queryReportTemplateDistribution}
 \alias{queryReportTemplateDistribution}
-\alias{queryReportTemplateSignature}
 \title{Retrieve ReportTemplateDistribution Objects}
 \usage{
-queryReportTemplateSignature(
+queryReportTemplateDistribution(
   oid = numeric(0),
   parent_report_template = numeric(0),
-  parent_role = numeric(0)
+  parent_user = numeric(0)
 )
 }
 \arguments{

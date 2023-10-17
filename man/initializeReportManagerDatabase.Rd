@@ -15,7 +15,9 @@ initializeReportManagerDatabase(
 
 initializeUiTestingDatabase(
   filename,
-  include = c("User", "Role", "UserRole"),
+  include = c("User", "Role", "UserRole", "ReportTemplate", "ReportTemplateDisclaimer",
+    "ReportTemplateFooter", "ReportTemplateSchedule", "ReportTemplateSignature",
+    "ReportTemplateDistribution"),
   last_name = "Testing-LastName",
   first_name = "Testing-FirstName",
   login_id = Sys.info()["user"],

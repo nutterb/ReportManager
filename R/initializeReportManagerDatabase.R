@@ -238,7 +238,7 @@ initializeUiTestingDatabase <- function(filename,
            parent_user = TestUserRole$parent_user, 
            parent_role = TestUserRole$parent_role, 
            is_active = TestUserRole$is_active, 
-           event_user = 1)
+           MoreArgs = list(event_user = 1))
   }
   
   if ("ReportTemplate" %in% include){
@@ -250,9 +250,95 @@ initializeUiTestingDatabase <- function(filename,
            is_signature_required = TestReportTemplate$IsSignatureRequired, 
            is_active = TestReportTemplate$IsActive, 
            logo_oid = TestReportTemplate$LogFileArchive,
-           event_user = 1)
+           MoreArgs = list(event_user = 1))
+    
+    if ("ReportTemplateSchedule" %in% include){
+      mapply(addEditReportTemplateSchedule, 
+             parent_report_template = TestReportTemplateSchedule$ParentReportTemplate,
+             parent_schedule = TestReportTemplateSchedule$ParentSchedule,
+             start_date = TestReportTemplateSchedule$StartDateTime,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateDisclaimer" %in% include){
+      mapply(addEditReportTemplateDisclaimer, 
+             parent_report_template = TestReportTemplateDisclaimer$ParentReportTemplate,
+             parent_disclaimer = TestReportTemplateDisclaimer$ParentDisclaimer,
+             order = TestReportTemplateDisclaimer$Order,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateFooter" %in% include){
+      mapply(addEditReportTemplateFooter, 
+             parent_report_template = TestReportTemplateFooter$ParentReportTemplate,
+             parent_footer = TestReportTemplateFooter$ParentFooter,
+             order = TestReportTemplateFooter$Order,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateSignature" %in% include){
+      mapply(addEditReportTemplateSignature, 
+             parent_report_template = TestReportTemplateSignature$ParentReportTemplate,
+             parent_signature = TestReportTemplateSignature$ParentSignature,
+             order = TestReportTemplateSignature$Order,
+             MoreArgs = list(event_user = 1))
+    }
   }
 }
+
+
+
+# Unexported - Purge Database ---------------------------------------
+# For assistance with clearing the database to set up testing
+
+purgeReportManagerDatabase <- function(sql_flavor = getOption("RM_sql_flavor")){
+  conn <- connectToReportManager()
+  on.exit({ DBI::dbDisconnect(conn) })
+  
+  if (sql_flavor == "sql_server"){
+    res <- DBI::dbSendStatement(conn, .purgeConstraintQuery)
+    DBI::dbClearResult(res)
+  }
+  
+  dropTable <- function(table, conn){
+    is_sql_server <- sql_flavor == "sql_server"
+    
+    tables <- DBI::dbListTables(conn, 
+                                schema = if (is_sql_server) "dbo" else NULL)
+    
+    if (table %in% tables){
+      result <- DBI::dbSendStatement(conn, 
+                                     sprintf("DROP TABLE %s[%s]", 
+                                             if (is_sql_server) "dbo." else "",
+                                             table))
+      DBI::dbClearResult(result)
+    }
+  }
+  
+  Tables <- DBI::dbListTables(conn, schema = "dbo")
+  lapply(Tables, 
+         dropTable, 
+         conn)
+}
+
+.purgeConstraintQuery <- "
+  DECLARE @sql NVARCHAR(MAX);
+  SET @sql = N'';
+  
+  SELECT @sql = @sql + N'
+  ALTER TABLE ' + QUOTENAME(s.name) + N'.'
+  + QUOTENAME(t.name) + N' DROP CONSTRAINT '
+  + QUOTENAME(c.name) + ';'
+  FROM sys.objects AS c
+  INNER JOIN sys.tables AS t
+  ON c.parent_object_id = t.[object_id]
+  INNER JOIN sys.schemas AS s 
+  ON t.[schema_id] = s.[schema_id]
+  WHERE c.[type] IN ('D','C','F','PK','UQ')
+  ORDER BY c.[type];
+  
+  EXEC sys.sp_executesql @sql;
+"
 
 # Unexported - Test Data --------------------------------------------
 
@@ -323,11 +409,43 @@ TestUserRole <-
 # Template Definition -----------------------------------------------
 
 TestReportTemplate <- 
-  data.frame(Title = "First Report Template", 
-             TitleSize = "Large", 
-             TemplateDirectory = "SampleReport", 
-             TemplateFile = "00-Template.Rmd", 
-             IsSignatureRequired = FALSE, 
-             IsActive = TRUE, 
-             LogoFileArchive = NA, 
+  data.frame(Title = c("First Report Template", "Second Report Template"),
+             TitleSize = c("Large", "Huge"), 
+             TemplateDirectory = c("SampleReport", "SampleReport"),
+             TemplateFile = c("00-Template.Rmd", "00-Template.Rmd"),
+             IsSignatureRequired = c(FALSE, TRUE), 
+             IsActive = c(TRUE, TRUE), 
+             LogoFileArchive = rep(NA, 2), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateDisclaimer Definition -------------------------------
+
+TestReportTemplateDisclaimer <- 
+  data.frame(ParentReportTemplate = 1, 
+             ParentDisclaimer = 1, 
+             Order = 1, 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateFooter Definition -----------------------------------
+
+TestReportTemplateFooter <- 
+  data.frame(ParentReportTemplate = c(1, 2), 
+             ParentFooter = c(2, 3), 
+             Order = c(1, 1), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateSchedule Definition ---------------------------------
+
+TestReportTemplateSchedule <- 
+  data.frame(ParentReportTemplate = c(1, 2), 
+             ParentSchedule = c(1, 4), 
+             StartDateTime = rep(as.POSIXct("2023-01-01", tz = "UTC"), 2), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateSignature Definition --------------------------------
+
+TestReportTemplateSignature <- 
+  data.frame(ParentReportTemplate = c(1, 1, 1, 2, 2), 
+             ParentRole = c(5, 4, 2, 3, 1), 
+             Order = c(3, 2, 1, 1, 2), 
              stringsAsFactors = FALSE)
