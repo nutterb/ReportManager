@@ -242,7 +242,16 @@ test_that(
 
 # Functionality - SqlServer -----------------------------------------
 
-configureReportManager(flavor = "sql_server")
+if (SQL_SERVER_READY){
+  configureReportManager(flavor = "sql_server")
+  purgeReportManagerDatabase()
+  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
+                                              package = "ReportManager"), 
+                                  last_name = "Doe", 
+                                  first_name = "Jane", 
+                                  login_id = "jdoe", 
+                                  email = "jdoe@domain.com")
+}
 
 test_that(
   "Add a User in SQL Server", 
@@ -370,7 +379,16 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-configureReportManager(flavor = "sqlite")
+if (SQLITE_READY){
+  configureReportManager(flavor = "sqlite")
+  purgeReportManagerDatabase()
+  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
+                                              package = "ReportManager"), 
+                                  last_name = "Doe", 
+                                  first_name = "Jane", 
+                                  login_id = "jdoe", 
+                                  email = "jdoe@domain.com")
+}
 
 test_that(
   "Add a User in SQLite", 

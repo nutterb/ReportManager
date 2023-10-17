@@ -11,29 +11,6 @@ test_that(
   }
 )
 
-# Functionality - Sqlite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "queryRole using SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    Role <- queryRole()
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 3)
-    
-    Role <- queryRole(oid = 1)
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 1)
-  }
-)
-
 # Functionality - SQL Server ----------------------------------------
 
 options(RM_sql_flavor = "sql_server")
@@ -47,7 +24,30 @@ test_that(
     
     expect_data_frame(Role, 
                       ncols = 4, 
-                      nrows = 3)
+                      nrows = 5)
+    
+    Role <- queryRole(oid = 1)
+    
+    expect_data_frame(Role, 
+                      ncols = 4, 
+                      nrows = 1)
+  }
+)
+
+# Functionality - Sqlite --------------------------------------------
+
+options(RM_sql_flavor = "sqlite")
+
+test_that(
+  "queryRole using SQLite", 
+  {
+    skip_if_not(SQLITE_READY, 
+                SQLITE_READY_MESSAGE)
+    Role <- queryRole()
+    
+    expect_data_frame(Role, 
+                      ncols = 4, 
+                      nrows = 5)
     
     Role <- queryRole(oid = 1)
     

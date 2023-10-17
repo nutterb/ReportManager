@@ -316,9 +316,9 @@ purgeReportManagerDatabase <- function(sql_flavor = getOption("RM_sql_flavor")){
   }
   
   Tables <- DBI::dbListTables(conn, schema = "dbo")
-  lapply(Tables, 
-         dropTable, 
-         conn)
+  invisible(lapply(Tables, 
+                   dropTable, 
+                   conn))
 }
 
 .purgeConstraintQuery <- "

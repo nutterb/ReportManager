@@ -190,7 +190,16 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
+if (SQL_SERVER_READY){
+  configureReportManager(flavor = "sql_server")
+  purgeReportManagerDatabase()
+  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
+                                              package = "ReportManager"), 
+                                  last_name = "Doe", 
+                                  first_name = "Jane", 
+                                  login_id = "jdoe", 
+                                  email = "jdoe@domain.com")
+}
 
 test_that(
   "addEditDateReportingFormat functionality for SQL Server", 
@@ -311,7 +320,16 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-options(RM_sql_flavor = "sqlite")
+if (SQLITE_READY){
+  configureReportManager(flavor = "sqlite")
+  purgeReportManagerDatabase()
+  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
+                                              package = "ReportManager"), 
+                                  last_name = "Doe", 
+                                  first_name = "Jane", 
+                                  login_id = "jdoe", 
+                                  email = "jdoe@domain.com")
+}
 
 test_that(
   "addEditDateReportingFormat functionality for SQL Server", 
