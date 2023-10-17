@@ -27,6 +27,8 @@ options(
   RM_sqlServer_database = keyring::key_get("ReportManager", "SqlServerDatabase", "ReportManager")
 )
 
+FLAVOR <- c("sql_server", "sqlite")
+
 SQL_SERVER_READY <- TRUE
 invisible(tryCatch(connectToReportManager_sqlServer(), 
                    error = function(cond) SQL_SERVER_READY <<- FALSE))
@@ -35,3 +37,15 @@ SQL_SERVER_READY_MESSAGE <- "The SQL Server Database connection could not be est
 
 SQLITE_READY <- requireNamespace("RSQLite", quietly=TRUE)
 SQLITE_READY_MESSAGE <- "`RSQLite` is required to test SQLite connections."
+
+
+SQL_FILE <- system.file(c("Sql/SqlServer.sql", 
+                          "Sql/SQLite.sql"),
+                        package = "ReportManager")
+names(SQL_FILE) <- c("sql_server", "sqlite")
+
+READY <- c("sql_server" = SQL_SERVER_READY, 
+           "sqlite" = SQLITE_READY)
+
+MESSAGE <- c("sql_server" = SQL_SERVER_READY_MESSAGE, 
+             "sqlite" = SQLITE_READY_MESSAGE)
