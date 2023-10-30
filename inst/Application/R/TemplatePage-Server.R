@@ -15,6 +15,9 @@ OE_btn_template_add <- function(session,
                     inputId = "sel_template_file", 
                     selected = character(0))
   updateCheckboxInput(session = session, 
+                      inputId = "chk_template_includeTableOfContents", 
+                      value = FALSE)
+  updateCheckboxInput(session = session, 
                       inputId = "chk_template_isSignatureRequired", 
                       value = FALSE)
   updateCheckboxInput(session = session, 
@@ -26,6 +29,9 @@ OE_btn_template_add <- function(session,
   updateSelectInput(session = session, 
                     inputId = "sel_template_logo", 
                     selected = character(0))
+  updateTextInput(session = session, 
+                  inputId = "txt_template_defaultEmailText", 
+                  value = "")
   
   output$img_template_logo_preview <- NULL
   
@@ -51,6 +57,9 @@ OE_btn_template_edit <- function(session,
                     inputId = "sel_template_file", 
                     selected = rv_Template$SelectedTemplate$TemplateFile)
   updateCheckboxInput(session = session, 
+                      inputId = "chk_template_includeTableOfContents", 
+                      value = rv_Template$SelectedTemplate$IncludeTableOfContents)
+  updateCheckboxInput(session = session, 
                       inputId = "chk_template_isSignatureRequired", 
                       value = rv_Template$SelectedTemplate$IsSignatureRequired)
   updateCheckboxInput(session = session, 
@@ -59,6 +68,9 @@ OE_btn_template_edit <- function(session,
   updateSelectInput(session = session, 
                     inputId = "sel_template_titleSize", 
                     selected = rv_Template$SelectedTemplate$TitleSize)
+  updateTextInput(session = session, 
+                  inputId = "txt_template_defaultEmailText", 
+                  value = rv_Template$SelectedTemplate$DefaultEmailText)
   
   updateSelectInput(session = session, 
                     inputId = "sel_template_logo", 
@@ -87,9 +99,11 @@ OE_btn_template_add_edit <- function(session,
                         template_file = input$sel_template_file, 
                         title = input$txt_template_title, 
                         title_size = input$sel_template_titleSize, 
+                        include_toc = input$chk_template_includeTableOfContents,
                         is_signature_required = input$chk_template_isSignatureRequired, 
                         is_active = input$chk_template_isActive, 
                         logo_oid = as.numeric(input$sel_template_logo), 
+                        default_email = input$txt_template_defaultEmailText,
                         event_user = current_user_oid)
   
   RM_replaceData(query_fun = queryReportTemplate, 
