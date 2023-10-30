@@ -4,15 +4,11 @@
 \alias{addEditFooter}
 \title{Add or Edit Footers}
 \usage{
-addEditFooter(oid = numeric(0), title, footer, is_active = TRUE, event_user)
+addEditFooter(oid = numeric(0), footer, is_active = TRUE, event_user)
 }
 \arguments{
 \item{oid}{\code{integerish(0/1)}. The OID of the Footer object to be
 edited. When length is 0, a new Footer object is added.}
-
-\item{title}{\code{character(1)}. The title to give the footer. This can be
-a shortened name for use when selecting footers to associate with
-a template.}
 
 \item{footer}{\code{character(1)}. The text of the footer. Limited to
 200 characters.}

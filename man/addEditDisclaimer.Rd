@@ -4,21 +4,11 @@
 \alias{addEditDisclaimer}
 \title{Add or Edit Disclaimers}
 \usage{
-addEditDisclaimer(
-  oid = numeric(0),
-  title,
-  disclaimer,
-  is_active = TRUE,
-  event_user
-)
+addEditDisclaimer(oid = numeric(0), disclaimer, is_active = TRUE, event_user)
 }
 \arguments{
 \item{oid}{\code{integerish(0/1)}. The OID of the Disclaimer object to be
 edited. When length is 0, a new Disclaimer object is added.}
-
-\item{title}{\code{character(1)}. The Title for the Disclaimer object. This
-is used to give an abbreviated identifier when selecting disclaimers
-to associate with a template.}
 
 \item{disclaimer}{\code{character(1)}. The text of the disclaimer. Limited to
 2000 characters.}

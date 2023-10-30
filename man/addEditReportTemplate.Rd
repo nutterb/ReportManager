@@ -10,6 +10,8 @@ addEditReportTemplate(
   template_file,
   title,
   title_size,
+  include_toc = FALSE,
+  default_email = "",
   is_signature_required = FALSE,
   is_active = TRUE,
   logo_oid = numeric(0),
@@ -31,6 +33,12 @@ than 200 characters.}
 
 \item{title_size}{\code{character(1)}. The size of the font to use when
 rendering the title.}
+
+\item{include_toc}{\code{logical(1)}. When \code{TRUE}, a table of contents will be
+included in the report.}
+
+\item{default_email}{\code{character(1)}. The default text to display in the
+e-mail submission dialog box.}
 
 \item{is_signature_required}{\code{logical(1)}. When \code{TRUE}, the template
 requires signatures before it can be delivered to external users.}
