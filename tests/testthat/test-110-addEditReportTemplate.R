@@ -11,7 +11,9 @@ test_that(
                                        template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
-                                       title_size = "LARGE", 
+                                       title_size = "LARGE",
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'oid': Must be of type 'integerish'")
     
@@ -20,6 +22,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'oid': Must have length <= 1")
   }
@@ -32,6 +36,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_directory': Must be of type 'string'")
     
@@ -39,6 +45,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_directory': Must have length 1")
     
@@ -46,6 +54,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_directory': All elements must have at most 50")
   }
@@ -58,6 +68,8 @@ test_that(
                                        template_file = 123, 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_file': Must be of type 'string'")
     
@@ -65,6 +77,8 @@ test_that(
                                        template_file = letters, 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_file': Must have length 1")
     
@@ -72,6 +86,8 @@ test_that(
                                        template_file = randomVarchar(51), 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'template_file': All elements must have at most 50")
   }
@@ -84,6 +100,8 @@ test_that(
                                        template_file = "file", 
                                        title = 123, 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'title': Must be of type 'string'")
     
@@ -91,6 +109,8 @@ test_that(
                                        template_file = "file", 
                                        title = letters, 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'title': Must have length 1")
     
@@ -98,6 +118,8 @@ test_that(
                                        template_file = "file", 
                                        title = randomVarchar(201), 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'title': All elements must have at most 200")
   }
@@ -110,8 +132,65 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "something or other", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'title_size': Must be element of set")
+  }
+)
+
+test_that(
+  "Return an error if include_toc is not logical(1)", 
+  {
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = "FALSE", 
+                                       default_email = "",
+                                       event_user = 1), 
+                 "'include_toc': Must be of type 'logical'")
+    
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = c(TRUE, FALSE), 
+                                       default_email = "",
+                                       event_user = 1), 
+                 "'include_toc': Must have length 1")
+  }
+)
+
+test_that(
+  "Return an error when default_email is not character(1)",
+  {
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = 123,
+                                       event_user = 1), 
+                 "'default_email': Must be of type 'string'")
+    
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = letters,
+                                       event_user = 1), 
+                 "'default_email': Must have length 1")
+    
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = randomVarchar(1001),
+                                       event_user = 1), 
+                 "'default_email': All elements must have at most 1000")
   }
 )
 
@@ -123,6 +202,8 @@ test_that(
                                        title = "title", 
                                        title_size = "LARGE", 
                                        is_signature_required = "TRUE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1), 
                  "'is_signature_required': Must be of type 'logical'")
     
@@ -130,6 +211,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        is_signature_required = c(TRUE, FALSE), 
                                        event_user = 1), 
                  "'is_signature_required': Must have length 1")
@@ -143,6 +226,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        is_active = "TRUE", 
                                        event_user = 1), 
                  "'is_active': Must be of type 'logical'")
@@ -151,6 +236,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        is_active = c(TRUE, FALSE), 
                                        event_user = 1), 
                  "'is_active': Must have length 1")
@@ -164,6 +251,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1, 
                                        logo_oid = "1"), 
                  "'logo_oid': Must be of type 'integerish'")
@@ -172,6 +261,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1, 
                                        logo_oid = 1:2), 
                  "'logo_oid': Must have length <= 1")
@@ -185,6 +276,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = "1"), 
                  "'event_user': Must be of type 'integerish'")
     
@@ -192,6 +285,8 @@ test_that(
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
                                        event_user = 1:2), 
                  "'event_user': Must have length 1")
   }
@@ -222,12 +317,14 @@ test_that(
     
     StartTemplate <- queryReportTemplate()
     
-    # Add a new Date Reporting Format
+    # Add a new Date Reporting Template
     
     addEditReportTemplate(template_directory = "TestDirectory", 
                           template_file = "Filename",
                           title = "Report Title", 
                           title_size = "Large", 
+                          include_toc = FALSE, 
+                          default_email = "some text",
                           is_signature_required = FALSE, 
                           is_active = TRUE,
                           logo_oid = 1,
@@ -239,13 +336,15 @@ test_that(
                       nrows = 1)
     
     
-    # Edit an existing report format
+    # Edit an existing Report Template
     
     addEditReportTemplate(oid = NewTemplate$OID, 
                           template_directory = "TestDirectory2", 
                           template_file = "Filename2",
                           title = "Report Title2", 
                           title_size = "LARGE", 
+                          include_toc = TRUE, 
+                          default_email = "A description of the report",
                           is_signature_required = TRUE, 
                           is_active = FALSE,
                           logo_oid = 2,
@@ -262,6 +361,10 @@ test_that(
                  "Filename2")
     expect_equal(NewTemplate$TitleSize, 
                  "LARGE")
+    expect_equal(NewTemplate$DefaultEmailText, 
+                 "A description of the report")
+    expect_equal(NewTemplate$IncludeTableOfContents, 
+                 TRUE)
   }
 )
 
@@ -280,6 +383,8 @@ test_that(
                           template_file = "Filename2",
                           title = "Report Title2", 
                           title_size = "LARGE", 
+                          include_toc = TRUE, 
+                          default_email = "email text start",
                           is_signature_required = TRUE, 
                           is_active = FALSE,
                           logo_oid = 2,
@@ -292,9 +397,11 @@ test_that(
                                   next_template_oid))
     
     expect_equal(TemplateEvent$EventType,
-                 c("Add", "SetSignatureRequiredTrue", "Deactivate", 
+                 c("Add", "SetIncludeTocTrue", 
+                   "SetSignatureRequiredTrue", "Deactivate", 
                    "EditTemplateFolder", "EditTemplateFile", 
-                   "EditTitle", "EditTitleSize", "EditLogoFile"))
+                   "EditTitle", "EditTitleSize", 
+                   "EditDefaultEmailText", "EditLogoFile"))
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplate(oid = next_template_oid, 
@@ -302,6 +409,8 @@ test_that(
                           template_file = "FilenameEdit",
                           title = "Report Title Edit", 
                           title_size = "large", 
+                          include_toc = FALSE, 
+                          default_email = "email text end",
                           is_signature_required = FALSE, 
                           is_active = TRUE,
                           logo_oid = 1,
@@ -319,11 +428,14 @@ test_that(
             c("Activate" = 1, 
               "Add" = 1, 
               "Deactivate" = 1, 
+              "EditDefaultEmailText" = 2,
               "EditLogoFile" = 2, 
               "EditTemplateFile" = 2, 
               "EditTemplateFolder" = 2, 
               "EditTitle" = 2, 
               "EditTitleSize" = 2, 
+              "SetIncludeTocFalse" = 1, 
+              "SetIncludeTocTrue" = 1,
               "SetSignatureRequiredFalse" = 1, 
               "SetSignatureRequiredTrue" = 1))
     )
@@ -358,12 +470,14 @@ test_that(
     
     StartTemplate <- queryReportTemplate()
     
-    # Add a new Date Reporting Format
+    # Add a new Date Report Template
     
     addEditReportTemplate(template_directory = "TestDirectory", 
                           template_file = "Filename",
                           title = "Report Title", 
                           title_size = "Large", 
+                          include_toc = FALSE, 
+                          default_email = "some text",
                           is_signature_required = FALSE, 
                           is_active = TRUE,
                           logo_oid = 1,
@@ -375,13 +489,15 @@ test_that(
                       nrows = 1)
     
     
-    # Edit an existing report format
+    # Edit an existing Report Template
     
     addEditReportTemplate(oid = NewTemplate$OID, 
                           template_directory = "TestDirectory2", 
                           template_file = "Filename2",
                           title = "Report Title2", 
                           title_size = "LARGE", 
+                          include_toc = TRUE, 
+                          default_email = "A description of the report",
                           is_signature_required = TRUE, 
                           is_active = FALSE,
                           logo_oid = 2,
@@ -398,6 +514,10 @@ test_that(
                  "Filename2")
     expect_equal(NewTemplate$TitleSize, 
                  "LARGE")
+    expect_equal(NewTemplate$DefaultEmailText, 
+                 "A description of the report")
+    expect_equal(NewTemplate$IncludeTableOfContents, 
+                 TRUE)
   }
 )
 
@@ -416,6 +536,8 @@ test_that(
                           template_file = "Filename2",
                           title = "Report Title2", 
                           title_size = "LARGE", 
+                          include_toc = TRUE, 
+                          default_email = "email text start",
                           is_signature_required = TRUE, 
                           is_active = FALSE,
                           logo_oid = 2,
@@ -428,9 +550,11 @@ test_that(
                                   next_template_oid))
     
     expect_equal(TemplateEvent$EventType,
-                 c("Add", "SetSignatureRequiredTrue", "Deactivate", 
+                 c("Add", "SetIncludeTocTrue", 
+                   "SetSignatureRequiredTrue", "Deactivate", 
                    "EditTemplateFolder", "EditTemplateFile", 
-                   "EditTitle", "EditTitleSize", "EditLogoFile"))
+                   "EditTitle", "EditTitleSize", 
+                   "EditDefaultEmailText", "EditLogoFile"))
     expect_true(all(table(TemplateEvent$EventType) == 1))
     
     addEditReportTemplate(oid = next_template_oid, 
@@ -438,6 +562,8 @@ test_that(
                           template_file = "FilenameEdit",
                           title = "Report Title Edit", 
                           title_size = "large", 
+                          include_toc = FALSE, 
+                          default_email = "email text end",
                           is_signature_required = FALSE, 
                           is_active = TRUE,
                           logo_oid = 1,
@@ -455,11 +581,14 @@ test_that(
             c("Activate" = 1, 
               "Add" = 1, 
               "Deactivate" = 1, 
+              "EditDefaultEmailText" = 2,
               "EditLogoFile" = 2, 
               "EditTemplateFile" = 2, 
               "EditTemplateFolder" = 2, 
               "EditTitle" = 2, 
               "EditTitleSize" = 2, 
+              "SetIncludeTocFalse" = 1, 
+              "SetIncludeTocTrue" = 1,
               "SetSignatureRequiredFalse" = 1, 
               "SetSignatureRequiredTrue" = 1))
     )

@@ -51,6 +51,7 @@ queryReportTemplate <- function(oid = numeric(0)){
   if (getOption("RM_sql_flavor") == "sqlite"){
     ReportTemplate$IsSignatureRequired <- as.logical(ReportTemplate$IsSignatureRequired)
     ReportTemplate$IsActive <- as.logical(ReportTemplate$IsActive)
+    ReportTemplate$IncludeTableOfContents <- as.logical(ReportTemplate$IncludeTableOfContents)
   }
   
   ReportTemplate
@@ -64,8 +65,10 @@ queryReportTemplate <- function(oid = numeric(0)){
          [TitleSize],
          [TemplateDirectory], 
          [TemplateFile], 
+         [IncludeTableOfContents],
+         [DefaultEmailText],
          [IsSignatureRequired], 
-         [IsActive], 
+         [IsActive],
          [LogoFileArchive]
   FROM [ReportTemplate]
 "
@@ -76,6 +79,8 @@ queryReportTemplate <- function(oid = numeric(0)){
          [TitleSize],
          [TemplateDirectory], 
          [TemplateFile], 
+         [IncludeTableOfContents],
+         [DefaultEmailText],
          [IsSignatureRequired], 
          [IsActive], 
          [LogoFileArchive]

@@ -234,10 +234,12 @@ CREATE TABLE [ReportTemplate](
   [TemplateDirectory] VARCHAR(50) NOT NULL,
   [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
-  [TitleSize] VARCHAR(15) NOT NULL, 
-  IsSignatureRequired BIT NOT NULL DEFAULT 0, 
-  IsActive BIT NOT NULL DEFAULT 0, 
-  LogoFileArchive INT NULL, 
+  [TitleSize] VARCHAR(15) NOT NULL,
+  [IncludeTableOfContents] BIT NOT NULL, 
+  [DefaultEmailText] VARCHAR(1000) NOT NULL,
+  [IsSignatureRequired] BIT NOT NULL DEFAULT 0, 
+  [IsActive] BIT NOT NULL DEFAULT 0, 
+  [LogoFileArchive] INT NULL, 
   
   FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
 );
@@ -258,6 +260,9 @@ CREATE TABLE [ReportTemplateEvent](
                                                               'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
+                                                              'EditDefaultEmailText',
+                                                              'SetIncludeTocFalse', 
+                                                              'SetIncludeTocTrue',
                                                               'SetSignatureRequiredFalse',
                                                               'SetSignatureRequiredTrue',
                                                               'EditLogoFile',

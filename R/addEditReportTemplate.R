@@ -15,6 +15,10 @@
 #'   than 200 characters.
 #' @param title_size `character(1)`. The size of the font to use when 
 #'   rendering the title. 
+#' @param include_toc `logical(1)`. When `TRUE`, a table of contents will be
+#'   included in the report. 
+#' @param default_email `character(1)`. The default text to display in the 
+#'   e-mail submission dialog box. 
 #' @param is_signature_required `logical(1)`. When `TRUE`, the template 
 #'   requires signatures before it can be delivered to external users. 
 #' @param is_active `logical(1)`. When `TRUE`, the template is flagged for
@@ -31,6 +35,8 @@ addEditReportTemplate <- function(oid = numeric(0),
                                   template_file, 
                                   title, 
                                   title_size, 
+                                  include_toc = FALSE, 
+                                  default_email = "",
                                   is_signature_required = FALSE, 
                                   is_active = TRUE, 
                                   logo_oid = numeric(0), 
@@ -59,6 +65,14 @@ addEditReportTemplate <- function(oid = numeric(0),
                                     .var.name = "title_size",
                                     add = coll)
   
+  checkmate::assertLogical(x = include_toc, 
+                           len = 1,
+                           add = coll)
+  
+  checkmate::assertString(x = default_email, 
+                          max.chars = 1000, 
+                          add = coll)
+  
   checkmate::assertLogical(x = is_signature_required, 
                            len = 1, 
                            add = coll)
@@ -82,7 +96,11 @@ addEditReportTemplate <- function(oid = numeric(0),
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
+  template_directory <- trimws(template_directory)
+  template_file <- trimws(template_file)
   title <- trimws(title)
+  title_size <- trimws(title_size)
+  default_email <- trimws(default_email)
   
   event_time <- Sys.time()
   
@@ -90,29 +108,35 @@ addEditReportTemplate <- function(oid = numeric(0),
                             TemplateFile = template_file, 
                             Title = title, 
                             TitleSize = title_size, 
+                            IncludeTableOfContents = as.numeric(include_toc),
+                            DefaultEmailText = default_email,
                             IsSignatureRequired = as.numeric(is_signature_required), 
                             IsActive = as.numeric(is_active), 
                             LogoFileArchive = logo_oid)
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 8), 
+    data.frame(EventUser = rep(event_user, 10), 
                EventType = c("Add", 
+                             if (include_toc) "SetIncludeTocTrue" else "SetIncludeTocFalse",
                              if (is_signature_required) "SetSignatureRequiredTrue" else "SetSignatureRequiredFalse", 
                              if (is_active) "Activate" else "Deactivate",
                              "EditTemplateFolder", 
                              "EditTemplateFile", 
                              "EditTitle", 
                              "EditTitleSize",
+                             "EditDefaultEmailText",
                              "EditLogoFile"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 8), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 10), 
                NewValue = c("", 
+                            include_toc,
                             is_signature_required, 
                             is_active, 
                             template_directory, 
                             template_file, 
                             title, 
                             title_size, 
+                            default_email,
                             logo_oid))
   
   if (length(oid) == 0){
@@ -151,12 +175,14 @@ addEditReportTemplate <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisReportTemplate <- queryReportTemplate(oid)
 
-  CurrentValue <- c(ThisReportTemplate$IsSignatureRequired, 
+  CurrentValue <- c(ThisReportTemplate$IncludeTableOfContents, 
+                    ThisReportTemplate$IsSignatureRequired, 
                     ThisReportTemplate$IsActive, 
                     ThisReportTemplate$TemplateDirectory, 
                     ThisReportTemplate$TemplateFile, 
                     ThisReportTemplate$Title, 
                     ThisReportTemplate$TitleSize, 
+                    ThisReportTemplate$DefaultEmailText,
                     ThisReportTemplate$LogoFileArchive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
