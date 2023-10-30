@@ -3,7 +3,7 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
   tabsetPanel(
     id = "tabset_reportTemplate",
     type = "pills",
-    header = uiOutput("title_reportTemplateTabset"),
+    # header = uiOutput("title_reportTemplateTabset"),
     tabPanel(
       title = "Template",
       RM_tabLayout("template")

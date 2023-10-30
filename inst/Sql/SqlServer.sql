@@ -176,7 +176,6 @@ CREATE TABLE dbo.[DateReportingFormatEvent](
 
 CREATE TABLE dbo.[Disclaimer](
   [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
-  [Title] VARCHAR(100) NOT NULL,
   [Disclaimer] VARCHAR(2000) NOT NULL,
   [IsActive] BIT DEFAULT 0,
   
@@ -197,8 +196,7 @@ CREATE TABLE dbo.[DisclaimerEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditTitle', 
-                                                          'EditDisclaimer',
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
@@ -208,7 +206,6 @@ CREATE TABLE dbo.[DisclaimerEvent](
 
 CREATE TABLE dbo.[Footer](
   [OID] INTEGER IDENTITY(1, 1) NOT NULL,  
-  [Title] VARCHAR(100) NOT NULL,
   [Footer] VARCHAR(200) NOT NULL,
   [IsActive] BIT DEFAULT 0,
   
@@ -228,8 +225,7 @@ CREATE TABLE dbo.[FooterEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditTitle', 
-                                                      'EditFooter',
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))

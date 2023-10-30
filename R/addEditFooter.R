@@ -6,9 +6,6 @@
 #'   
 #' @param oid `integerish(0/1)`. The OID of the Footer object to be 
 #'   edited. When length is 0, a new Footer object is added.
-#' @param title `character(1)`. The title to give the footer. This can be
-#'   a shortened name for use when selecting footers to associate with 
-#'   a template.
 #' @param footer `character(1)`. The text of the footer. Limited to
 #'   200 characters.
 #' @param is_active `logical(1)`. When `TRUE`, the footer is marked
@@ -19,7 +16,6 @@
 #' @export
 
 addEditFooter <- function(oid = numeric(0),
-                          title,
                           footer, 
                           is_active = TRUE, 
                           event_user){
@@ -30,10 +26,6 @@ addEditFooter <- function(oid = numeric(0),
   checkmate::assertIntegerish(x = oid, 
                               max.len = 1, 
                               add = coll)
-  
-  checkmate::assertString(x = title, 
-                          max.chars = 100, 
-                          add = coll)
   
   checkmate::assertString(x = footer, 
                           max.chars = 200, 
@@ -59,20 +51,17 @@ addEditFooter <- function(oid = numeric(0),
   
   event_time <- Sys.time()
   
-  AddEditData <- data.frame(Title = title, 
-                            Footer = footer, 
+  AddEditData <- data.frame(Footer = footer, 
                             IsActive = as.numeric(is_active))
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 4), 
+    data.frame(EventUser = rep(event_user, 3), 
                EventType = c("Add", 
-                             "EditTitle",
                              "EditFooter", 
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 4), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
                NewValue = c("", 
-                            title,
                             footer,
                             is_active))
   
@@ -112,8 +101,7 @@ addEditFooter <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisFooter <- queryFooter(oid)
   
-  CurrentValue <- c(ThisFooter$Title, 
-                    ThisFooter$Footer, 
+  CurrentValue <- c(ThisFooter$Footer, 
                     ThisFooter$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]

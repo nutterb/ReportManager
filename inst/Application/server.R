@@ -264,7 +264,7 @@ shinyServer(function(input, output, session){
                          inputId = "templateDisclaimer", 
                          choices = as.character(rv_Disclaimer$Disclaimer$OID), 
                          selected = as.character(Selected$OID), 
-                         names = rv_Disclaimer$Disclaimer$Title)
+                         names = rv_Disclaimer$Disclaimer$Disclaimer)
       
       toggleModal(session = session, 
                   modalId = "modal_templateDisclaimer_edit", 
@@ -327,7 +327,7 @@ shinyServer(function(input, output, session){
                          inputId = "templateFooter", 
                          choices = as.character(rv_Footer$Footer$OID), 
                          selected = as.character(Selected$OID), 
-                         names = rv_Footer$Footer$Title)
+                         names = rv_Footer$Footer$Footer)
       
       toggleModal(session = session, 
                   modalId = "modal_templateFooter_edit", 

@@ -16,9 +16,6 @@ OE_btn_disclaimer_add <- function(session,
   rv_Disclaimer$AddEdit <- "Add"
   
   updateTextInput(session = session, 
-                  inputId = "txt_disclaimer_title", 
-                  value = "")
-  updateTextInput(session = session, 
                   inputId = "txt_disclaimer_text", 
                   value = "")
   updateCheckboxInput(inputId = "chk_disclaimer_isActive", 
@@ -36,9 +33,6 @@ OE_btn_disclaimer_edit <- function(session,
                                    input){
   rv_Disclaimer$AddEdit <- "Edit"
   
-  updateTextInput(session = session, 
-                  inputId = "txt_disclaimer_title", 
-                  value = rv_Disclaimer$SelectedDisclaimer$Title)
   updateTextInput(session = session, 
                   inputId = "txt_disclaimer_text",
                   value = rv_Disclaimer$SelectedDisclaimer$Disclaimer)
@@ -66,7 +60,6 @@ OE_btn_disclaimer_addEditDisclaimer <- function(session,
     alert(val$report())
   } else {
     addEditDisclaimer(oid = oid, 
-                      title = input$txt_disclaimer_title,
                       disclaimer = input$txt_disclaimer_text,
                       is_active = input$chk_disclaimer_isActive, 
                       event_user = current_user_oid)
@@ -149,9 +142,6 @@ OE_btn_footer_add <- function(session,
   rv_Footer$AddEdit <- "Add"
   
   updateTextInput(session = session, 
-                  inputId = "txt_footer_title", 
-                  value = "")
-  updateTextInput(session = session, 
                   inputId = "txt_footer_text", 
                   value = "")
   updateCheckboxInput(inputId = "chk_footer_isActive", 
@@ -169,9 +159,6 @@ OE_btn_footer_edit <- function(session,
                                input){
   rv_Footer$AddEdit <- "Edit"
   
-  updateTextInput(session = session, 
-                  inputId = "txt_footer_title", 
-                  value = rv_Footer$SelectedFooter$Title)
   updateTextInput(session = session, 
                   inputId = "txt_footer_text",
                   value = rv_Footer$SelectedFooter$Footer)
@@ -199,7 +186,6 @@ OE_btn_footer_addEditFooter <- function(session,
     alert(val$report())
   } else {
     addEditFooter(oid = oid, 
-                  title = input$txt_footer_title,
                   footer = input$txt_footer_text,
                   is_active = input$chk_footer_isActive, 
                   event_user = current_user_oid)

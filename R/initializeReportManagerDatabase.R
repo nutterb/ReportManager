@@ -171,21 +171,16 @@ initializeReportManagerDatabase <- function(filename,
   
   # Populate Disclaimers and Footers
   
-  addEditDisclaimer(title = "Preliminary Data", 
-                    disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
+  addEditDisclaimer(disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
                     event_user = 1)
   
-  addEditFooter(title = "Internal use", 
-                footer = "For internal use only.", 
+  addEditFooter(footer = "For internal use only.", 
                 event_user = 1)
-  addEditFooter(title = "Official use", 
-                footer = "For official use only.", 
+  addEditFooter(footer = "For official use only.", 
                 event_user = 1)
-  addEditFooter(title = "Not a record", 
-                footer = "Not a record.", 
+  addEditFooter(footer = "Not a record.", 
                 event_user = 1)
-  addEditFooter(title = "Becomes a record", 
-                footer = "Becomes a record upon completion.", 
+  addEditFooter(footer = "Becomes a record upon completion.", 
                 event_user = 1)
 }
 
@@ -279,7 +274,7 @@ initializeUiTestingDatabase <- function(filename,
     if ("ReportTemplateSignature" %in% include){
       mapply(addEditReportTemplateSignature, 
              parent_report_template = TestReportTemplateSignature$ParentReportTemplate,
-             parent_signature = TestReportTemplateSignature$ParentSignature,
+             parent_role = TestReportTemplateSignature$ParentRole,
              order = TestReportTemplateSignature$Order,
              MoreArgs = list(event_user = 1))
     }

@@ -163,8 +163,7 @@ test_that(
     skip_if_not(SQL_SERVER_READY, 
                 SQL_SERVER_READY_MESSAGE)
     
-    addEditDisclaimer(title = "Disclaimer 2", 
-                      disclaimer = "This is a second disclaimer for testings", 
+    addEditDisclaimer(disclaimer = "This is a second disclaimer for testings", 
                       event_user = 1)
     
     addEditReportTemplateDisclaimer(oid = 1, 
@@ -300,8 +299,7 @@ test_that(
     skip_if_not(SQLITE_READY, 
                 SQLITE_READY_MESSAGE)
     
-    addEditDisclaimer(title = "Disclaimer 2", 
-                      disclaimer = "This is a second disclaimer for testings", 
+    addEditDisclaimer(disclaimer = "This is a second disclaimer for testings", 
                       event_user = 1)
     
     addEditReportTemplateDisclaimer(oid = 1, 

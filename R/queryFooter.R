@@ -56,14 +56,12 @@ queryFooter <- function(oid = numeric(0)){
 
 .queryFooter_sqlite <- 
   "SELECT [OID], 
-      [Title],
       [Footer],
       [IsActive]
     FROM [Footer]"
 
 .queryFooter_sqlServer <- 
   "SELECT [OID], 
-      [Title],
       [Footer],
       [IsActive]
     FROM dbo.[Footer]"

@@ -12,6 +12,7 @@ UI_STYLES_AND_SCRIPTS <-
                        src = "https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"),
     shiny::tags$script(type = "text/javascript",
                        src = "https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"),
+    tags$head(tags$style(type="text/css", '.scrollable-select .shiny-bound-input{overflow-x: scroll;}')),
     # I'm not sure if I need this or not
     tags$script(HTML(
       "Shiny.addCustomMessageHandler('pager',function(page) {

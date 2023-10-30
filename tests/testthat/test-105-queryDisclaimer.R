@@ -24,7 +24,7 @@ test_that(
     Disclaimer <- queryDisclaimer()
     
     expect_data_frame(Disclaimer, 
-                      ncols = 4)
+                      ncols = 3)
   }
 )
 
@@ -42,6 +42,6 @@ test_that(
     Disclaimer <- queryDisclaimer()
     
     expect_data_frame(Disclaimer, 
-                      ncols = 4)
+                      ncols = 3)
   }
 )

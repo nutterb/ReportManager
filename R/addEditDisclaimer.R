@@ -6,9 +6,6 @@
 #'   
 #' @param oid `integerish(0/1)`. The OID of the Disclaimer object to be 
 #'   edited. When length is 0, a new Disclaimer object is added.
-#' @param title `character(1)`. The Title for the Disclaimer object. This 
-#'   is used to give an abbreviated identifier when selecting disclaimers
-#'   to associate with a template.
 #' @param disclaimer `character(1)`. The text of the disclaimer. Limited to
 #'   2000 characters.
 #' @param is_active `logical(1)`. When `TRUE`, the disclaimer is marked
@@ -19,7 +16,6 @@
 #' @export
 
 addEditDisclaimer <- function(oid = numeric(0),
-                              title,
                               disclaimer, 
                               is_active = TRUE, 
                               event_user){
@@ -31,9 +27,6 @@ addEditDisclaimer <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertString(x = title, 
-                          max.chars = 100, 
-                          add = coll)
   
   checkmate::assertString(x = disclaimer, 
                           max.chars = 2000, 
@@ -59,20 +52,17 @@ addEditDisclaimer <- function(oid = numeric(0),
   
   event_time <- Sys.time()
   
-  AddEditData <- data.frame(Title = title, 
-                            Disclaimer = disclaimer, 
+  AddEditData <- data.frame(Disclaimer = disclaimer, 
                             IsActive = as.numeric(is_active))
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 4), 
+    data.frame(EventUser = rep(event_user, 3), 
                EventType = c("Add",
-                             "EditTitle",
                              "EditDisclaimer", 
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 4), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
                NewValue = c("", 
-                            title,
                             disclaimer,
                             is_active))
   
@@ -112,8 +102,7 @@ addEditDisclaimer <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisDisclaimer <- queryDisclaimer(oid)
   
-  CurrentValue <- c(ThisDisclaimer$Title, 
-                    ThisDisclaimer$Disclaimer, 
+  CurrentValue <- c(ThisDisclaimer$Disclaimer, 
                     ThisDisclaimer$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]

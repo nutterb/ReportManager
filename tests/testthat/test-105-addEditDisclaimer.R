@@ -4,13 +4,11 @@ test_that(
   "Return an error if oid is not integerish(0/1)", 
   {
     expect_error(addEditDisclaimer(oid = "1", 
-                                   title = "Title",
                                    disclaimer = "Text", 
                                    event_user = 1), 
                  "'oid': Must be of type 'integerish'")
     
     expect_error(addEditDisclaimer(oid = 1:2, 
-                                   title = "Title",
                                    disclaimer = "Text",  
                                    event_user = 1), 
                  "'oid': Must have length <= 1")
@@ -18,40 +16,17 @@ test_that(
 )
 
 test_that(
-  "Return an error if title is not character(1)", 
-  {
-    expect_error(addEditDisclaimer(title = 123, 
-                                   disclaimer = "Text",
-                                   event_user = 1), 
-                 "'title': Must be of type 'string'")
-    
-    expect_error(addEditDisclaimer(title = c("Disclaim", "Title"), 
-                                   disclaimer = "Text",
-                                   event_user = 1), 
-                 "'title': Must have length 1")
-    
-    expect_error(addEditDisclaimer(title = randomVarchar(101),
-                                   disclaimer = "Text",
-                                   event_user = 1), 
-                 "'title': All elements must have at most 100")
-  }
-)
-
-test_that(
   "Return an error if disclaimer is not character(1)", 
   {
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = 123,
+    expect_error(addEditDisclaimer(disclaimer = 123,
                                    event_user = 1), 
                  "'disclaimer': Must be of type 'string'")
     
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = c("Disclaim", "Text"), 
+    expect_error(addEditDisclaimer(disclaimer = c("Disclaim", "Text"), 
                                    event_user = 1), 
                  "'disclaimer': Must have length 1")
     
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = randomVarchar(2001), 
+    expect_error(addEditDisclaimer(disclaimer = randomVarchar(2001), 
                                    event_user = 1), 
                  "'disclaimer': All elements must have at most 2000")
   }
@@ -60,14 +35,12 @@ test_that(
 test_that(
   "Return an error if is_active is not logical(1)", 
   {
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = "Text", 
+    expect_error(addEditDisclaimer(disclaimer = "Text", 
                                    is_active = "TRUE", 
                                    event_user = 1), 
                  "'is_active': Must be of type 'logical'")
     
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = "Text", 
+    expect_error(addEditDisclaimer(disclaimer = "Text", 
                                    is_active = c(TRUE, FALSE), 
                                    event_user = 1), 
                  "'is_active': Must have length 1")
@@ -77,13 +50,11 @@ test_that(
 test_that(
   "Return an error if event_user is not integerish(1)", 
   {
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = "Text",
+    expect_error(addEditDisclaimer(disclaimer = "Text",
                                    event_user = "1"), 
                  "'event_user': Must be of type 'integerish'")
     
-    expect_error(addEditDisclaimer(title = "Title", 
-                                   disclaimer = "Text", 
+    expect_error(addEditDisclaimer(disclaimer = "Text", 
                                    event_user = 1:2), 
                  "'event_user': Must have length 1")
   }
@@ -112,8 +83,7 @@ test_that(
     
     # Add a new Date Reporting Format
     
-    addEditDisclaimer(title = "Title", 
-                      disclaimer = "Testing Disclaimer",
+    addEditDisclaimer(disclaimer = "Testing Disclaimer",
                       event_user = 1)
     
     NewDisclaim <- queryDisclaimer(oid = nrow(StartDisclaim) + 1)
@@ -125,7 +95,6 @@ test_that(
     # Edit an existing report format
     
     addEditDisclaimer(oid = NewDisclaim$OID, 
-                      title = "Modified Title",
                       disclaimer = "Modified Disclaimer", 
                       event_user = 1)
     
@@ -150,8 +119,7 @@ test_that(
     last_disclaimer_oid <- max(queryDisclaimer()$OID)
     next_disclaimer_oid <- last_disclaimer_oid + 1
     
-    addEditDisclaimer(title = "Title", 
-                      disclaimer = "Disclaimer for Event Testing",
+    addEditDisclaimer(disclaimer = "Disclaimer for Event Testing",
                       is_active = TRUE, 
                       event_user = 1)
     
@@ -162,11 +130,10 @@ test_that(
                                     next_disclaimer_oid))
     
     expect_equal(DisclaimerEvent$EventType,
-                 c("Add", "EditTitle", "EditDisclaimer", "Activate"))
+                 c("Add", "EditDisclaimer", "Activate"))
     expect_true(all(table(DisclaimerEvent$EventType) == 1))
     
     addEditDisclaimer(oid = next_disclaimer_oid,
-                      title = "Edited Title",
                       disclaimer = "Edited Disclaimer",
                       is_active = FALSE, 
                       event_user = 1)
@@ -182,8 +149,7 @@ test_that(
             c("Activate" = 1, 
               "Add" = 1, 
               "Deactivate" = 1, 
-              "EditDisclaimer" = 2, 
-              "EditTitle" = 2))
+              "EditDisclaimer" = 2))
     )
     
     dbDisconnect(conn)
@@ -213,8 +179,7 @@ test_that(
     
     # Add a new Date Reporting Format
     
-    addEditDisclaimer(title = "Title", 
-                      disclaimer = "Testing Disclaimer",
+    addEditDisclaimer(disclaimer = "Testing Disclaimer",
                       event_user = 1)
     
     NewDisclaim <- queryDisclaimer(oid = nrow(StartDisclaim) + 1)
@@ -226,7 +191,6 @@ test_that(
     # Edit an existing report format
     
     addEditDisclaimer(oid = NewDisclaim$OID, 
-                      title = "Modified Title",
                       disclaimer = "Modified Disclaimer", 
                       event_user = 1)
     
@@ -251,8 +215,7 @@ test_that(
     last_disclaimer_oid <- max(queryDisclaimer()$OID)
     next_disclaimer_oid <- last_disclaimer_oid + 1
     
-    addEditDisclaimer(title = "Title",
-                      disclaimer = "Disclaimer for Event Testing",
+    addEditDisclaimer(disclaimer = "Disclaimer for Event Testing",
                       is_active = TRUE, 
                       event_user = 1)
     
@@ -263,11 +226,10 @@ test_that(
                                     next_disclaimer_oid))
     
     expect_equal(DisclaimerEvent$EventType,
-                 c("Add", "EditTitle", "EditDisclaimer", "Activate"))
+                 c("Add", "EditDisclaimer", "Activate"))
     expect_true(all(table(DisclaimerEvent$EventType) == 1))
     
     addEditDisclaimer(oid = next_disclaimer_oid, 
-                      title = "Edited Title",
                       disclaimer = "Edited Disclaimer",
                       is_active = FALSE, 
                       event_user = 1)
@@ -283,8 +245,7 @@ test_that(
             c("Activate" = 1, 
               "Add" = 1, 
               "Deactivate" = 1, 
-              "EditDisclaimer" = 2, 
-              "EditTitle" = 2))
+              "EditDisclaimer" = 2))
     )
     
     dbDisconnect(conn)

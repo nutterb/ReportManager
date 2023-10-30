@@ -164,7 +164,6 @@ CREATE TABLE [DateReportingFormatEvent](
 
 CREATE TABLE [Disclaimer](
   OID INTEGER PRIMARY KEY, 
-  Title VARCHAR(100) NOT NULL,
   Disclaimer VARCHAR(2000) NOT NULL,
   IsActive BIT DEFAULT 0
 );
@@ -181,8 +180,7 @@ CREATE TABLE [DisclaimerEvent](
   
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditTitle', 
-                                                          'EditDisclaimer',
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
@@ -192,7 +190,6 @@ CREATE TABLE [DisclaimerEvent](
 
 CREATE TABLE [Footer](
   OID INTEGER PRIMARY KEY,
-  Title VARCHAR(100) NOT NULL,
   Footer VARCHAR(200) NOT NULL,
   IsActive BIT DEFAULT 0
 );
@@ -209,8 +206,7 @@ CREATE TABLE [FooterEvent](
   
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditTitle', 
-                                                      'EditFooter',
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))
