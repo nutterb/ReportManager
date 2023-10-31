@@ -47,80 +47,48 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "Return the appropriate data frames", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    # Add an extra record just so there are more than 1
-    
-    addEditReportTemplateFooter(parent_report_template = 2, 
-                                    parent_footer = 4,
-                                order = 1,
-                                    event_user = 1)
-    
-    Test <- queryReportTemplateFooter()
-    
-    expect_data_frame(Test)
-    expect_true(nrow(Test) > 0)
-    
-    
-    Test <- queryReportTemplateFooter(oid = 1)
-    expect_data_frame(Test, 
-                      nrows = 1)
-    expect_equal(Test$OID, 1)
-    
-    
-    Test <- queryReportTemplateFooter(parent_report_template = 1)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentReportTemplate == 1))
-    
-    
-    Test <- queryReportTemplateFooter(parent_footer = 4)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentFooter == 4))
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "Return the appropriate data frames", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    # Add an extra record just so there are more than 1
-    
-    addEditReportTemplateFooter(parent_report_template = 2, 
-                                    parent_footer = 3, 
-                                    order = 3,
-                                    event_user = 1)
-    
-    Test <- queryReportTemplateFooter()
-    
-    expect_data_frame(Test)
-    expect_true(nrow(Test) > 0)
-    
-    
-    Test <- queryReportTemplateFooter(oid = 1)
-    expect_data_frame(Test, 
-                      nrows = 1)
-    expect_equal(Test$OID, 1)
-    
-    
-    Test <- queryReportTemplateFooter(parent_report_template = 1)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentReportTemplate == 1))
-    
-    
-    Test <- queryReportTemplateFooter(parent_footer = 3)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentFooter == 3))
-  }
-)
+  
+  test_that(
+    "Return the appropriate data frames", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      # Add an extra record just so there are more than 1
+      
+      addEditReportTemplateFooter(parent_report_template = 2, 
+                                  parent_footer = 4,
+                                  order = 1,
+                                  event_user = 1)
+      
+      Test <- queryReportTemplateFooter()
+      
+      expect_data_frame(Test)
+      expect_true(nrow(Test) > 0)
+      
+      
+      Test <- queryReportTemplateFooter(oid = 1)
+      expect_data_frame(Test, 
+                        nrows = 1)
+      expect_equal(Test$OID, 1)
+      
+      
+      Test <- queryReportTemplateFooter(parent_report_template = 1)
+      expect_data_frame(Test)
+      expect_true(all(Test$ParentReportTemplate == 1))
+      
+      
+      Test <- queryReportTemplateFooter(parent_footer = 4)
+      expect_data_frame(Test)
+      expect_true(all(Test$ParentFooter == 4))
+    }
+  )
+}

@@ -81,245 +81,131 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-if (SQL_SERVER_READY){
-  configureReportManager(flavor = "sql_server")
-  purgeReportManagerDatabase()
-  initializeUiTestingDatabase(system.file("Sql/SqlServer.sql", 
-                                          package = "ReportManager"), 
-                              include = c("User", "Role"))
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeUiTestingDatabase(SQL_FILE[flavor], 
+                                include = c("User", "Role"))
+  }
+  
+  test_that(
+    "addEditUserRole functionality", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      # Add a role for this testing
+      addEditRole(role_name = "UserRole Testing", 
+                  event_user = 1)
+      
+      addEditUserRole(parent_user = 2, 
+                      parent_role = 5, 
+                      event_user = 1)
+      
+      
+      UserRole <- queryUserRole(user_oid = 2, 
+                                role_oid = 5)
+      expect_data_frame(UserRole, 
+                        nrows = 1)
+      expect_true(UserRole$IsActive)
+      
+      
+      # Edit the UserRole (deactivate or remove the role from the user)
+      
+      addEditUserRole(oid = 4, 
+                      parent_user = 2,
+                      parent_role = 5, 
+                      event_user = 1, 
+                      is_active = FALSE)
+      UserRole <- queryUserRole(user_oid = 2, 
+                                role_oid = 5)
+      expect_data_frame(UserRole, 
+                        nrows = 1)
+      expect_false(UserRole$IsActive)
+      
+    }
+  )
+  
+  test_that(
+    "Generate an error if trying to add a UserRole for a User-Role that already exists", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      expect_error(addEditUserRole(parent_user = 2, 
+                                   parent_role = 5, 
+                                   event_user = 1), 
+                   "A UserRole record for User.OID")
+    }
+  )
+  
+  test_that(
+    "Confirm events are recorded correctly", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      conn <- connectToReportManager()
+      
+      # Make a role for testing
+      
+      addEditRole(role_name = "UserRoleEventTest", 
+                  role_description = "Role for User Role Event Testing", 
+                  is_active = TRUE, 
+                  event_user = 1)
+      
+      role_oid <- max(queryRole()$OID)
+      
+      # Assign a user to the role
+      
+      last_userrole_oid <- max(queryUserRole()$OID)
+      next_userrole_oid <- last_userrole_oid + 1
+      
+      addEditUserRole(parent_user = 1, 
+                      parent_role = role_oid, 
+                      is_active = FALSE, 
+                      event_user = 1)
+      
+      UserRoleEvent <- dbGetQuery(conn, 
+                                  sqlInterpolate(
+                                    conn,
+                                    switch(flavor, 
+                                           "sql_server" = "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?",
+                                           "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?"),
+                                    next_userrole_oid))
+      
+      expect_equal(UserRoleEvent$EventType,
+                   c("Add", "Deactivate"))
+      expect_true(all(table(UserRoleEvent$EventType) == 1))
+      
+      addEditUserRole(oid = next_userrole_oid, 
+                      parent_user = 1, 
+                      parent_role = role_oid, 
+                      is_active = TRUE,  
+                      event_user = 1)
+      
+      
+      UserRoleEvent2 <- dbGetQuery(conn, 
+                                   sqlInterpolate(
+                                     conn,
+                                     switch(flavor, 
+                                            "sql_server" = "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?",
+                                            "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?"), 
+                                     next_userrole_oid))
+      
+      expect_true(
+        all(table(UserRoleEvent2$EventType) ==
+              c("Activate" = 1, 
+                "Add" = 1, 
+                "Deactivate" = 1))
+      )
+      
+      dbDisconnect(conn)
+    }
+  )
 }
-
-test_that(
-  "addEditUserRole functionality", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    # Add a role for this testing
-    addEditRole(role_name = "UserRole Testing", 
-                event_user = 1)
-    
-    addEditUserRole(parent_user = 2, 
-                    parent_role = 5, 
-                    event_user = 1)
-    
-    
-    UserRole <- queryUserRole(user_oid = 2, 
-                              role_oid = 5)
-    expect_data_frame(UserRole, 
-                      nrows = 1)
-    expect_true(UserRole$IsActive)
-    
-    
-    # Edit the UserRole (deactivate or remove the role from the user)
-    
-    addEditUserRole(oid = 4, 
-                    parent_user = 2,
-                    parent_role = 5, 
-                    event_user = 1, 
-                    is_active = FALSE)
-    UserRole <- queryUserRole(user_oid = 2, 
-                              role_oid = 5)
-    expect_data_frame(UserRole, 
-                      nrows = 1)
-    expect_false(UserRole$IsActive)
-    
-  }
-)
-
-test_that(
-  "Generate an error if trying to add a UserRole for a User-Role that already exists", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    expect_error(addEditUserRole(parent_user = 2, 
-                                 parent_role = 5, 
-                                 event_user = 1), 
-                 "A UserRole record for User.OID")
-  }
-)
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    # Make a role for testing
-    
-    addEditRole(role_name = "UserRoleEventTest", 
-                role_description = "Role for User Role Event Testing", 
-                is_active = TRUE, 
-                event_user = 1)
-    
-    role_oid <- max(queryRole()$OID)
-    
-    # Assign a user to the role
-    
-    last_userrole_oid <- max(queryUserRole()$OID)
-    next_userrole_oid <- last_userrole_oid + 1
-    
-    addEditUserRole(parent_user = 1, 
-                    parent_role = role_oid, 
-                    is_active = FALSE, 
-                    event_user = 1)
-    
-    UserRoleEvent <- dbGetQuery(conn, 
-                                sqlInterpolate(
-                                  conn,
-                                  "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?", 
-                                  next_userrole_oid))
-    
-    expect_equal(UserRoleEvent$EventType,
-                 c("Add", "Deactivate"))
-    expect_true(all(table(UserRoleEvent$EventType) == 1))
-    
-    addEditUserRole(oid = next_userrole_oid, 
-                    parent_user = 1, 
-                    parent_role = role_oid, 
-                    is_active = TRUE,  
-                    event_user = 1)
-    
-    
-    UserRoleEvent2 <- dbGetQuery(conn, 
-                                 sqlInterpolate(
-                                   conn,
-                                   "SELECT * FROM dbo.UserRoleEvent WHERE ParentUserRole = ?", 
-                                   next_userrole_oid))
-    
-    expect_true(
-      all(table(UserRoleEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1))
-    )
-    
-    dbDisconnect(conn)
-  }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-if (SQLITE_READY){
-  configureReportManager(flavor = "sqlite")
-  purgeReportManagerDatabase()
-  initializeUiTestingDatabase(system.file("Sql/Sqlite.sql", 
-                                          package = "ReportManager"), 
-                              include = c("User", "Role"))
-}
-
-test_that(
-  "addEditUserRole functionality", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    # Add a role for this testing
-    addEditRole(role_name = "UserRole Testing", 
-                event_user = 1)
-    
-    addEditUserRole(parent_user = 2, 
-                    parent_role = 5, 
-                    event_user = 1)
-    
-    
-    UserRole <- queryUserRole(user_oid = 2, 
-                              role_oid = 5)
-    expect_data_frame(UserRole, 
-                      nrows = 1)
-    expect_true(UserRole$IsActive)
-    
-    
-    # Edit the UserRole (deactivate or remove the role from the user)
-    
-    addEditUserRole(oid = 4, 
-                    parent_user = 2,
-                    parent_role = 5, 
-                    event_user = 1, 
-                    is_active = FALSE)
-    UserRole <- queryUserRole(user_oid = 2, 
-                              role_oid = 5)
-    expect_data_frame(UserRole, 
-                      nrows = 1)
-    expect_false(UserRole$IsActive)
-    
-    
-  }
-)
-
-test_that(
-  "Generate an error if trying to add a UserRole for a User-Role that already exists", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    expect_error(addEditUserRole(parent_user = 2, 
-                                 parent_role = 5, 
-                                 event_user = 1), 
-                 "A UserRole record for User.OID")
-  }
-)
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    # Make a role for testing
-    
-    addEditRole(role_name = "UserRoleEventTest", 
-                role_description = "Role for User Role Event Testing", 
-                is_active = TRUE, 
-                event_user = 1)
-    
-    role_oid <- max(queryRole()$OID)
-    
-    # Assign a user to the role
-    
-    last_userrole_oid <- max(queryUserRole()$OID)
-    next_userrole_oid <- last_userrole_oid + 1
-    
-    addEditUserRole(parent_user = 1, 
-                    parent_role = role_oid, 
-                    is_active = FALSE, 
-                    event_user = 1)
-    
-    UserRoleEvent <- dbGetQuery(conn, 
-                                sqlInterpolate(
-                                  conn,
-                                  "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?", 
-                                  next_userrole_oid))
-    
-    expect_equal(UserRoleEvent$EventType,
-                 c("Add", "Deactivate"))
-    expect_true(all(table(UserRoleEvent$EventType) == 1))
-    
-    addEditUserRole(oid = next_userrole_oid, 
-                    parent_user = 1, 
-                    parent_role = role_oid, 
-                    is_active = TRUE,  
-                    event_user = 1)
-    
-    
-    UserRoleEvent2 <- dbGetQuery(conn, 
-                                 sqlInterpolate(
-                                   conn,
-                                   "SELECT * FROM UserRoleEvent WHERE ParentUserRole = ?", 
-                                   next_userrole_oid))
-    
-    expect_true(
-      all(table(UserRoleEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1))
-    )
-    
-    dbDisconnect(conn)
-  }
-)

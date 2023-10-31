@@ -190,258 +190,139 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-if (SQL_SERVER_READY){
-  configureReportManager(flavor = "sql_server")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-}
-
-test_that(
-  "addEditDateReportingFormat functionality for SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    StartFormat <- queryDateReportingFormat()
-   
-    # Add a new Date Reporting Format
-    
-    addEditDateReportingFormat(format_name = "Date (with full month)", 
-                               description = "15 January 2000", 
-                               format_code = "%d %B %Y",
-                               increment_end = -1, 
-                               increment_end_unit = "Second",
-                               event_user = 1)
-    
-    NewFormat <- queryDateReportingFormat(oid = nrow(StartFormat) + 1)
-    
-    expect_data_frame(NewFormat, 
-                      nrows = 1)
-    
-    
-    # Edit an existing report format
-    
-    addEditDateReportingFormat(oid = NewFormat$OID, 
-                               format_name = "Date with no month", 
-                               description = "15 2000", 
-                               format_code = "%d %Y", 
-                               increment_end = -1, 
-                               increment_end_unit = "Second", 
-                               event_user = 1)
-    
-    NewFormat <- queryDateReportingFormat(oid = NewFormat$OID)
-    
-    expect_data_frame(NewFormat, 
-                      nrows = 1)
-    
-    expect_equal(NewFormat$FormatName, 
-                 "Date with no month")
-    
-    expect_equal(NewFormat$Description, 
-                 "15 2000")
-    
-    expect_equal(NewFormat$FormatCode, 
-                 "%d %Y")
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeReportManagerDatabase(SQL_FILE[flavor], 
+                                    last_name = "Doe", 
+                                    first_name = "Jane", 
+                                    login_id = "jdoe", 
+                                    email = "jdoe@domain.com")
   }
-)
-
-
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    last_format_oid <- max(queryDateReportingFormat()$OID)
-    next_format_oid <- last_format_oid + 1
-    
-    addEditDateReportingFormat(format_name = "Date format event test",
-                               description = "testing events when editing date formats", 
-                               format_code = "%Y-%m-%d",
-                               increment_start = 0, 
-                               increment_start_unit = "Second", 
-                               increment_end = -1, 
-                               increment_end_unit = "Second",
-                               is_active = FALSE, 
-                               event_user = 1)
-    
-    FormatEvent <- dbGetQuery(conn, 
-                              sqlInterpolate(
-                                conn,
-                                "SELECT * FROM dbo.DateReportingFormatEvent WHERE ParentDateReportingFormat = ?", 
-                                next_format_oid))
-    
-    expect_equal(FormatEvent$EventType,
-                 c("Add", "Deactivate", "EditFormatName", "EditFormatDescription", 
-                   "EditFormatCode", "EditIncrementStart", "EditIncrementEnd"))
-    expect_true(all(table(FormatEvent$EventType) == 1))
-    
-    addEditDateReportingFormat(oid = next_format_oid, 
-                               format_name = "change Date format",
-                               description = "change testing events when editing date formats", 
-                               format_code = "%Y-%m-%d %H:%M:%S",
-                               increment_start = 1, 
-                               increment_start_unit = "Second", 
-                               increment_end = -1, 
-                               increment_end_unit = "Day",
-                               is_active = TRUE, 
-                               event_user = 1)
-    
-    
-    FormatEvent2 <- dbGetQuery(conn, 
-                               sqlInterpolate(
-                                 conn,
-                                 "SELECT * FROM dbo.DateReportingFormatEvent WHERE ParentDateReportingFormat = ?", 
-                                 next_format_oid))
-    
-    expect_true(
-      all(table(FormatEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1, 
-              "EditFormatCode" = 2, 
-              "EditFormatDescription" = 2, 
-              "EditFormatName" = 2, 
-              "EditIncrementEnd" = 2, 
-              "EditIncrementStart" = 2))
-    )
-    
-    dbDisconnect(conn)
-  }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-if (SQLITE_READY){
-  configureReportManager(flavor = "sqlite")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-}
-
-test_that(
-  "addEditDateReportingFormat functionality for SQL Server", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    StartFormat <- queryDateReportingFormat()
-    
-    # Add a new Date Reporting Format
-    
-    addEditDateReportingFormat(format_name = "Date (with full month)", 
-                               description = "15 January 2000", 
-                               format_code = "%d %B %Y",
-                               increment_end = -1, 
-                               increment_end_unit = "Second",
-                               event_user = 1)
-    
-    NewFormat <- queryDateReportingFormat(oid = nrow(StartFormat) + 1)
-    
-    expect_data_frame(NewFormat, 
-                      nrows = 1)
-    
-    
-    # Edit an existing report format
-    
-    addEditDateReportingFormat(oid = NewFormat$OID, 
-                               format_name = "Date with no month", 
-                               description = "15 2000", 
-                               format_code = "%d %Y", 
-                               increment_end = -1, 
-                               increment_end_unit = "Second", 
-                               event_user = 1)
-    
-    NewFormat <- queryDateReportingFormat(oid = NewFormat$OID)
-    
-    expect_data_frame(NewFormat, 
-                      nrows = 1)
-    
-    expect_equal(NewFormat$FormatName, 
-                 "Date with no month")
-    
-    expect_equal(NewFormat$Description, 
-                 "15 2000")
-    
-    expect_equal(NewFormat$FormatCode, 
-                 "%d %Y")
-  }
-)
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    last_format_oid <- max(queryDateReportingFormat()$OID)
-    next_format_oid <- last_format_oid + 1
-    
-    addEditDateReportingFormat(format_name = "Date format event test",
-                               description = "testing events when editing date formats", 
-                               format_code = "%Y-%m-%d",
-                               increment_start = 0, 
-                               increment_start_unit = "Second", 
-                               increment_end = -1, 
-                               increment_end_unit = "Second",
-                               is_active = FALSE, 
-                               event_user = 1)
-    
-    FormatEvent <- dbGetQuery(conn, 
-                              sqlInterpolate(
+  
+  test_that(
+    "addEditDateReportingFormat functionality for SQL Server", 
+    {
+      skip_if_not(SQL_SERVER_READY, 
+                  SQL_SERVER_READY_MESSAGE)
+      
+      StartFormat <- queryDateReportingFormat()
+      
+      # Add a new Date Reporting Format
+      
+      addEditDateReportingFormat(format_name = "Date (with full month)", 
+                                 description = "15 January 2000", 
+                                 format_code = "%d %B %Y",
+                                 increment_end = -1, 
+                                 increment_end_unit = "Second",
+                                 event_user = 1)
+      
+      NewFormat <- queryDateReportingFormat(oid = nrow(StartFormat) + 1)
+      
+      expect_data_frame(NewFormat, 
+                        nrows = 1)
+      
+      
+      # Edit an existing report format
+      
+      addEditDateReportingFormat(oid = NewFormat$OID, 
+                                 format_name = "Date with no month", 
+                                 description = "15 2000", 
+                                 format_code = "%d %Y", 
+                                 increment_end = -1, 
+                                 increment_end_unit = "Second", 
+                                 event_user = 1)
+      
+      NewFormat <- queryDateReportingFormat(oid = NewFormat$OID)
+      
+      expect_data_frame(NewFormat, 
+                        nrows = 1)
+      
+      expect_equal(NewFormat$FormatName, 
+                   "Date with no month")
+      
+      expect_equal(NewFormat$Description, 
+                   "15 2000")
+      
+      expect_equal(NewFormat$FormatCode, 
+                   "%d %Y")
+    }
+  )
+  
+  
+  
+  test_that(
+    "Confirm events are recorded correctly", 
+    {
+      skip_if_not(SQL_SERVER_READY, 
+                  SQL_SERVER_READY_MESSAGE)
+      
+      conn <- connectToReportManager()
+      
+      last_format_oid <- max(queryDateReportingFormat()$OID)
+      next_format_oid <- last_format_oid + 1
+      
+      addEditDateReportingFormat(format_name = "Date format event test",
+                                 description = "testing events when editing date formats", 
+                                 format_code = "%Y-%m-%d",
+                                 increment_start = 0, 
+                                 increment_start_unit = "Second", 
+                                 increment_end = -1, 
+                                 increment_end_unit = "Second",
+                                 is_active = FALSE, 
+                                 event_user = 1)
+      
+      FormatEvent <- dbGetQuery(conn, 
+                                sqlInterpolate(
                                   conn,
-                                  "SELECT * FROM DateReportingFormatEvent WHERE ParentDateReportingFormat = ?", 
+                                  switch(flavor, 
+                                         "sql_server" = "SELECT * FROM dbo.DateReportingFormatEvent WHERE ParentDateReportingFormat = ?",
+                                         "SELECT * FROM DateReportingFormatEvent WHERE ParentDateReportingFormat = ?"), 
                                   next_format_oid))
-    
-    expect_equal(FormatEvent$EventType,
-                 c("Add", "Deactivate", "EditFormatName", "EditFormatDescription", 
-                   "EditFormatCode", "EditIncrementStart", "EditIncrementEnd"))
-    expect_true(all(table(FormatEvent$EventType) == 1))
-    
-    addEditDateReportingFormat(oid = next_format_oid, 
-                               format_name = "change Date format",
-                               description = "change testing events when editing date formats", 
-                               format_code = "%Y-%m-%d %H:%M:%S",
-                               increment_start = 1, 
-                               increment_start_unit = "Second", 
-                               increment_end = -1, 
-                               increment_end_unit = "Day",
-                               is_active = TRUE, 
-                               event_user = 1)
-    
-    
-    FormatEvent2 <- dbGetQuery(conn, 
-                               sqlInterpolate(
-                                 conn,
-                                 "SELECT * FROM DateReportingFormatEvent WHERE ParentDateReportingFormat = ?", 
-                                 next_format_oid))
-    
-    expect_true(
-      all(table(FormatEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1, 
-              "EditFormatCode" = 2, 
-              "EditFormatDescription" = 2, 
-              "EditFormatName" = 2, 
-              "EditIncrementEnd" = 2, 
-              "EditIncrementStart" = 2))
-    )
-    
-    dbDisconnect(conn)
-  }
-)
+      
+      expect_equal(FormatEvent$EventType,
+                   c("Add", "Deactivate", "EditFormatName", "EditFormatDescription", 
+                     "EditFormatCode", "EditIncrementStart", "EditIncrementEnd"))
+      expect_true(all(table(FormatEvent$EventType) == 1))
+      
+      addEditDateReportingFormat(oid = next_format_oid, 
+                                 format_name = "change Date format",
+                                 description = "change testing events when editing date formats", 
+                                 format_code = "%Y-%m-%d %H:%M:%S",
+                                 increment_start = 1, 
+                                 increment_start_unit = "Second", 
+                                 increment_end = -1, 
+                                 increment_end_unit = "Day",
+                                 is_active = TRUE, 
+                                 event_user = 1)
+      
+      
+      FormatEvent2 <- dbGetQuery(conn, 
+                                 sqlInterpolate(
+                                   conn,
+                                   switch(flavor, 
+                                          "sql_server" = "SELECT * FROM dbo.DateReportingFormatEvent WHERE ParentDateReportingFormat = ?",
+                                          "SELECT * FROM DateReportingFormatEvent WHERE ParentDateReportingFormat = ?"),
+                                   next_format_oid))
+      
+      expect_true(
+        all(table(FormatEvent2$EventType) ==
+              c("Activate" = 1, 
+                "Add" = 1, 
+                "Deactivate" = 1, 
+                "EditFormatCode" = 2, 
+                "EditFormatDescription" = 2, 
+                "EditFormatName" = 2, 
+                "EditIncrementEnd" = 2, 
+                "EditIncrementStart" = 2))
+      )
+      
+      dbDisconnect(conn)
+    }
+  )
+}

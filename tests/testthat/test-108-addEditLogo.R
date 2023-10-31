@@ -120,118 +120,64 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-if (SQL_SERVER_READY){
-  configureReportManager(flavor = "sql_server")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeReportManagerDatabase(SQL_FILE[flavor], 
+                                    last_name = "Doe", 
+                                    first_name = "Jane", 
+                                    login_id = "jdoe", 
+                                    email = "jdoe@domain.com")
+  }
+
+  test_that(
+    "Add a Logo to the FileArchive", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      FileArchive <- queryFileArchive()
+      
+      next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
+      
+      addLogo(file_path = temp_file, 
+              description = "This is a logo")
+      
+      NewLogo <- queryFileArchive(oid = next_oid)
+      
+      expect_data_frame(NewLogo, 
+                        nrows = 1)
+      
+      expect_equal("This is a logo", 
+                   NewLogo$Description)
+      
+      expect_true(NewLogo$IsLogo)
+    }
+  )
+  
+  test_that(
+    "Edit an existing Logo", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      FileArchive <- queryFileArchive()
+      LogoArchive <- FileArchive[FileArchive$IsLogo, ]
+      
+      editLogo(oid = LogoArchive$OID[1], 
+               description = "Edit the logo description", 
+               file_name = "newFileName")
+      
+      expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$FileName, 
+                   "newFileName")
+      
+      expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$Description, 
+                   "Edit the logo description")
+    }
+  )
 }
-
-test_that(
-  "Add a Logo to the FileArchive", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addLogo(file_path = temp_file, 
-            description = "This is a logo")
-    
-    NewLogo <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewLogo, 
-                      nrows = 1)
-    
-    expect_equal("This is a logo", 
-                 NewLogo$Description)
-    
-    expect_true(NewLogo$IsLogo)
-  }
-)
-
-test_that(
-  "Edit an existing Logo", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    LogoArchive <- FileArchive[FileArchive$IsLogo, ]
-    
-    editLogo(oid = LogoArchive$OID[1], 
-             description = "Edit the logo description", 
-             file_name = "newFileName")
-    
-    expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$FileName, 
-                 "newFileName")
-    
-    expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$Description, 
-                 "Edit the logo description")
-  }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-if (SQLITE_READY){
-  configureReportManager(flavor = "sqlite")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-}
-
-test_that(
-  "Add a Logo to the FileArchive", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addLogo(file_path = temp_file, 
-            description = "This is a logo")
-    
-    NewLogo <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewLogo, 
-                      nrows = 1)
-    
-    expect_equal("This is a logo", 
-                 NewLogo$Description)
-    
-    expect_true(NewLogo$IsLogo)
-  }
-)
-
-test_that(
-  "Edit an existing Logo", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    LogoArchive <- FileArchive[FileArchive$IsLogo, ]
-    
-    editLogo(oid = LogoArchive$OID[1], 
-             description = "Edit the logo description", 
-             file_name = "newFileName")
-    
-    expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$FileName, 
-                 "newFileName")
-    
-    expect_equal(queryFileArchive(oid = LogoArchive$OID[1])$Description, 
-                 "Edit the logo description")
-  }
-)

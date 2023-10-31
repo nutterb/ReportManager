@@ -294,308 +294,163 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-if (SQL_SERVER_READY){
-  configureReportManager(flavor = "sql_server")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-  addLogo(file_path = temp_file, 
-          description = "This is a logo")
-  addLogo(file_path = temp_file, 
-          description = "This is another logo")
-}
-
-test_that(
-  "addEditReportTemplate functionality for SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    StartTemplate <- queryReportTemplate()
-    
-    # Add a new Date Reporting Template
-    
-    addEditReportTemplate(template_directory = "TestDirectory", 
-                          template_file = "Filename",
-                          title = "Report Title", 
-                          title_size = "Large", 
-                          include_toc = FALSE, 
-                          default_email = "some text",
-                          is_signature_required = FALSE, 
-                          is_active = TRUE,
-                          logo_oid = 1,
-                          event_user = 1)
-    
-    NewTemplate <- queryReportTemplate(oid = nrow(StartTemplate) + 1)
-    
-    expect_data_frame(NewTemplate, 
-                      nrows = 1)
-    
-    
-    # Edit an existing Report Template
-    
-    addEditReportTemplate(oid = NewTemplate$OID, 
-                          template_directory = "TestDirectory2", 
-                          template_file = "Filename2",
-                          title = "Report Title2", 
-                          title_size = "LARGE", 
-                          include_toc = TRUE, 
-                          default_email = "A description of the report",
-                          is_signature_required = TRUE, 
-                          is_active = FALSE,
-                          logo_oid = 2,
-                          event_user = 1)
-    
-    NewTemplate <- queryReportTemplate(oid = NewTemplate$OID)
-    
-    expect_data_frame(NewTemplate, 
-                      nrows = 1)
-    
-    expect_equal(NewTemplate$TemplateDirectory, 
-                 "TestDirectory2")
-    expect_equal(NewTemplate$TemplateFile, 
-                 "Filename2")
-    expect_equal(NewTemplate$TitleSize, 
-                 "LARGE")
-    expect_equal(NewTemplate$DefaultEmailText, 
-                 "A description of the report")
-    expect_equal(NewTemplate$IncludeTableOfContents, 
-                 TRUE)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeReportManagerDatabase(SQL_FILE[flavor], 
+                                    last_name = "Doe", 
+                                    first_name = "Jane", 
+                                    login_id = "jdoe", 
+                                    email = "jdoe@domain.com")
+    addLogo(file_path = temp_file, 
+            description = "This is a logo")
+    addLogo(file_path = temp_file, 
+            description = "This is another logo")
   }
-)
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    last_template_oid <- max(queryReportTemplate()$OID)
-    next_template_oid <- last_template_oid + 1
-    
-    addEditReportTemplate(template_directory = "TestDirectory2", 
-                          template_file = "Filename2",
-                          title = "Report Title2", 
-                          title_size = "LARGE", 
-                          include_toc = TRUE, 
-                          default_email = "email text start",
-                          is_signature_required = TRUE, 
-                          is_active = FALSE,
-                          logo_oid = 2,
-                          event_user = 1)
-    
-    TemplateEvent <- dbGetQuery(conn, 
-                                sqlInterpolate(
-                                  conn,
-                                  "SELECT * FROM dbo.ReportTemplateEvent WHERE ParentReportTemplate = ?", 
-                                  next_template_oid))
-    
-    expect_equal(TemplateEvent$EventType,
-                 c("Add", "SetIncludeTocTrue", 
-                   "SetSignatureRequiredTrue", "Deactivate", 
-                   "EditTemplateFolder", "EditTemplateFile", 
-                   "EditTitle", "EditTitleSize", 
-                   "EditDefaultEmailText", "EditLogoFile"))
-    expect_true(all(table(TemplateEvent$EventType) == 1))
-    
-    addEditReportTemplate(oid = next_template_oid, 
-                          template_directory = "TestDirectoryEdit", 
-                          template_file = "FilenameEdit",
-                          title = "Report Title Edit", 
-                          title_size = "large", 
-                          include_toc = FALSE, 
-                          default_email = "email text end",
-                          is_signature_required = FALSE, 
-                          is_active = TRUE,
-                          logo_oid = 1,
-                          event_user = 1)
-    
-    
-    TemplateEvent2 <- dbGetQuery(conn, 
-                                 sqlInterpolate(
-                                   conn,
-                                   "SELECT * FROM dbo.ReportTemplateEvent WHERE ParentReportTemplate = ?", 
-                                   next_template_oid))
-    
-    expect_true(
-      all(table(TemplateEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1, 
-              "EditDefaultEmailText" = 2,
-              "EditLogoFile" = 2, 
-              "EditTemplateFile" = 2, 
-              "EditTemplateFolder" = 2, 
-              "EditTitle" = 2, 
-              "EditTitleSize" = 2, 
-              "SetIncludeTocFalse" = 1, 
-              "SetIncludeTocTrue" = 1,
-              "SetSignatureRequiredFalse" = 1, 
-              "SetSignatureRequiredTrue" = 1))
-    )
-    
-    dbDisconnect(conn)
-  }
-)
-
-
-# Functionality - SQLite --------------------------------------------
-
-if (SQLITE_READY){
-  configureReportManager(flavor = "sqlite")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-  addLogo(file_path = temp_file, 
-          description = "This is a logo")
-  addLogo(file_path = temp_file, 
-          description = "This is another logo")
-}
-
-test_that(
-  "addEditDisclaimer functionality for SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    StartTemplate <- queryReportTemplate()
-    
-    # Add a new Date Report Template
-    
-    addEditReportTemplate(template_directory = "TestDirectory", 
-                          template_file = "Filename",
-                          title = "Report Title", 
-                          title_size = "Large", 
-                          include_toc = FALSE, 
-                          default_email = "some text",
-                          is_signature_required = FALSE, 
-                          is_active = TRUE,
-                          logo_oid = 1,
-                          event_user = 1)
-    
-    NewTemplate <- queryReportTemplate(oid = nrow(StartTemplate) + 1)
-    
-    expect_data_frame(NewTemplate, 
-                      nrows = 1)
-    
-    
-    # Edit an existing Report Template
-    
-    addEditReportTemplate(oid = NewTemplate$OID, 
-                          template_directory = "TestDirectory2", 
-                          template_file = "Filename2",
-                          title = "Report Title2", 
-                          title_size = "LARGE", 
-                          include_toc = TRUE, 
-                          default_email = "A description of the report",
-                          is_signature_required = TRUE, 
-                          is_active = FALSE,
-                          logo_oid = 2,
-                          event_user = 1)
-    
-    NewTemplate <- queryReportTemplate(oid = NewTemplate$OID)
-    
-    expect_data_frame(NewTemplate, 
-                      nrows = 1)
-    
-    expect_equal(NewTemplate$TemplateDirectory, 
-                 "TestDirectory2")
-    expect_equal(NewTemplate$TemplateFile, 
-                 "Filename2")
-    expect_equal(NewTemplate$TitleSize, 
-                 "LARGE")
-    expect_equal(NewTemplate$DefaultEmailText, 
-                 "A description of the report")
-    expect_equal(NewTemplate$IncludeTableOfContents, 
-                 TRUE)
-  }
-)
-
-test_that(
-  "Confirm events are recorded correctly", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    conn <- connectToReportManager()
-    
-    last_template_oid <- max(queryReportTemplate()$OID)
-    next_template_oid <- last_template_oid + 1
-    
-    addEditReportTemplate(template_directory = "TestDirectory2", 
-                          template_file = "Filename2",
-                          title = "Report Title2", 
-                          title_size = "LARGE", 
-                          include_toc = TRUE, 
-                          default_email = "email text start",
-                          is_signature_required = TRUE, 
-                          is_active = FALSE,
-                          logo_oid = 2,
-                          event_user = 1)
-    
-    TemplateEvent <- dbGetQuery(conn, 
-                                sqlInterpolate(
-                                  conn,
-                                  "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ?", 
-                                  next_template_oid))
-    
-    expect_equal(TemplateEvent$EventType,
-                 c("Add", "SetIncludeTocTrue", 
-                   "SetSignatureRequiredTrue", "Deactivate", 
-                   "EditTemplateFolder", "EditTemplateFile", 
-                   "EditTitle", "EditTitleSize", 
-                   "EditDefaultEmailText", "EditLogoFile"))
-    expect_true(all(table(TemplateEvent$EventType) == 1))
-    
-    addEditReportTemplate(oid = next_template_oid, 
-                          template_directory = "TestDirectoryEdit", 
-                          template_file = "FilenameEdit",
-                          title = "Report Title Edit", 
-                          title_size = "large", 
-                          include_toc = FALSE, 
-                          default_email = "email text end",
-                          is_signature_required = FALSE, 
-                          is_active = TRUE,
-                          logo_oid = 1,
-                          event_user = 1)
-    
-    
-    TemplateEvent2 <- dbGetQuery(conn, 
-                                 sqlInterpolate(
-                                   conn,
-                                   "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ?", 
-                                   next_template_oid))
-    
-    expect_true(
-      all(table(TemplateEvent2$EventType) ==
-            c("Activate" = 1, 
-              "Add" = 1, 
-              "Deactivate" = 1, 
-              "EditDefaultEmailText" = 2,
-              "EditLogoFile" = 2, 
-              "EditTemplateFile" = 2, 
-              "EditTemplateFolder" = 2, 
-              "EditTitle" = 2, 
-              "EditTitleSize" = 2, 
-              "SetIncludeTocFalse" = 1, 
-              "SetIncludeTocTrue" = 1,
-              "SetSignatureRequiredFalse" = 1, 
-              "SetSignatureRequiredTrue" = 1))
-    )
-    
-    dbDisconnect(conn)
-  }
-)
-
+  
+  test_that(
+    "addEditReportTemplate functionality for SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      StartTemplate <- queryReportTemplate()
+      
+      # Add a new Date Reporting Template
+      
+      addEditReportTemplate(template_directory = "TestDirectory", 
+                            template_file = "Filename",
+                            title = "Report Title", 
+                            title_size = "Large", 
+                            include_toc = FALSE, 
+                            default_email = "some text",
+                            is_signature_required = FALSE, 
+                            is_active = TRUE,
+                            logo_oid = 1,
+                            event_user = 1)
+      
+      NewTemplate <- queryReportTemplate(oid = nrow(StartTemplate) + 1)
+      
+      expect_data_frame(NewTemplate, 
+                        nrows = 1)
+      
+      
+      # Edit an existing Report Template
+      
+      addEditReportTemplate(oid = NewTemplate$OID, 
+                            template_directory = "TestDirectory2", 
+                            template_file = "Filename2",
+                            title = "Report Title2", 
+                            title_size = "LARGE", 
+                            include_toc = TRUE, 
+                            default_email = "A description of the report",
+                            is_signature_required = TRUE, 
+                            is_active = FALSE,
+                            logo_oid = 2,
+                            event_user = 1)
+      
+      NewTemplate <- queryReportTemplate(oid = NewTemplate$OID)
+      
+      expect_data_frame(NewTemplate, 
+                        nrows = 1)
+      
+      expect_equal(NewTemplate$TemplateDirectory, 
+                   "TestDirectory2")
+      expect_equal(NewTemplate$TemplateFile, 
+                   "Filename2")
+      expect_equal(NewTemplate$TitleSize, 
+                   "LARGE")
+      expect_equal(NewTemplate$DefaultEmailText, 
+                   "A description of the report")
+      expect_equal(NewTemplate$IncludeTableOfContents, 
+                   TRUE)
+    }
+  )
+  
+  test_that(
+    "Confirm events are recorded correctly", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      conn <- connectToReportManager()
+      
+      last_template_oid <- max(queryReportTemplate()$OID)
+      next_template_oid <- last_template_oid + 1
+      
+      addEditReportTemplate(template_directory = "TestDirectory2", 
+                            template_file = "Filename2",
+                            title = "Report Title2", 
+                            title_size = "LARGE", 
+                            include_toc = TRUE, 
+                            default_email = "email text start",
+                            is_signature_required = TRUE, 
+                            is_active = FALSE,
+                            logo_oid = 2,
+                            event_user = 1)
+      
+      TemplateEvent <- dbGetQuery(conn, 
+                                  sqlInterpolate(
+                                    conn,
+                                    switch(flavor, 
+                                           "sql_server" = "SELECT * FROM dbo.ReportTemplateEvent WHERE ParentReportTemplate = ?", 
+                                           "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ?"), 
+                                    next_template_oid))
+      
+      expect_equal(TemplateEvent$EventType,
+                   c("Add", "SetIncludeTocTrue", 
+                     "SetSignatureRequiredTrue", "Deactivate", 
+                     "EditTemplateFolder", "EditTemplateFile", 
+                     "EditTitle", "EditTitleSize", 
+                     "EditDefaultEmailText", "EditLogoFile"))
+      expect_true(all(table(TemplateEvent$EventType) == 1))
+      
+      addEditReportTemplate(oid = next_template_oid, 
+                            template_directory = "TestDirectoryEdit", 
+                            template_file = "FilenameEdit",
+                            title = "Report Title Edit", 
+                            title_size = "large", 
+                            include_toc = FALSE, 
+                            default_email = "email text end",
+                            is_signature_required = FALSE, 
+                            is_active = TRUE,
+                            logo_oid = 1,
+                            event_user = 1)
+      
+      
+      TemplateEvent2 <- dbGetQuery(conn, 
+                                   sqlInterpolate(
+                                     conn,
+                                     switch(flavor, 
+                                            "sql_server" = "SELECT * FROM dbo.ReportTemplateEvent WHERE ParentReportTemplate = ?", 
+                                            "SELECT * FROM ReportTemplateEvent WHERE ParentReportTemplate = ?"),
+                                     next_template_oid))
+      
+      expect_true(
+        all(table(TemplateEvent2$EventType) ==
+              c("Activate" = 1, 
+                "Add" = 1, 
+                "Deactivate" = 1, 
+                "EditDefaultEmailText" = 2,
+                "EditLogoFile" = 2, 
+                "EditTemplateFile" = 2, 
+                "EditTemplateFolder" = 2, 
+                "EditTitle" = 2, 
+                "EditTitleSize" = 2, 
+                "SetIncludeTocFalse" = 1, 
+                "SetIncludeTocTrue" = 1,
+                "SetSignatureRequiredFalse" = 1, 
+                "SetSignatureRequiredTrue" = 1))
+      )
+      
+      dbDisconnect(conn)
+    }
+  )
+} 
 
 unlink(temp_file)

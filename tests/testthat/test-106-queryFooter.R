@@ -15,33 +15,25 @@ test_that(
 
 options(RM_sql_flavor = "sql_server")
 
-test_that(
-  "queryFooter works in SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    Footer <- queryFooter()
-    
-    expect_data_frame(Footer, 
-                      ncols = 3)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-
-# Report Users for SQLite -------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "queryFooter works in SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    Footer <- queryFooter()
-    
-    expect_data_frame(Footer, 
-                      ncols = 3)
-  }
-)
+  
+  test_that(
+    "queryFooter works in SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      Footer <- queryFooter()
+      
+      expect_data_frame(Footer, 
+                        ncols = 3)
+    }
+  )
+}

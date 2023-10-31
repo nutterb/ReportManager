@@ -47,80 +47,48 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "Return the appropriate data frames", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    # Add an extra record just so there are more than 1
-    
-    addEditReportTemplateSignature(parent_report_template = 2, 
-                                   parent_role = 1, 
-                                   order = 3,
-                                   event_user = 1)
-    
-    Test <- queryReportTemplateSignature()
-    
-    expect_data_frame(Test)
-    expect_true(nrow(Test) > 0)
-    
-    
-    Test <- queryReportTemplateSignature(oid = 1)
-    expect_data_frame(Test, 
-                      nrows = 1)
-    expect_equal(Test$OID, 1)
-    
-    
-    Test <- queryReportTemplateSignature(parent_report_template = 1)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentReportTemplate == 1))
-    
-    
-    Test <- queryReportTemplateSignature(parent_role = 1)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentRole == 1))
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
 
-# Functionality - SQLite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "Return the appropriate data frames", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    # Add an extra record just so there are more than 1
-    
-    addEditReportTemplateSignature(parent_report_template = 2, 
-                                    parent_role = 3, 
-                                    order = 3,
-                                    event_user = 1)
-    
-    Test <- queryReportTemplateSignature()
-    
-    expect_data_frame(Test)
-    expect_true(nrow(Test) > 0)
-    
-    
-    Test <- queryReportTemplateSignature(oid = 1)
-    expect_data_frame(Test, 
-                      nrows = 1)
-    expect_equal(Test$OID, 1)
-    
-    
-    Test <- queryReportTemplateSignature(parent_report_template = 1)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentReportTemplate == 1))
-    
-    
-    Test <- queryReportTemplateSignature(parent_role = 3)
-    expect_data_frame(Test)
-    expect_true(all(Test$ParentRole == 3))
-  }
-)
+  test_that(
+    "Return the appropriate data frames", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      # Add an extra record just so there are more than 1
+      
+      addEditReportTemplateSignature(parent_report_template = 2, 
+                                     parent_role = 1, 
+                                     order = 3,
+                                     event_user = 1)
+      
+      Test <- queryReportTemplateSignature()
+      
+      expect_data_frame(Test)
+      expect_true(nrow(Test) > 0)
+      
+      
+      Test <- queryReportTemplateSignature(oid = 1)
+      expect_data_frame(Test, 
+                        nrows = 1)
+      expect_equal(Test$OID, 1)
+      
+      
+      Test <- queryReportTemplateSignature(parent_report_template = 1)
+      expect_data_frame(Test)
+      expect_true(all(Test$ParentReportTemplate == 1))
+      
+      
+      Test <- queryReportTemplateSignature(parent_role = 1)
+      expect_data_frame(Test)
+      expect_true(all(Test$ParentRole == 1))
+    }
+  )
+}

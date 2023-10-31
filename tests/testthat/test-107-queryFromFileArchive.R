@@ -26,74 +26,45 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "Get a file without saving", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    File <- queryFromFileArchive(oid = 1)
-    
-    expect_data_frame(File, 
-                      nrows = 1)
-    
-    expect_false("SavedTo" %in% names(File))
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-test_that(
-  "Get a file and save", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    temp_dir <- tempdir()
-    File <- queryFromFileArchive(oid = 1, 
-                                 file_dir = temp_dir)
-    
-    expect_data_frame(File, 
-                      nrows = 1)
-    
-    expect_true("SavedTo" %in% names(File))
-    expect_true(file.exists(File$SavedTo))
-  }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "Get a file without saving", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    File <- queryFromFileArchive(oid = 1)
-    
-    expect_data_frame(File, 
-                      nrows = 1)
-    
-    expect_false("SavedTo" %in% names(File))
-  }
-)
-
-test_that(
-  "Get a file and save", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    temp_dir <- tempdir()
-    File <- queryFromFileArchive(oid = 1, 
-                                 file_dir = temp_dir)
-    
-    expect_data_frame(File, 
-                      nrows = 1)
-    
-    expect_true("SavedTo" %in% names(File))
-    expect_true(file.exists(File$SavedTo))
-  }
-)
+  
+  test_that(
+    "Get a file without saving", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      File <- queryFromFileArchive(oid = 1)
+      
+      expect_data_frame(File, 
+                        nrows = 1)
+      
+      expect_false("SavedTo" %in% names(File))
+    }
+  )
+  
+  test_that(
+    "Get a file and save", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      temp_dir <- tempdir()
+      File <- queryFromFileArchive(oid = 1, 
+                                   file_dir = temp_dir)
+      
+      expect_data_frame(File, 
+                        nrows = 1)
+      
+      expect_true("SavedTo" %in% names(File))
+      expect_true(file.exists(File$SavedTo))
+    }
+  )
+}

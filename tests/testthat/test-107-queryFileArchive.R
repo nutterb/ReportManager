@@ -35,67 +35,41 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "query FileArchive under SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-    
-    FileArchive <- queryFileArchive(oid = 1)
-    expect_data_frame(FileArchive, 
-                      nrows = 1)
-    
-    FileArchive <- queryFileArchive(parent_report_template = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-    
-    FileArchive <- queryFileArchive(parent_report_instance = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-    
-    FileArchive <- queryFileArchive(parent_report_template = 1, 
-                                    parent_report_instance = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-
-# Functionality - SQLite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "query FileArchive under SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-    
-    FileArchive <- queryFileArchive(oid = 1)
-    expect_data_frame(FileArchive, 
-                      nrows = 1)
-    
-    FileArchive <- queryFileArchive(parent_report_template = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-
-    FileArchive <- queryFileArchive(parent_report_instance = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-    
-    FileArchive <- queryFileArchive(parent_report_template = 1, 
-                                    parent_report_instance = 1)
-    expect_data_frame(FileArchive)
-    expect_true(nrow(FileArchive) > 0)
-  }
-)
+  
+  test_that(
+    "query FileArchive under SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      FileArchive <- queryFileArchive()
+      expect_data_frame(FileArchive)
+      expect_true(nrow(FileArchive) > 0)
+      
+      FileArchive <- queryFileArchive(oid = 1)
+      expect_data_frame(FileArchive, 
+                        nrows = 1)
+      
+      FileArchive <- queryFileArchive(parent_report_template = 1)
+      expect_data_frame(FileArchive)
+      expect_true(nrow(FileArchive) > 0)
+      
+      FileArchive <- queryFileArchive(parent_report_instance = 1)
+      expect_data_frame(FileArchive)
+      expect_true(nrow(FileArchive) > 0)
+      
+      FileArchive <- queryFileArchive(parent_report_template = 1, 
+                                      parent_report_instance = 1)
+      expect_data_frame(FileArchive)
+      expect_true(nrow(FileArchive) > 0)
+    }
+  )
+}

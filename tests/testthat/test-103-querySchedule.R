@@ -13,54 +13,35 @@ test_that(
 
 # Functionality - SQLite --------------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "querySchedule functionality for SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    # Retrieve all schedules
-    
-    expect_data_frame(querySchedule())
-
-    expect_equal(names(querySchedule()), 
-                 c("OID", "ScheduleName", 
-                   "Frequency", "FrequencyUnit", 
-                   "OffsetOverlap", "OffsetOverlapUnit", 
-                   "IsActive"))    
-    
-    # Retrive a single Schedule
-    
-    expect_data_frame(querySchedule(oid = 3), 
-                      nrows = 1)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-# Functionality - SQL Server ----------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "querySchedule functionality for SQL Server", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    # Retrieve all schedules
-    
-    expect_data_frame(querySchedule())
-    
-    expect_equal(names(querySchedule()), 
-                 c("OID", "ScheduleName", 
-                   "Frequency", "FrequencyUnit", 
-                   "OffsetOverlap", "OffsetOverlapUnit", 
-                   "IsActive"))    
-    
-    # Retrive a single Schedule
-    
-    expect_data_frame(querySchedule(oid = 3), 
-                      nrows = 1)
-  }
-)
+  
+  test_that(
+    "querySchedule functionality for SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      # Retrieve all schedules
+      
+      expect_data_frame(querySchedule())
+      
+      expect_equal(names(querySchedule()), 
+                   c("OID", "ScheduleName", 
+                     "Frequency", "FrequencyUnit", 
+                     "OffsetOverlap", "OffsetOverlapUnit", 
+                     "IsActive"))    
+      
+      # Retrive a single Schedule
+      
+      expect_data_frame(querySchedule(oid = 3), 
+                        nrows = 1)
+    }
+  )
+}

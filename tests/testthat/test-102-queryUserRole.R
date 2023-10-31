@@ -36,62 +36,39 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-configureReportManager(flavor = "sql_server")
-
-test_that(
-  "queryUserRole returns intended results", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    UserRole <- queryUserRole()
-    
-    expect_data_frame(UserRole, 
-                      nrows = 5)
-    
-    UserRole_UserAdmin <- queryUserRole(role_oid = 1)
-    expect_data_frame(UserRole_UserAdmin, 
-                      nrows = 1)
-    
-    UserRole_Jdoe <- queryUserRole(user_oid = 1)
-    expect_data_frame(UserRole_Jdoe, 
-                      nrows = 4)
-    
-    
-    UserRole_Dual <- queryUserRole(user_oid = 1, 
-                                   role_oid = 2)
-    expect_data_frame(UserRole_Dual, 
-                      nrows = 1)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
 
-# Functionality - SQLite --------------------------------------------
-
-configureReportManager(flavor = "sqlite")
-
-test_that(
-  "queryUserRole returns intended results", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    UserRole <- queryUserRole()
-    
-    expect_data_frame(UserRole, 
-                      nrows = 5)
-    
-    UserRole_UserAdmin <- queryUserRole(role_oid = 1)
-    expect_data_frame(UserRole_UserAdmin, 
-                      nrows = 1)
-    
-    UserRole_Jdoe <- queryUserRole(user_oid = 1)
-    expect_data_frame(UserRole_Jdoe, 
-                      nrows = 4)
-    
-    
-    UserRole_Dual <- queryUserRole(user_oid = 1, 
-                                   role_oid = 2)
-    expect_data_frame(UserRole_Dual, 
-                      nrows = 1)
-  }
-)
+  test_that(
+    "queryUserRole returns intended results", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      UserRole <- queryUserRole()
+      
+      expect_data_frame(UserRole, 
+                        nrows = 5)
+      
+      UserRole_UserAdmin <- queryUserRole(role_oid = 1)
+      expect_data_frame(UserRole_UserAdmin, 
+                        nrows = 1)
+      
+      UserRole_Jdoe <- queryUserRole(user_oid = 1)
+      expect_data_frame(UserRole_Jdoe, 
+                        nrows = 4)
+      
+      
+      UserRole_Dual <- queryUserRole(user_oid = 1, 
+                                     role_oid = 2)
+      expect_data_frame(UserRole_Dual, 
+                        nrows = 1)
+    }
+  )
+}

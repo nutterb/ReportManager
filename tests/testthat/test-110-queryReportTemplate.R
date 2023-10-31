@@ -13,40 +13,28 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "Retrieve ReportTemplate configurations", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    Template <- queryReportTemplate()
-    
-    expect_data_frame(Template)
-    expect_true(nrow(Template) > 0)
-    
-    expect_data_frame(queryReportTemplate(1), 
-                      nrows = 1)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
-
-# Functionality - SQLite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "Retrieve ReportTemplate configurations", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    Template <- queryReportTemplate()
-    
-    expect_data_frame(Template)
-    expect_true(nrow(Template) > 0)
-    
-    expect_data_frame(queryReportTemplate(1), 
-                      nrows = 1)
-  }
-)
+  
+  test_that(
+    "Retrieve ReportTemplate configurations", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      Template <- queryReportTemplate()
+      
+      expect_data_frame(Template)
+      expect_true(nrow(Template) > 0)
+      
+      expect_data_frame(queryReportTemplate(1), 
+                        nrows = 1)
+    }
+  )
+}

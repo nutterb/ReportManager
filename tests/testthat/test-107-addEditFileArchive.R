@@ -187,167 +187,88 @@ test_that(
 
 # Functionality - SQL Server ----------------------------------------
 
-if (SQL_SERVER_READY){
-  configureReportManager(flavor = "sql_server")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/SqlServer.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeReportManagerDatabase(SQL_FILE[flavor], 
+                                    last_name = "Doe", 
+                                    first_name = "Jane", 
+                                    login_id = "jdoe", 
+                                    email = "jdoe@domain.com")
+  }
+  
+  test_that(
+    "Unassociated File can be added to the FileArchive", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      FileArchive <- queryFileArchive()
+      
+      next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
+      
+      addFileArchive(file_path = temp_file, 
+                     description = "This is a file")
+      
+      NewArchive <- queryFileArchive(oid = next_oid)
+      
+      expect_data_frame(NewArchive, 
+                        nrows = 1)
+      
+      expect_equal("This is a file", 
+                   NewArchive$Description)
+      
+      expect_false(NewArchive$IsLogo)
+    }
+  )
+  
+  test_that(
+    "Associated file can be added to the File Archive", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      FileArchive <- queryFileArchive()
+      
+      next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
+      
+      addFileArchive(parent_report_template = 1, 
+                     parent_report_instance = 1,
+                     file_path = temp_file, 
+                     is_logo = TRUE,
+                     description = "This is a file")
+      
+      NewArchive <- queryFileArchive(oid = next_oid)
+      
+      expect_data_frame(NewArchive, 
+                        nrows = 1)
+      
+      expect_equal("This is a file", 
+                   NewArchive$Description)
+      
+      expect_true(NewArchive$IsLogo)
+      
+      expect_equal(NewArchive$ParentReportTemplate, 1)
+      expect_equal(NewArchive$ParentReportInstance, 1)
+    }
+  )
+  
+  test_that(
+    "Edit an existing FileArchive", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      editFileArchive(oid = 1, 
+                      file_name = "New file name")
+      
+      expect_equal(queryFileArchive(oid = 1)$FileName, 
+                   "New file name")
+    }
+  )
 }
-
-test_that(
-  "Unassociated File can be added to the FileArchive", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addFileArchive(file_path = temp_file, 
-                   description = "This is a file")
-    
-    NewArchive <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewArchive, 
-                      nrows = 1)
-    
-    expect_equal("This is a file", 
-                 NewArchive$Description)
-    
-    expect_false(NewArchive$IsLogo)
-  }
-)
-
-test_that(
-  "Associated file can be added to the File Archive", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addFileArchive(parent_report_template = 1, 
-                   parent_report_instance = 1,
-                   file_path = temp_file, 
-                   is_logo = TRUE,
-                   description = "This is a file")
-    
-    NewArchive <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewArchive, 
-                      nrows = 1)
-    
-    expect_equal("This is a file", 
-                 NewArchive$Description)
-    
-    expect_true(NewArchive$IsLogo)
-    
-    expect_equal(NewArchive$ParentReportTemplate, 1)
-    expect_equal(NewArchive$ParentReportInstance, 1)
-  }
-)
-
-test_that(
-  "Edit an existing FileArchive", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    editFileArchive(oid = 1, 
-                    file_name = "New file name")
-    
-    expect_equal(queryFileArchive(oid = 1)$FileName, 
-                 "New file name")
-  }
-)
-
-
-# Functionality - SQLite --------------------------------------------
-
-if (SQLITE_READY){
-  configureReportManager(flavor = "sqlite")
-  purgeReportManagerDatabase()
-  initializeReportManagerDatabase(system.file("Sql/Sqlite.sql", 
-                                              package = "ReportManager"), 
-                                  last_name = "Doe", 
-                                  first_name = "Jane", 
-                                  login_id = "jdoe", 
-                                  email = "jdoe@domain.com")
-}
-
-test_that(
-  "Unassociated File can be added to the FileArchive", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addFileArchive(file_path = temp_file, 
-                       description = "This is a file")
-    
-    NewArchive <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewArchive, 
-                      nrows = 1)
-    
-    expect_equal("This is a file", 
-                 NewArchive$Description)
-    
-    expect_false(NewArchive$IsLogo)
-  }
-)
-
-test_that(
-  "Associated file can be added to the File Archive", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    FileArchive <- queryFileArchive()
-    
-    next_oid <- if (nrow(FileArchive) == 0) 1 else max(FileArchive$OID) + 1
-    
-    addFileArchive(parent_report_template = 1, 
-                       parent_report_instance = 1,
-                       file_path = temp_file, 
-                       is_logo = TRUE,
-                       description = "This is a file")
-    
-    NewArchive <- queryFileArchive(oid = next_oid)
-    
-    expect_data_frame(NewArchive, 
-                      nrows = 1)
-    
-    expect_equal("This is a file", 
-                 NewArchive$Description)
-    
-    expect_true(NewArchive$IsLogo)
-    
-    expect_equal(NewArchive$ParentReportTemplate, 1)
-    expect_equal(NewArchive$ParentReportInstance, 1)
-  }
-)
-
-test_that(
-  "Edit an existing FileArchive", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    editFileArchive(oid = 1, 
-                    file_name = "New file name")
-    
-    expect_equal(queryFileArchive(oid = 1)$FileName, 
-                 "New file name")
-  }
-)
