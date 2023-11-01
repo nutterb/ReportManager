@@ -466,13 +466,14 @@ CREATE TABLE dbo.[ReportTemplateSignatureEvent] (
 CREATE TABLE dbo.[ReportTemplateDistribution](
   [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
   [ParentReportTemplate] INT NOT NULL,
-  [ParentUser] INT NOT NULL,
-  [ORDER] INT NOT NULL,
+  [ParentUser] INT NULL,
+  [ParentRole] INT NULL,
   [IsActive] BIT DEFAULT 0, 
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
-  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID),
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
 );
 
 /* ReportTemplateSignatureEvent ************************************/
@@ -490,6 +491,5 @@ CREATE TABLE dbo.[ReportTemplateDistributionEvent] (
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateDistributionEventType CHECK (EventType IN ('Add', 
                                                                     'Activate', 
-                                                                    'Deactivate', 
-                                                                    'Reorder'))
+                                                                    'Deactivate'))
 );

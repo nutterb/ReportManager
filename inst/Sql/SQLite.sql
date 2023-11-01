@@ -433,12 +433,13 @@ CREATE TABLE [ReportTemplateSignatureEvent] (
 CREATE TABLE [ReportTemplateDistribution](
   OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
-  ParentUser INT NOT NULL,
-  [ORDER] INT NOT NULL,
+  [ParentUser] INT NULL,
+  [ParentRole] INT NULL,
   IsActive BIT DEFAULT 0, 
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
-  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID),
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
 );
 
 /* ReportTemplateSignatureEvent ************************************/
@@ -455,6 +456,5 @@ CREATE TABLE [ReportTemplateDistributionEvent] (
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
   CONSTRAINT chk_ReportTemplateDistributionEventType CHECK (EventType IN ('Add', 
                                                                     'Activate', 
-                                                                    'Deactivate', 
-                                                                    'Reorder'))
+                                                                    'Deactivate'))
 );

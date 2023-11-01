@@ -8,6 +8,7 @@ addEditReportTemplateDistribution(
   oid = numeric(0),
   parent_report_template,
   parent_user,
+  parent_role,
   order,
   is_active = TRUE,
   event_user
@@ -20,8 +21,13 @@ object to be edited. Use \code{numeric(0)} to add a new object.}
 \item{parent_report_template}{\code{integerish(1)}. The OID of the ReportTemplate
 object being associated with a disclaimer.}
 
-\item{parent_user}{\code{integerish(1)}. The OID of the User object being
-designated as a recipient.}
+\item{parent_user}{\code{integerish(0/1)}. The OID of the User object being
+designated as a recipient. Only one of \code{parent_user} or \code{parent_role}
+may be given.}
+
+\item{parent_role}{\code{integerish(0/1)}. The OID of the Role object being
+designated as a recipient. Only one of \code{parent_user} or \code{parent_role}
+may be given.}
 
 \item{order}{\code{integerish(1)}. The ordered position in which the
 signature is displayed on the report.}

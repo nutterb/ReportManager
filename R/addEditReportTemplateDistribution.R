@@ -9,8 +9,12 @@
 #'   object to be edited. Use `numeric(0)` to add a new object.
 #' @param parent_report_template `integerish(1)`. The OID of the ReportTemplate
 #'   object being associated with a disclaimer. 
-#' @param parent_user `integerish(1)`. The OID of the User object being 
-#'   designated as a recipient. 
+#' @param parent_user `integerish(0/1)`. The OID of the User object being 
+#'   designated as a recipient. Only one of `parent_user` or `parent_role`
+#'   may be given.
+#' @param parent_role `integerish(0/1)`. The OID of the Role object being 
+#'   designated as a recipient. Only one of `parent_user` or `parent_role`
+#'   may be given.
 #' @param order `integerish(1)`. The ordered position in which the 
 #'   signature is displayed on the report.
 #' @param is_active `logical(1)`. When `TRUE`, the association will be marked
@@ -21,8 +25,8 @@
 
 addEditReportTemplateDistribution <- function(oid = numeric(0), 
                                               parent_report_template, 
-                                              parent_user,
-                                              order,
+                                              parent_user = numeric(0),
+                                              parent_role = numeric(0),
                                               is_active = TRUE, 
                                               event_user){
   # Argument Validation ---------------------------------------------
@@ -38,11 +42,11 @@ addEditReportTemplateDistribution <- function(oid = numeric(0),
                               add = coll)
   
   checkmate::assertIntegerish(x = parent_user, 
-                              len = 1, 
+                              max.len = 1, 
                               add = coll)
   
-  checkmate::assertIntegerish(x = order, 
-                              len = 1, 
+  checkmate::assertIntegerish(x = parent_role, 
+                              max.len = 1, 
                               add = coll)
   
   checkmate::assertLogical(x = is_active, 
@@ -55,7 +59,13 @@ addEditReportTemplateDistribution <- function(oid = numeric(0),
   
   checkmate::reportAssertions(coll)
   
-  if (length(oid) == 0){
+  if (length(parent_user) > 0 && length(parent_role) > 0){
+    coll$push("Only one of 'parent_user' or 'parent_role' may be provided.")
+  }
+  
+  checkmate::reportAssertions(coll)
+  
+  if (length(oid) == 0 && length(parent_user) > 0){
     CurrentReportTemplateDistribution <- 
       queryReportTemplateDistribution(parent_report_template = parent_report_template, 
                                       parent_user = parent_user)
@@ -66,7 +76,18 @@ addEditReportTemplateDistribution <- function(oid = numeric(0),
                         parent_user))
     }
   }
-  
+
+  if (length(oid) == 0 && length(parent_role) > 0){
+    CurrentReportTemplateDistribution <- 
+      queryReportTemplateDistribution(parent_report_template = parent_report_template, 
+                                      parent_role = parent_role)
+    
+    if (nrow(CurrentReportTemplateDistribution) > 0){
+      coll$push(sprintf("A ReportTemplateDistribution record for ReportTemplate.OID = %s and Role.OID = %s already exists. Edit the exisitng record instead of adding another", 
+                        parent_report_template, 
+                        parent_role))
+    }
+  }  
   checkmate::reportAssertions(coll)
   
   # Functionality ---------------------------------------------------
@@ -75,21 +96,19 @@ addEditReportTemplateDistribution <- function(oid = numeric(0),
   on.exit({ DBI::dbDisconnect(conn) })
   
   AddEditData <- data.frame(ParentReportTemplate = parent_report_template, 
-                            ParentUser = parent_user,
-                            Order = order,
+                            ParentUser = if (length(parent_user) == 0) NA_real_ else parent_user,
+                            ParentRole = if (length(parent_role) == 0) NA_real_ else parent_role,
                             IsActive   = is_active)
   
   event_time <- Sys.time()
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 3), 
+    data.frame(EventUser = rep(event_user, 2), 
                EventType = c("Add", 
-                             "Reorder",
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 2), 
                NewValue = c("", 
-                            order,
                             is_active), 
                stringsAsFactors = FALSE)
   
