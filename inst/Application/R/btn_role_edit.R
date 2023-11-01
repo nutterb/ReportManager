@@ -1,4 +1,4 @@
-..brn_role_edit <- function(session, rv_Roles, input){
+..btn_role_edit <- function(session, rv_Roles, input){
   rv_Roles$AddEdit <- "Edit"
   updateTextInput(session = session, 
                   inputId = "txt_role_roleName", 
