@@ -122,6 +122,9 @@ shinyServer(function(input, output, session){
       
       rv_Template$SelectedTemplateSignature <- 
         queryReportTemplateSignature(parent_report_template = oid)
+      
+      rv_Template$SelectedTemplateDistribution <- 
+        queryReportTemplateDistribution(parent_report_template = oid)
     }
   )
   
@@ -419,7 +422,7 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templateSignature_edit, 
     {
-      Selected <- rv_Template$SelectedTemplateFooter
+      Selected <- rv_Template$SelectedTemplateSignature
       Selected <- Selected[order(Selected$Order), ]
       Selected <- Selected[Selected$IsActive, ]
       
@@ -507,6 +510,20 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templateDistribution_edit, 
     {
+      Selected <- rv_Template$SelectedTemplateDistribution
+      Selected <- Selected[order(Selected$Order), ]
+      Selected <- Selected[Selected$IsActive, ]
+      
+      
+      replaceMultiSelect(session = session,
+                         inputId = "templateDistribution",
+                         choices = as.character(rv_User$User$OID),
+                         selected = as.character(Selected$ParentUser),
+                         names = sprintf("%s, %s (%s)", 
+                                         rv_User$User$LastName, 
+                                         rv_User$User$FirstName, 
+                                         rv_User$User$LoginId))
+      
       toggleModal(session = session, 
                   modalId = "modal_templateDistribution_edit", 
                   toggle = "open")
