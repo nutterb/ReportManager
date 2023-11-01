@@ -1,6 +1,7 @@
 UI_STYLES_AND_SCRIPTS <- 
   tagList(
-    useShinyjs(), 
+    useShinyjs(),
+    useDateTimeInput(),
     tags$link(rel = "stylesheet",
               type = "text/css",
               href = "prod.css"),

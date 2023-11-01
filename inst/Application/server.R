@@ -91,7 +91,7 @@ shinyServer(function(input, output, session){
     input$rdo_template, 
     {
       oid <- as.numeric(input$rdo_template)
-      
+
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
   
@@ -109,10 +109,10 @@ shinyServer(function(input, output, session){
                         choices = choice,
                         selected = sel)
 
-      updateAirDateInput(session = session,
-                         inputId = "dttm_templateSchedule",
-                         value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
-                                        format = "%Y-%m-%d %H:%M:%S"))
+      updateTextInput(session = session,
+                      inputId = "dttm_templateSchedule",
+                      value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
+                                     format = "%d-%b-%Y %H:%M:%S"))
       
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
@@ -226,7 +226,9 @@ shinyServer(function(input, output, session){
         oid = rv_Template$SelectedTemplateSchedule$OID,
         parent_report_template = as.numeric(input$rdo_template),
         parent_schedule = as.numeric(input$sel_templateSchedule),
-        start_date = input$dttm_templateSchedule,
+        start_date = as.POSIXct(input$dttm_templateSchedule, 
+                                format = "%d-%b-%Y %H:%M", 
+                                tz = "UTC"),
         is_active = TRUE, 
         event_user = CURRENT_USER_OID()
       )
