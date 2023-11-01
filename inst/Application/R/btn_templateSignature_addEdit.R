@@ -3,14 +3,16 @@
                                              rv_Template,
                                              current_user_oid,
                                              proxy){
-  Footer <- jsonlite::fromJSON(input$templateSignature)
-  Input <- Footer[c("choices", "order", "selected")]
+  Signature <- jsonlite::fromJSON(input$templateSignature)
+  Input <- Signature[c("choices", "order", "selected")]
   names(Input) <- c("ParentRole", "Order", "IsActive")
   Input <- merge(Input, 
                  rv_Template$SelectedTemplateSignature[c("OID", "ParentRole", "ParentReportTemplate")], 
                  by = "ParentRole", 
                  all.x = TRUE, 
                  all.y = TRUE)
+  Input <- Input[!is.na(Input$ParentReportTemplate), ]
+  
   for(i in seq_len(nrow(Input))){
     addEditReportTemplateSignature(
       oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],

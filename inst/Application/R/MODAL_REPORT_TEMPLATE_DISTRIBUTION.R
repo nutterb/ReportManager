@@ -4,12 +4,26 @@ MODAL_REPORT_TEMPLATE_DISTRIBUTION <-
     title = "Edit Template Distribution", 
     trigger = "trg_none", 
     size = "large", 
-    multiSelect(inputId = "templateDistribution", 
-                label = "Recipients", 
-                choices = character(0), 
-                selected = character(0), 
-                size = 15,
-                up_down = TRUE), 
+    tabsetPanel(
+      tabPanel(
+        title = "Users",
+        multiSelect(inputId = "templateDistributionUser", 
+                    label = "Recipients", 
+                    choices = character(0), 
+                    selected = character(0), 
+                    size = 15,
+                    up_down = FALSE)
+      ), 
+      tabPanel(
+        title = "Roles", 
+        multiSelect(inputId = "templateDistributionRole", 
+                    label = "Roles", 
+                    choices = character(0), 
+                    selected = character(0), 
+                    size = 15, 
+                    up_down = FALSE)
+      )
+    ), 
     br(),
     br(),
     actionButton(inputId = "btn_templateDistribution_addEdit", 
