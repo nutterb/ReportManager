@@ -732,25 +732,25 @@ shinyServer(function(input, output, session){
   # Disclaimer - Event Observers ------------------------------------
   
   observeEvent(input$rdo_disclaimer, 
-               OE_rdo_disclaimer(rv_Disclaimer, 
-                                 input))
+               ..rdo_disclaimer(rv_Disclaimer, 
+                                input))
   
   observeEvent(input$btn_disclaimer_add, 
-               OE_btn_disclaimer_add(session = session, 
+               ..btn_disclaimer_add(session = session, 
+                                    rv_Disclaimer = rv_Disclaimer, 
+                                    input = input))
+  
+  observeEvent(input$btn_disclaimer_edit, 
+               ..btn_disclaimer_edit(session = session, 
                                      rv_Disclaimer = rv_Disclaimer, 
                                      input = input))
   
-  observeEvent(input$btn_disclaimer_edit, 
-               OE_btn_disclaimer_edit(session = session, 
-                                      rv_Disclaimer = rv_Disclaimer, 
-                                      input = input))
-  
   observeEvent(input$btn_disclaimer_addEditDisclaimer, 
-               OE_btn_disclaimer_addEditDisclaimer(session = session, 
-                                                   rv_Disclaimer = rv_Disclaimer, 
-                                                   input = input, 
-                                                   current_user_oid = CURRENT_USER_OID(), 
-                                                   proxy = proxy_dt_disclaimer))
+               ..btn_disclaimer_addEditDisclaimer(session = session, 
+                                                  rv_Disclaimer = rv_Disclaimer, 
+                                                  input = input, 
+                                                  current_user_oid = CURRENT_USER_OID(), 
+                                                  proxy = proxy_dt_disclaimer))
   
   observeEvent(input$btn_disclaimer_activate,
                OE_btn_disclaimer_activateDeactivate(activate = TRUE, 

@@ -1,0 +1,36 @@
+..btn_template_add <- function(session, 
+                                rv_Template, 
+                                output){
+  rv_Template$AddEdit <- "Add"
+  updateTextInput(session = session, 
+                  inputId = "txt_template_title", 
+                  value = "")
+  updateSelectInput(session = session, 
+                    inputId = "sel_template_directory", 
+                    selected = TEMPLATE_FOLDERS[1])
+  updateSelectInput(session = session, 
+                    inputId = "sel_template_file", 
+                    selected = character(0))
+  updateCheckboxInput(session = session, 
+                      inputId = "chk_template_includeTableOfContents", 
+                      value = FALSE)
+  updateCheckboxInput(session = session, 
+                      inputId = "chk_template_isSignatureRequired", 
+                      value = FALSE)
+  updateCheckboxInput(session = session, 
+                      inputId = "chk_template_isActive", 
+                      value = TRUE)
+  updateSelectInput(session = session, 
+                    inputId = "sel_template_titleSize", 
+                    selected = "LARGE")
+  updateSelectInput(session = session, 
+                    inputId = "sel_template_logo", 
+                    selected = character(0))
+  updateTextInput(session = session, 
+                  inputId = "txt_template_defaultEmailText", 
+                  value = "")
+  output$img_template_logo_preview <- NULL
+  toggleModal(session = session, 
+              modalId = "modal_template_addEdit", 
+              toggle = "open")
+}
