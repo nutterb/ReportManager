@@ -18,6 +18,7 @@
                     offset_overlap = input$num_schedule_offset, 
                     offset_overlap_unit = input$sel_schedule_offsetUnit, 
                     is_active = input$chk_schedule_isActive, 
+                    is_period_to_date = input$chk_schedule_isPeriodToDate,
                     event_user = current_user_oid)
     RM_replaceData(query_fun = querySchedule, 
                    reactive_list = rv_Schedule, 

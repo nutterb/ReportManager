@@ -113,6 +113,11 @@ shinyServer(function(input, output, session){
                       inputId = "dttm_templateSchedule",
                       value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
                                      format = "%d-%b-%Y %H:%M:%S"))
+
+      updateTextInput(session = session,
+                      inputId = "dttm_templateIndexDateTime",
+                      value = format(rv_Template$SelectedTemplateSchedule$IndexDateTime,
+                                     format = "%d-%b-%Y %H:%M:%S"))
       
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
@@ -230,6 +235,9 @@ shinyServer(function(input, output, session){
         parent_report_template = as.numeric(input$rdo_template),
         parent_schedule = as.numeric(input$sel_templateSchedule),
         start_date = as.POSIXct(input$dttm_templateSchedule, 
+                                format = "%d-%b-%Y %H:%M", 
+                                tz = "UTC"),
+        index_date = as.POSIXct(input$dttm_templateIndexDate, 
                                 format = "%d-%b-%Y %H:%M", 
                                 tz = "UTC"),
         is_active = TRUE, 
