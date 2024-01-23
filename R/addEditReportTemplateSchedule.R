@@ -13,6 +13,8 @@
 #'   object being associated with the ReportTemplate.
 #' @param start_date `POSIXct(1)`. The date/time for start of the the 
 #'   first instance of the report.
+#' @param index_date `POSIXct(1)`. The date/time to index the start of 
+#'   period-to-date style reports.
 #' @param is_active `logical(1)`. When `TRUE`, the association will be marked
 #'   as active. 
 #' @param event_user `integerish(1)`. The OID of the User performing the action.
@@ -23,8 +25,13 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
                                           parent_report_template, 
                                           parent_schedule,
                                           start_date,
+                                          index_date = NA_character_, 
                                           is_active = TRUE, 
                                           event_user){
+  
+  if (is.na(index_date) && !inherits(index_date, "POSIXct")){
+    index_date <- as.POSIXct(NA_character_)
+  }
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -42,6 +49,10 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
                               add = coll)
   
   checkmate::assertPOSIXct(x = start_date, 
+                           len = 1, 
+                           add = coll)
+  
+  checkmate::assertPOSIXct(x = index_date, 
                            len = 1, 
                            add = coll)
   
@@ -78,19 +89,23 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
                             ParentSchedule = parent_schedule,
                             StartDateTime = format(start_date, 
                                                    format = "%Y-%m-%d %H:%M:%S"),
+                            IndexDateTime = format(index_date, 
+                                                   format = "%Y-%m-%d %H:%M:%S"),
                             IsActive   = is_active)
   
   event_time <- Sys.time()
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 3), 
+    data.frame(EventUser = rep(event_user, 4), 
                EventType = c("Add", 
                              "EditStartDate",
+                             "EditIndexDate",
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 4), 
                NewValue = c("", 
-                            format(start_date, format = "%Y-%M-%d %H:%M:%S"),
+                            format(start_date, format = "%Y-%m-%d %H:%M:%S"),
+                            format(index_date, format = "%Y-%m-%d %H:%M:%S"),
                             is_active), 
                stringsAsFactors = FALSE)
   
@@ -132,7 +147,9 @@ addEditReportTemplateSchedule <- function(oid = numeric(0),
   ThisRTS <- queryReportTemplateSchedule(oid)
 
   CurrentValue <- c(format(ThisRTS$StartDateTime,
-                           format = "%Y-%M-%d %H:%M:%S"),
+                           format = "%Y-%m-%d %H:%M:%S"),
+                    format(ThisRTS$IndexDateTime, 
+                           format = "%Y-%m-%d %H:%M:%S"),
                     ThisRTS$IsActive)
 
   EventList[compareValues(CurrentValue, EventList$NewValue), ]

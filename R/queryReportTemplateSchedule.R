@@ -89,7 +89,8 @@ queryReportTemplateSchedule <- function(oid = numeric(0),
          [ParentReportTemplate], 
          [ParentSchedule], 
          [StartDateTime],
-         [IsActive]
+         [IsActive], 
+         [IndexDateTime]
   FROM dbo.[ReportTemplateSchedule]
 "
 
@@ -98,6 +99,7 @@ queryReportTemplateSchedule <- function(oid = numeric(0),
          [ParentReportTemplate], 
          [ParentSchedule], 
          [StartDateTime],
-         [IsActive]
+         [IsActive], 
+         [IndexDateTime]
   FROM [ReportTemplateSchedule]
 "

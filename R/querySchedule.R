@@ -62,7 +62,8 @@ querySchedule <- function(oid = numeric(0)){
          [FrequencyUnit],
          [OffsetOverlap], 
          [OffsetOverlapUnit],
-         [IsActive]
+         [IsActive], 
+         [IsPeriodToDate]
   FROM dbo.[Schedule]
 "
 
@@ -73,6 +74,7 @@ querySchedule <- function(oid = numeric(0)){
          [FrequencyUnit],
          [OffsetOverlap], 
          [OffsetOverlapUnit],
-         [IsActive]
+         [IsActive], 
+         [IsPeriodToDate]
   FROM [Schedule]
 "

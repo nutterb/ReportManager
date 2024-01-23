@@ -212,13 +212,14 @@ for (flavor in FLAVOR){
                                     next_oid))
       
       expect_equal(TemplateEvent$EventType,
-                   c("Add", "EditStartDate", "Activate"))
+                   c("Add", "EditStartDate", "EditIndexDate", "Activate"))
       expect_true(all(table(TemplateEvent$EventType) == 1))
       
       addEditReportTemplateSchedule(oid = next_oid, 
                                     parent_report_template = 2, 
                                     parent_schedule = 3,
-                                    start_date = Sys.time() + 365, 
+                                    start_date = Sys.time() + 365,
+                                    index_date = Sys.time() - 10,
                                     is_active = FALSE,
                                     event_user = 1)
       
@@ -230,12 +231,13 @@ for (flavor in FLAVOR){
                                             "sql_server" = "SELECT * FROM dbo.ReportTemplateScheduleEvent WHERE ParentReportTemplateSchedule = ?",
                                             "SELECT * FROM ReportTemplateScheduleEvent WHERE ParentReportTemplateSchedule = ?"),
                                      next_oid))
-      
+
       expect_true(
         all(table(TemplateEvent2$EventType) ==
               c("Activate" = 1, 
                 "Add" = 1, 
                 "Deactivate" = 1,
+                "EditIndexDate" = 2,
                 "EditStartDate" = 2))
       )
       

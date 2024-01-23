@@ -108,6 +108,7 @@ CREATE TABLE dbo.[Schedule] (
   [OffsetOverlap] INT NOT NULL, 
   [OffsetOverlapUnit] VARCHAR(10) NOT NULL, 
   [IsActive] BIT NOT NULL DEFAULT 0, 
+  [IsPeriodToDate] BIT NOT NULL DEFAULT 0, 
   
   PRIMARY KEY (OID)
 );
@@ -130,7 +131,9 @@ CREATE TABLE dbo.[ScheduleEvent](
                                                        'EditOverlap',
                                                        'Deactivate', 
                                                        'Activate', 
-                                                       'Add'))
+                                                       'Add', 
+                                                       'SetIsPeriodToDateTrue', 
+                                                       'SetIsPeriodToDateFalse'))
 );
 
 /* DateReportingFormat Table ***************************************/
@@ -403,6 +406,7 @@ CREATE TABLE dbo.[ReportTemplateSchedule](
   [ParentSchedule] INT NOT NULL,
   [StartDateTime] DATETIME NOT NULL,
   [IsActive] BIT DEFAULT 0, 
+  [IndexDateTime] DATETIME NULL,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -425,7 +429,8 @@ CREATE TABLE dbo.[ReportTemplateScheduleEvent] (
   CONSTRAINT chk_ReportTemplateScheduleEventType CHECK (EventType IN ('Add', 
                                                                     'Activate', 
                                                                     'Deactivate', 
-                                                                    'EditStartDate'))
+                                                                    'EditStartDate', 
+                                                                    'EditIndexDate'))
 );
 
 /* ReportTemplateSignature *****************************************/

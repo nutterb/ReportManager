@@ -36,7 +36,7 @@ for (flavor in FLAVOR){
                    c("OID", "ScheduleName", 
                      "Frequency", "FrequencyUnit", 
                      "OffsetOverlap", "OffsetOverlapUnit", 
-                     "IsActive"))    
+                     "IsActive", "IsPeriodToDate"))    
       
       # Retrive a single Schedule
       

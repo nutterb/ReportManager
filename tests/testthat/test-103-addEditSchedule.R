@@ -161,6 +161,30 @@ test_that(
 )
 
 test_that(
+  "Return an error when is_period_to_date is not logical(1)", 
+  {
+    expect_error(addEditSchedule(schedule_name = "Schedule", 
+                                 frequency = 1, 
+                                 frequency_unit = "Day", 
+                                 offset_overlap = 0, 
+                                 offset_overlap_unit = "Day", 
+                                 is_period_to_date = "TRUE", 
+                                 event_user = 1), 
+                 "'is_period_to_date': Must be of type 'logical'")
+    
+    expect_error(addEditSchedule(schedule_name = "Schedule", 
+                                 frequency = 1, 
+                                 frequency_unit = "Day", 
+                                 offset_overlap = 0, 
+                                 offset_overlap_unit = "Day", 
+                                 is_period_to_date = c(TRUE, FALSE), 
+                                 event_user = 1), 
+                 "'is_period_to_date': Must have length 1")
+  }
+)
+
+
+test_that(
   "Return an error when event_user is not integerish(1)", 
   {
     expect_error(addEditSchedule(schedule_name = "Schedule", 
@@ -259,7 +283,8 @@ test_that(
                                   next_schedule_oid))
     
     expect_equal(ScheduleEvent$EventType,
-                 c("Add", "Deactivate", "EditScheduleName", "EditFrequency", "EditOverlap"))
+                 c("Add", "Deactivate", "SetIsPeriodToDateFalse", 
+                   "EditScheduleName", "EditFrequency", "EditOverlap"))
     expect_true(all(table(ScheduleEvent$EventType) == 1))
     
     addEditSchedule(oid = next_schedule_oid, 
@@ -285,7 +310,8 @@ test_that(
               "Deactivate" = 1, 
               "EditFrequency" = 2, 
               "EditOverlap" = 2, 
-              "EditScheduleName" = 2))
+              "EditScheduleName" = 2, 
+              "SetIsPeriodToDateFalse" = 1))
     )
     
     dbDisconnect(conn)
@@ -368,7 +394,8 @@ test_that(
                               next_schedule_oid))
     
     expect_equal(ScheduleEvent$EventType,
-                 c("Add", "Deactivate", "EditScheduleName", "EditFrequency", "EditOverlap"))
+                 c("Add", "Deactivate", "SetIsPeriodToDateFalse", 
+                   "EditScheduleName", "EditFrequency", "EditOverlap"))
     expect_true(all(table(ScheduleEvent$EventType) == 1))
     
     addEditSchedule(oid = next_schedule_oid, 
@@ -394,7 +421,8 @@ test_that(
               "Deactivate" = 1, 
               "EditFrequency" = 2, 
               "EditOverlap" = 2, 
-              "EditScheduleName" = 2))
+              "EditScheduleName" = 2, 
+              "SetIsPeriodToDateFalse" = 2))
     )
     
     dbDisconnect(conn)

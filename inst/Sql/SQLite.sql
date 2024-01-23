@@ -101,7 +101,8 @@ CREATE TABLE [Schedule] (
   FrequencyUnit VARCHAR(10) NOT NULL, 
   OffsetOverlap INT NOT NULL, 
   OffsetOverlapUnit VARCHAR(10) NOT NULL, 
-  IsActive BIT NOT NULL DEFAULT 0
+  IsActive BIT NOT NULL DEFAULT 0,
+  [IsPeriodToDate] BIT NOT NULL DEFAULT 0
 );
 
 /* ScheduleEventTable **********************************************/
@@ -121,7 +122,9 @@ CREATE TABLE [ScheduleEvent](
                                                        'EditOverlap',
                                                        'Deactivate', 
                                                        'Activate', 
-                                                       'Add'))
+                                                       'Add', 
+                                                       'SetIsPeriodToDateTrue', 
+                                                       'SetIsPeriodToDateFalse'))
 );
 
 /* DateReportingFormat Table ***************************************/
@@ -374,6 +377,7 @@ CREATE TABLE [ReportTemplateSchedule](
   ParentSchedule INT NOT NULL,
   StartDateTime DATETIME NOT NULL,
   IsActive BIT DEFAULT 0, 
+  IndexDateTime DATETIME NULL,
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID)
@@ -394,7 +398,8 @@ CREATE TABLE [ReportTemplateScheduleEvent] (
   CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
                                                                     'Activate', 
                                                                     'Deactivate', 
-                                                                    'EditStartDate'))
+                                                                    'EditStartDate', 
+                                                                    'EditIndexDate'))
 );
 
 /* ReportTemplateSignature *****************************************/
