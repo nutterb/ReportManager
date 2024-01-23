@@ -126,6 +126,27 @@ test_that(
   }
 )
 
+
+# Set Up Testing Database
+
+if (SQL_SERVER_READY){
+  configureReportManager(flavor = "sql_server")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/SqlServer.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
+
+if (SQLITE_READY){
+  configureReportManager(flavor = "sqlite")
+  purgeReportManagerDatabase()
+  initializeUiTestingDatabase(system.file("Sql/Sqlite.sql", 
+                                          package = "ReportManager"), 
+                              include = c("User", "Role", "UserRole", 
+                                          "ReportTemplate"))
+}
+
 # User - SQL Server -------------------------------------------------
 
 configureReportManager(flavor = "sql_server")
@@ -1069,8 +1090,7 @@ test_that(
     conn <- connectToReportManager()
     
     # Make a new user for the test
-    addEditDisclaimer(title = "Title", 
-                      disclaimer = "Disclaimer for event testing", 
+    addEditDisclaimer(disclaimer = "Disclaimer for event testing", 
                       event_user = 1)
     
     oid <- max(queryDisclaimer()$OID)
@@ -1228,8 +1248,7 @@ test_that(
     conn <- connectToReportManager()
     
     # Make a new user for the test
-    addEditFooter(title = "Title", 
-                  footer = "Footer for event testing", 
+    addEditFooter(footer = "Footer for event testing", 
                   event_user = 1)
     
     oid <- max(queryFooter()$OID)
@@ -1277,7 +1296,16 @@ test_that(
     
     ObjectNow <- queryReportTemplate(oid = 1)
     
-    expect_false(ObjectNow$IsActive)
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_false(queryReportTemplate(oid = 1)$IsActive)
     
     activateRecord(oid = 1, 
                    active = TRUE, 
@@ -1287,15 +1315,6 @@ test_that(
                    parent_field_name = "ParentReportTemplate")
     
     expect_true(queryReportTemplate(oid = 1)$IsActive)
-    
-    activateRecord(oid = 1, 
-                   active = FALSE, 
-                   event_user = 1, 
-                   table_name = "ReportTemplate", 
-                   event_table_name = "ReportTemplateEvent", 
-                   parent_field_name = "ParentReportTemplate")
-    
-    expect_true(queryFooter(oid = 1)$IsActive)
   }
 )
 
@@ -1314,7 +1333,7 @@ test_that(
                           title_size = "LARGE", 
                           is_signature_required = TRUE, 
                           is_active = TRUE,
-                          logo_oid = 2,
+                          logo_oid = NA,
                           event_user = 1)
     
     oid <- max(queryReportTemplate()$OID)
@@ -1362,7 +1381,16 @@ test_that(
     
     ObjectNow <- queryReportTemplate(oid = 1)
     
-    expect_false(ObjectNow$IsActive)
+    expect_true(ObjectNow$IsActive)
+    
+    activateRecord(oid = 1, 
+                   active = FALSE, 
+                   event_user = 1, 
+                   table_name = "ReportTemplate", 
+                   event_table_name = "ReportTemplateEvent", 
+                   parent_field_name = "ParentReportTemplate")
+    
+    expect_false(queryReportTemplate(oid = 1)$IsActive)
     
     activateRecord(oid = 1, 
                    active = TRUE, 
@@ -1372,15 +1400,6 @@ test_that(
                    parent_field_name = "ParentReportTemplate")
     
     expect_true(queryReportTemplate(oid = 1)$IsActive)
-    
-    activateRecord(oid = 1, 
-                   active = FALSE, 
-                   event_user = 1, 
-                   table_name = "ReportTemplate", 
-                   event_table_name = "ReportTemplateEvent", 
-                   parent_field_name = "ParentReportTemplate")
-    
-    expect_true(queryFooter(oid = 1)$IsActive)
   }
 )
 
@@ -1399,7 +1418,7 @@ test_that(
                           title_size = "LARGE", 
                           is_signature_required = TRUE, 
                           is_active = TRUE,
-                          logo_oid = 2,
+                          logo_oid = NA,
                           event_user = 1)
     
     oid <- max(queryReportTemplate()$OID)

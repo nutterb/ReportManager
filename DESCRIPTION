@@ -19,6 +19,7 @@ Suggests:
   shinyBS,
   shinydashboard,
   shinyjs,
+  shinyWidgets,
   testthat (>= 3.0.0)
 License: file LICENSE
 LazyData: true

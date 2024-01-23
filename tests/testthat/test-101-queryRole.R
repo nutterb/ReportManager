@@ -11,48 +11,34 @@ test_that(
   }
 )
 
-# Functionality - Sqlite --------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "queryRole using SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    Role <- queryRole()
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 3)
-    
-    Role <- queryRole(oid = 1)
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 1)
-  }
-)
-
 # Functionality - SQL Server ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "queryRole using SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    Role <- queryRole()
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 3)
-    
-    Role <- queryRole(oid = 1)
-    
-    expect_data_frame(Role, 
-                      ncols = 4, 
-                      nrows = 1)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
   }
-)
+  
+  test_that(
+    "queryRole using SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      Role <- queryRole()
+      
+      expect_data_frame(Role, 
+                        ncols = 4, 
+                        nrows = 5)
+      
+      Role <- queryRole(oid = 1)
+      
+      expect_data_frame(Role, 
+                        ncols = 4, 
+                        nrows = 1)
+    }
+  )
+}

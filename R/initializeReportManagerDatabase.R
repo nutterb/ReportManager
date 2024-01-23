@@ -7,7 +7,9 @@
 #' @param filename `character(1)`. A filename of SQL code. Usually 
 #'   one found in `system.file("Sql", package = "ReportManager")`
 #' @inheritParams addEditUser
-#' 
+#' @param include `character`. A subset of `c("User", "Role", "UserRole")`. 
+#'   Designates which objects to pre-populate for the user interface testing.
+#'   
 #' @details `last_name`, `first_name`, `login_id`, and `email` are 
 #'   the values assigned for the first user in the database. This user
 #'   will be given the UserAdministrator and ReportAdministrator roles, 
@@ -100,6 +102,13 @@ initializeReportManagerDatabase <- function(filename,
   
   # Populate a Few Common Schedules ---------------------------------
   
+  addEditSchedule(schedule_name = "None", 
+                  frequency = 0, 
+                  frequency_unit = "Day", 
+                  offset_overlap = 0, 
+                  offset_overlap_unit = "None", 
+                  event_user = 1)
+  
   addEditSchedule(schedule_name = "Daily", 
                   frequency = 1, 
                   frequency_unit = "Day", 
@@ -137,13 +146,6 @@ initializeReportManagerDatabase <- function(filename,
                   offset_overlap_unit = "Month", 
                   event_user = 1)
   
-  addEditSchedule(schedule_name = "None", 
-                  frequency = 0, 
-                  frequency_unit = "Day", 
-                  offset_overlap = 0, 
-                  offset_overlap_unit = "None", 
-                  event_user = 1)
-  
   # Populate a Few Common Date Formats ------------------------------
   
   addEditDateReportingFormat(format_name = "Date", 
@@ -169,21 +171,16 @@ initializeReportManagerDatabase <- function(filename,
   
   # Populate Disclaimers and Footers
   
-  addEditDisclaimer(title = "Preliminary Data", 
-                    disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
+  addEditDisclaimer(disclaimer = "Data contained within this report are both preliminary and unofficial. These data are for internal use only and do not meet the reporting requirements for official correspondence.", 
                     event_user = 1)
   
-  addEditFooter(title = "Internal use", 
-                footer = "For internal use only.", 
+  addEditFooter(footer = "For internal use only.", 
                 event_user = 1)
-  addEditFooter(title = "Official use", 
-                footer = "For official use only.", 
+  addEditFooter(footer = "For official use only.", 
                 event_user = 1)
-  addEditFooter(title = "Not a record", 
-                footer = "Not a record.", 
+  addEditFooter(footer = "Not a record.", 
                 event_user = 1)
-  addEditFooter(title = "Becomes a record", 
-                footer = "Becomes a record upon completion.", 
+  addEditFooter(footer = "Becomes a record upon completion.", 
                 event_user = 1)
 }
 
@@ -192,7 +189,15 @@ initializeReportManagerDatabase <- function(filename,
 # Database For Testing the UI ---------------------------------------
 
 initializeUiTestingDatabase <- function(filename, 
-                                        include = c("User", "Role", "UserRole"),
+                                        include = c("User", 
+                                                    "Role", 
+                                                    "UserRole", 
+                                                    "ReportTemplate", 
+                                                    "ReportTemplateDisclaimer", 
+                                                    "ReportTemplateFooter", 
+                                                    "ReportTemplateSchedule", 
+                                                    "ReportTemplateSignature", 
+                                                    "ReportTemplateDistribution"),
                                         last_name = "Testing-LastName", 
                                         first_name = "Testing-FirstName", 
                                         login_id = Sys.info()["user"], 
@@ -228,9 +233,109 @@ initializeUiTestingDatabase <- function(filename,
            parent_user = TestUserRole$parent_user, 
            parent_role = TestUserRole$parent_role, 
            is_active = TestUserRole$is_active, 
-           event_user = 1)
+           MoreArgs = list(event_user = 1))
+  }
+  
+  if ("ReportTemplate" %in% include){
+    mapply(addEditReportTemplate, 
+           title = TestReportTemplate$Title, 
+           template_directory = TestReportTemplate$TemplateDirectory, 
+           template_file = TestReportTemplate$TemplateFile, 
+           title_size = TestReportTemplate$TitleSize, 
+           include_toc = TestReportTemplate$IncludeTableOfContents, 
+           default_email = TestReportTemplate$DefaultEmailText,
+           is_signature_required = TestReportTemplate$IsSignatureRequired, 
+           is_active = TestReportTemplate$IsActive, 
+           logo_oid = TestReportTemplate$LogoFileArchive,
+           MoreArgs = list(event_user = 1))
+    
+    if ("ReportTemplateSchedule" %in% include){
+      mapply(addEditReportTemplateSchedule, 
+             parent_report_template = TestReportTemplateSchedule$ParentReportTemplate,
+             parent_schedule = TestReportTemplateSchedule$ParentSchedule,
+             start_date = TestReportTemplateSchedule$StartDateTime,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateDisclaimer" %in% include){
+      mapply(addEditReportTemplateDisclaimer, 
+             parent_report_template = TestReportTemplateDisclaimer$ParentReportTemplate,
+             parent_disclaimer = TestReportTemplateDisclaimer$ParentDisclaimer,
+             order = TestReportTemplateDisclaimer$Order,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateFooter" %in% include){
+      mapply(addEditReportTemplateFooter, 
+             parent_report_template = TestReportTemplateFooter$ParentReportTemplate,
+             parent_footer = TestReportTemplateFooter$ParentFooter,
+             order = TestReportTemplateFooter$Order,
+             MoreArgs = list(event_user = 1))
+    }
+    
+    if ("ReportTemplateSignature" %in% include){
+      mapply(addEditReportTemplateSignature, 
+             parent_report_template = TestReportTemplateSignature$ParentReportTemplate,
+             parent_role = TestReportTemplateSignature$ParentRole,
+             order = TestReportTemplateSignature$Order,
+             MoreArgs = list(event_user = 1))
+    }
   }
 }
+
+
+
+# Unexported - Purge Database ---------------------------------------
+# For assistance with clearing the database to set up testing
+
+purgeReportManagerDatabase <- function(sql_flavor = getOption("RM_sql_flavor")){
+  conn <- connectToReportManager()
+  on.exit({ DBI::dbDisconnect(conn) })
+  
+  if (sql_flavor == "sql_server"){
+    res <- DBI::dbSendStatement(conn, .purgeConstraintQuery)
+    DBI::dbClearResult(res)
+  }
+  
+  dropTable <- function(table, conn){
+    is_sql_server <- sql_flavor == "sql_server"
+    
+    tables <- DBI::dbListTables(conn, 
+                                schema = if (is_sql_server) "dbo" else NULL)
+    
+    if (table %in% tables){
+      result <- DBI::dbSendStatement(conn, 
+                                     sprintf("DROP TABLE %s[%s]", 
+                                             if (is_sql_server) "dbo." else "",
+                                             table))
+      DBI::dbClearResult(result)
+    }
+  }
+  
+  Tables <- DBI::dbListTables(conn, schema = "dbo")
+  invisible(lapply(Tables, 
+                   dropTable, 
+                   conn))
+}
+
+.purgeConstraintQuery <- "
+  DECLARE @sql NVARCHAR(MAX);
+  SET @sql = N'';
+  
+  SELECT @sql = @sql + N'
+  ALTER TABLE ' + QUOTENAME(s.name) + N'.'
+  + QUOTENAME(t.name) + N' DROP CONSTRAINT '
+  + QUOTENAME(c.name) + ';'
+  FROM sys.objects AS c
+  INNER JOIN sys.tables AS t
+  ON c.parent_object_id = t.[object_id]
+  INNER JOIN sys.schemas AS s 
+  ON t.[schema_id] = s.[schema_id]
+  WHERE c.[type] IN ('D','C','F','PK','UQ')
+  ORDER BY c.[type];
+  
+  EXEC sys.sp_executesql @sql;
+"
 
 # Unexported - Test Data --------------------------------------------
 
@@ -297,3 +402,49 @@ TestUserRole <-
     parent_role = c(4, 4, 5, 5, 6, 10, 6, 7, 8, 9, 10), 
     is_active = rep(TRUE, 11)
   )
+
+# Template Definition -----------------------------------------------
+
+TestReportTemplate <- 
+  data.frame(Title = c("First Report Template", "Second Report Template"),
+             TitleSize = c("Large", "Huge"), 
+             TemplateDirectory = c("SampleReport", "SampleReport"),
+             TemplateFile = c("00-Template.Rmd", "00-Template.Rmd"),
+             IncludeTableOfContents = c(TRUE, FALSE), 
+             DefaultEmailText = c("", "This report is provided to satisfy the conditions of CFR xyz"),
+             IsSignatureRequired = c(FALSE, TRUE), 
+             IsActive = c(TRUE, TRUE), 
+             LogoFileArchive = rep(NA, 2), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateDisclaimer Definition -------------------------------
+
+TestReportTemplateDisclaimer <- 
+  data.frame(ParentReportTemplate = 1, 
+             ParentDisclaimer = 1, 
+             Order = 1, 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateFooter Definition -----------------------------------
+
+TestReportTemplateFooter <- 
+  data.frame(ParentReportTemplate = c(1, 2), 
+             ParentFooter = c(2, 3), 
+             Order = c(1, 1), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateSchedule Definition ---------------------------------
+
+TestReportTemplateSchedule <- 
+  data.frame(ParentReportTemplate = c(1, 2), 
+             ParentSchedule = c(1, 4), 
+             StartDateTime = rep(as.POSIXct("2023-01-01", tz = "UTC"), 2), 
+             stringsAsFactors = FALSE)
+
+# ReportTemplateSignature Definition --------------------------------
+
+TestReportTemplateSignature <- 
+  data.frame(ParentReportTemplate = c(1, 1, 1, 2, 2), 
+             ParentRole = c(5, 4, 2, 3, 1), 
+             Order = c(3, 2, 1, 1, 2), 
+             stringsAsFactors = FALSE)

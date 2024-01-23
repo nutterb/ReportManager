@@ -86,10 +86,10 @@ The other elements created in the controls are
 \itemize{
 \item \verb{[inputId]_unselected} - the \code{selectInput} on the left giving choices available for selection.
 \item \verb{[inputId]_selected} - the \code{selectInput} on the right giving the choices selected.
-\item \verb{[inputId]_move_right_all} - an \code{actionButton} that moves all choices from the left side to the right side.
+\item \verb{[inputId]_move_all_right} - an \code{actionButton} that moves all choices from the left side to the right side.
 \item \verb{[inputId]_move_right} - an \code{actionButton} that moves the selected items in the left side to the right side.
 \item \verb{[inputId]_move_left} - an \code{actionButton} that moves the selected items in the right side to the left side.
-\item \verb{[inputId]_move_right} - an \code{actionButton} that moves all the items on the right side to the left side.
+\item \verb{[inputId]_move_all_left} - an \code{actionButton} that moves all the items on the right side to the left side.
 \item \verb{[inputId]_move_up} - an \code{actionButton} that moves the selected item in the right side up one space.
 \item \verb{[inputId]_move_down} - an \code{actionButton} that moves the selected item in the right side down one space.
 }

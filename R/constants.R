@@ -18,7 +18,8 @@ UNIT_OF_TIME_WITH_NONE <- c("None", UNIT_OF_TIME)
 #' @rdname constants
 #' @export
 
-REPORT_TEMPLATE_DISPLAY_PROPERTIES <- c("OID", "Title", "TemplateDirectory", 
+REPORT_TEMPLATE_DISPLAY_PROPERTIES <- c("OID", "Title", "TemplateDirectory",
+                                        "IncludeTableOfContents",
                                         "IsSignatureRequired", "IsActive")
 
 #' @rdname constants

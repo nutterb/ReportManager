@@ -1,13 +1,13 @@
 /* User Table  ***********************************************/
 
 CREATE TABLE dbo.[User](
-  OID INT IDENTITY(1, 1) NOT NULL, 
-  LastName VARCHAR(50) NOT NULL, 
-  FirstName VARCHAR(50) NOT NULL,
-  LoginId VARCHAR(50) NOT NULL, 
-  EmailAddress VARCHAR(100) NULL, 
-  IsInternal BIT NOT NULL DEFAULT 1, 
-  IsActive BIT NOT NULL DEFAULT 1, 
+  [OID] INT IDENTITY(1, 1) NOT NULL, 
+  [LastName] VARCHAR(50) NOT NULL, 
+  [FirstName] VARCHAR(50) NOT NULL,
+  [LoginId] VARCHAR(50) NOT NULL, 
+  [EmailAddress] VARCHAR(100) NULL, 
+  [IsInternal] BIT NOT NULL DEFAULT 1, 
+  [IsActive] BIT NOT NULL DEFAULT 1, 
   
   PRIMARY KEY (OID)
 );
@@ -15,12 +15,12 @@ CREATE TABLE dbo.[User](
 /* UserEvent Table *******************************************/
 
 CREATE TABLE dbo.[UserEvent](
-  OID INT IDENTITY(1, 1)  NOT NULL, 
-  ParentUser INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(50) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(200) NULL, 
+  [OID] INT IDENTITY(1, 1)  NOT NULL, 
+  [ParentUser] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(50) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(200) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentUser) REFERENCES dbo.[User](OID), 
@@ -39,10 +39,10 @@ CREATE TABLE dbo.[UserEvent](
 /* Role Table ******************************************************/
 
 CREATE TABLE dbo.[Role](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  RoleName VARCHAR(75) NOT NULL, 
-  RoleDescription VARCHAR(250), 
-  IsActive BIT NOT NULL DEFAULT 1, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [RoleName] VARCHAR(75) NOT NULL, 
+  [RoleDescription] VARCHAR(250), 
+  [IsActive] BIT NOT NULL DEFAULT 1, 
   
   PRIMARY KEY (OID)
 );
@@ -50,12 +50,12 @@ CREATE TABLE dbo.[Role](
 /* RoleEvent Table *************************************************/
 
 CREATE TABLE dbo.[RoleEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL,
-  ParentRole INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [ParentRole] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentRole) REFERENCES dbo.[Role](OID), 
@@ -70,10 +70,10 @@ CREATE TABLE dbo.[RoleEvent](
 /* UserRole Table ********************************************/
 
 CREATE TABLE dbo.[UserRole] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentUser INT NOT NULL, 
-  ParentRole INT NOT NULL, 
-  IsActive BIT NOT NULL DEFAULT 0, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentUser] INT NOT NULL, 
+  [ParentRole] INT NOT NULL, 
+  [IsActive] BIT NOT NULL DEFAULT 0, 
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentUser) REFERENCES dbo.[User](OID),
@@ -83,12 +83,12 @@ CREATE TABLE dbo.[UserRole] (
 /* UserRoleEvent Table ***************************************/
 
 CREATE TABLE dbo.[UserRoleEvent] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentUserRole INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentUserRole] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentUserRole) REFERENCES dbo.[UserRole](OID), 
@@ -101,13 +101,14 @@ CREATE TABLE dbo.[UserRoleEvent] (
 /* Schedule Table **************************************************/
 
 CREATE TABLE dbo.[Schedule] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL,  
-  ScheduleName VARCHAR(50) NOT NULL, 
-  Frequency INT NOT NULL, 
-  FrequencyUnit VARCHAR(10) NOT NULL, 
-  OffsetOverlap INT NOT NULL, 
-  OffsetOverlapUnit VARCHAR(10) NOT NULL, 
-  IsActive BIT NOT NULL DEFAULT 0, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,  
+  [ScheduleName] VARCHAR(50) NOT NULL, 
+  [Frequency] INT NOT NULL, 
+  [FrequencyUnit] VARCHAR(10) NOT NULL, 
+  [OffsetOverlap] INT NOT NULL, 
+  [OffsetOverlapUnit] VARCHAR(10) NOT NULL, 
+  [IsActive] BIT NOT NULL DEFAULT 0, 
+  [IsPeriodToDate] BIT NOT NULL DEFAULT 0, 
   
   PRIMARY KEY (OID)
 );
@@ -115,12 +116,12 @@ CREATE TABLE dbo.[Schedule] (
 /* ScheduleEventTable **********************************************/
 
 CREATE TABLE dbo.[ScheduleEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentSchedule INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentSchedule] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID), 
@@ -130,7 +131,9 @@ CREATE TABLE dbo.[ScheduleEvent](
                                                        'EditOverlap',
                                                        'Deactivate', 
                                                        'Activate', 
-                                                       'Add'))
+                                                       'Add', 
+                                                       'SetIsPeriodToDateTrue', 
+                                                       'SetIsPeriodToDateFalse'))
 );
 
 /* DateReportingFormat Table ***************************************/
@@ -140,11 +143,11 @@ CREATE TABLE dbo.[DateReportingFormat](
   [FormatName] VARCHAR(25) NOT NULL, 
   [Description] VARCHAR(50) NULL,
   [FormatCode] VARCHAR(25) NOT NULL,
-  IncrementStart INT NOT NULL, 
-  IncrementStartUnit VARCHAR(10) NOT NULL, 
-  IncrementEnd INT NOT NULL, 
-  IncrementEndUnit VARCHAR(10) NOT NULL, 
-  IsActive BIT NOT NULL DEFAULT 0, 
+  [IncrementStart] INT NOT NULL, 
+  [IncrementStartUnit] VARCHAR(10) NOT NULL, 
+  [IncrementEnd] INT NOT NULL, 
+  [IncrementEndUnit] VARCHAR(10) NOT NULL, 
+  [IsActive] BIT NOT NULL DEFAULT 0, 
   
   PRIMARY KEY (OID)
 );
@@ -152,12 +155,12 @@ CREATE TABLE dbo.[DateReportingFormat](
 /* DateReportingFormatEvent Table **********************************/
 
 CREATE TABLE dbo.[DateReportingFormatEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentDateReportingFormat INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentDateReportingFormat] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
 
   PRIMARY KEY (OID),  
   FOREIGN KEY (ParentDateReportingFormat) REFERENCES [DateReportingFormat](OID), 
@@ -175,10 +178,9 @@ CREATE TABLE dbo.[DateReportingFormatEvent](
 /* Disclaimer Table ************************************************/
 
 CREATE TABLE dbo.[Disclaimer](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  Title VARCHAR(100) NOT NULL,
-  Disclaimer VARCHAR(2000) NOT NULL,
-  IsActive BIT DEFAULT 0,
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [Disclaimer] VARCHAR(2000) NOT NULL,
+  [IsActive] BIT DEFAULT 0,
   
   PRIMARY KEY (OID)
 );
@@ -186,19 +188,18 @@ CREATE TABLE dbo.[Disclaimer](
 /* DisclaimerEvent Table *******************************************/
 
 CREATE TABLE dbo.[DisclaimerEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentDisclaimer INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(2000) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentDisclaimer] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(2000) NULL, 
   
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentDisclaimer) REFERENCES [Disclaimer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditTitle', 
-                                                          'EditDisclaimer',
+  CONSTRAINT chk_DisclaimerEventType CHECK (EventType IN ('EditDisclaimer',
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
@@ -207,10 +208,9 @@ CREATE TABLE dbo.[DisclaimerEvent](
 /* Footer Table ****************************************************/
 
 CREATE TABLE dbo.[Footer](
-  OID INTEGER IDENTITY(1, 1) NOT NULL,  
-  Title VARCHAR(100) NOT NULL,
-  Footer VARCHAR(200) NOT NULL,
-  IsActive BIT DEFAULT 0,
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,  
+  [Footer] VARCHAR(200) NOT NULL,
+  [IsActive] BIT DEFAULT 0,
   
   PRIMARY KEY (OID) 
 );
@@ -218,18 +218,17 @@ CREATE TABLE dbo.[Footer](
 /* FooterEvent Table ***********************************************/
 
 CREATE TABLE dbo.[FooterEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentFooter INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentFooter] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentFooter) REFERENCES [Footer](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditTitle', 
-                                                      'EditFooter',
+  CONSTRAINT chk_FooterEventType CHECK (EventType IN ('EditFooter',
                                                       'Deactivate', 
                                                       'Activate', 
                                                       'Add'))
@@ -238,29 +237,33 @@ CREATE TABLE dbo.[FooterEvent](
 /* FileArchive *****************************************************/
 
 CREATE TABLE dbo.[FileArchive](
-  OID INTEGER PRIMARY KEY, 
-  ParentReportTemplate INT NULL, 
-  ParentReportInstance INT NULL,
-  Description VARCHAR(250) NULL,
-  CreatedDateTime DATETIME NOT NULL,
-  IsLogo BIT NOT NULL DEFAULT 0,
-  FileName VARCHAR(250) NOT NULL, 
-  FileExtension VARCHAR(15) NOT NULL,
-  FileSize INT NOT NULL,
-  FileContent BLOB NOT NULL
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NULL, 
+  [ParentReportInstance] INT NULL,
+  [Description] VARCHAR(250) NULL,
+  [CreatedDateTime] DATETIME NOT NULL,
+  [IsLogo] BIT NOT NULL DEFAULT 0,
+  [FileName] VARCHAR(250) NOT NULL, 
+  [FileExtension] VARCHAR(15) NOT NULL,
+  [FileSize] INT NOT NULL,
+  [FileContent] VARBINARY(MAX) NOT NULL, 
+  
+  PRIMARY KEY (OID)
 );
 
 /* ReportTemplate **************************************************/
 
 CREATE TABLE dbo.[ReportTemplate](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
   [TemplateDirectory] VARCHAR(50) NOT NULL, 
   [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
   [TitleSize] VARCHAR(15) NOT NULL, 
-  IsSignatureRequired BIT NOT NULL DEFAULT 0, 
-  IsActive BIT NOT NULL DEFAULT 0, 
-  LogoFileArchive INT NULL, 
+  [IncludeTableOfContents] BIT NOT NULL, 
+  [DefaultEmailText] VARCHAR(1000) NOT NULL,
+  [IsSignatureRequired] BIT NOT NULL DEFAULT 0, 
+  [IsActive] BIT NOT NULL DEFAULT 0, 
+  [LogoFileArchive] INT NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
@@ -269,12 +272,12 @@ CREATE TABLE dbo.[ReportTemplate](
 /* ReportTemplateEvent *********************************************/
 
 CREATE TABLE dbo.[ReportTemplateEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL,
-  ParentReportTemplate INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [ParentReportTemplate] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -283,6 +286,9 @@ CREATE TABLE dbo.[ReportTemplateEvent](
                                                               'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
+                                                              'EditDefaultEmailText',
+                                                              'SetIncludeTocFalse', 
+                                                              'SetIncludeTocTrue', 
                                                               'SetSignatureRequiredFalse',
                                                               'SetSignatureRequiredTrue',
                                                               'EditLogoFile',
@@ -294,12 +300,12 @@ CREATE TABLE dbo.[ReportTemplateEvent](
 /* ReportInstance **************************************************/
 
 CREATE TABLE dbo.[ReportInstance](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplate INT NOT NULL, 
-  StartDateTime DATETIME NOT NULL, 
-  EndDateTime DATETIME NOT NULL, 
-  IsScheduled BIT DEFAULT 0, 
-  InstanceTitle VARCHAR(200), 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL, 
+  [StartDateTime] DATETIME NOT NULL, 
+  [EndDateTime] DATETIME NOT NULL, 
+  [IsScheduled] BIT DEFAULT 0, 
+  [InstanceTitle] VARCHAR(200), 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID)
@@ -308,12 +314,12 @@ CREATE TABLE dbo.[ReportInstance](
 /* ReportInstanceEvent *********************************************/
 
 CREATE TABLE dbo.[ReportInstanceEvent](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportInstance INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstance] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
@@ -329,10 +335,10 @@ CREATE TABLE dbo.[ReportInstanceEvent](
 /* ReportTemplateDisclaimer ****************************************/
 
 CREATE TABLE dbo.[ReportTemplateDisclaimer](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplate INT NOT NULL
-  ParentDisclaimer INT NOT NULL, 
-  IsActive BIT DEFAULT 0, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL,
+  [ParentDisclaimer] INT NOT NULL, 
+  [IsActive] BIT DEFAULT 0, 
   [Order] INT,
   
   PRIMARY KEY (OID), 
@@ -343,12 +349,12 @@ CREATE TABLE dbo.[ReportTemplateDisclaimer](
 /* ReportTemplateDisclaimerEvent ***********************************/
 
 CREATE TABLE dbo.[ReportTemplateDisclaimerEvent] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplateDisclaimer INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplateDisclaimer] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplateDisclaimer) REFERENCES [ReportTemplateDisclaimer](OID), 
@@ -362,11 +368,11 @@ CREATE TABLE dbo.[ReportTemplateDisclaimerEvent] (
 /* ReportTemplateFooter ********************************************/
 
 CREATE TABLE dbo.[ReportTemplateFooter](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplate INT NOT NULL,
-  ParentFooter INT NOT NULL, 
-  IsActive BIT DEFAULT 0, 
-  Order INT,
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL,
+  [ParentFooter] INT NOT NULL, 
+  [IsActive] BIT DEFAULT 0, 
+  [Order] INT,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -376,12 +382,12 @@ CREATE TABLE dbo.[ReportTemplateFooter](
 /* ReportTemplateFooterEvent ***************************************/
 
 CREATE TABLE dbo.[ReportTemplateFooterEvent] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplateFooter INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplateFooter] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplateFooter) REFERENCES [ReportTemplateFooter](OID), 
@@ -395,11 +401,12 @@ CREATE TABLE dbo.[ReportTemplateFooterEvent] (
 /* ReportTemplateSchedule ******************************************/
 
 CREATE TABLE dbo.[ReportTemplateSchedule](
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplate INT NOT NULL,
-  ParentSchedule INT NOT NULL,
-  StartDateTime DATETIME NOT NULL,
-  IsActive BIT DEFAULT 0, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL,
+  [ParentSchedule] INT NOT NULL,
+  [StartDateTime] DATETIME NOT NULL,
+  [IsActive] BIT DEFAULT 0, 
+  [IndexDateTime] DATETIME NULL,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -409,18 +416,85 @@ CREATE TABLE dbo.[ReportTemplateSchedule](
 /* ReportTemplateScheduleEvent *************************************/
 
 CREATE TABLE dbo.[ReportTemplateScheduleEvent] (
-  OID INTEGER IDENTITY(1, 1) NOT NULL, 
-  ParentReportTemplateSchedule INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplateSchedule] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplateSchedule) REFERENCES [ReportTemplateSchedule](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID),
-  CONSTRAINT chk_ReportTemplateFooterEventType CHECK (EventType IN ('Add', 
+  CONSTRAINT chk_ReportTemplateScheduleEventType CHECK (EventType IN ('Add', 
                                                                     'Activate', 
                                                                     'Deactivate', 
-                                                                    'EditStartDate'))
+                                                                    'EditStartDate', 
+                                                                    'EditIndexDate'))
+);
+
+/* ReportTemplateSignature *****************************************/
+
+CREATE TABLE dbo.[ReportTemplateSignature](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL,
+  [ParentRole] INT NOT NULL,
+  [ORDER] INT NOT NULL,
+  [IsActive] BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
+);
+
+/* ReportTemplateSignatureEvent ************************************/
+
+CREATE TABLE dbo.[ReportTemplateSignatureEvent] (
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplateSignature] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplateSignature) REFERENCES [ReportTemplateSignature](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateSignatureEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'Reorder'))
+);
+
+/* ReportTemplateDistribution **************************************/
+
+CREATE TABLE dbo.[ReportTemplateDistribution](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL,
+  [ParentUser] INT NULL,
+  [ParentRole] INT NULL,
+  [IsActive] BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID),
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
+);
+
+/* ReportTemplateSignatureEvent ************************************/
+
+CREATE TABLE dbo.[ReportTemplateDistributionEvent] (
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplateDistribution] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplateDistribution) REFERENCES [ReportTemplateDistribution](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplateDistributionEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate'))
 );

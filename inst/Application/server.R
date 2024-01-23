@@ -1,6 +1,7 @@
 shinyServer(function(input, output, session){
   
   # Global ----------------------------------------------------------
+  
   # Global - Reactive Values ----------------------------------------
   
   CURRENT_USER_OID <- 
@@ -75,57 +76,97 @@ shinyServer(function(input, output, session){
                   rv_Template$SelectedTemplate$IsActive)
   })
   
+  # observe({
+  #   choice <- rv_Schedule$Schedule$OID
+  #   names(choice) <- rv_Schedule$Schedule$ScheduleName
+  #   print(choice)
+  #   updateSelectInput(session = session, 
+  #                     inputId = "sel_templateSchedule", 
+  #                     choices = choice)
+  # })
+  
   # Report Template - Event Observers -------------------------------
   
   observeEvent(
     input$rdo_template, 
     {
       oid <- as.numeric(input$rdo_template)
-      
+
       rv_Template$SelectedTemplate <- 
         rv_Template$Template[rv_Template$Template$OID == oid, ]
   
+      rv_Template$SelectedTemplateSchedule <- 
+        queryReportTemplateSchedule(parent_report_template = oid)
+      
+      choice <- rv_Schedule$Schedule$OID
+      names(choice) <- rv_Schedule$Schedule$ScheduleName
+      
+      sel <- rv_Template$SelectedTemplateSchedule$ParentSchedule
+      sel = choice[choice == sel]
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_templateSchedule", 
+                        choices = choice,
+                        selected = sel)
+
+      updateTextInput(session = session,
+                      inputId = "dttm_templateSchedule",
+                      value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
+                                     format = "%d-%b-%Y %H:%M:%S"))
+
+      updateTextInput(session = session,
+                      inputId = "dttm_templateIndexDateTime",
+                      value = format(rv_Template$SelectedTemplateSchedule$IndexDateTime,
+                                     format = "%d-%b-%Y %H:%M:%S"))
+      
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
 
       rv_Template$SelectedTemplateFooter <-
         queryReportTemplateFooter(parent_report_template = oid)
+      
+      rv_Template$SelectedTemplateSignature <- 
+        queryReportTemplateSignature(parent_report_template = oid)
+      
+      rv_Template$SelectedTemplateDistribution <- 
+        queryReportTemplateDistribution(parent_report_template = oid)
     }
   )
   
   observeEvent(input$btn_template_add, 
-               OE_btn_template_add(session = session, 
+               ..btn_template_add(session = session, 
                                    rv_Template = rv_Template, 
                                    output = output))
   
   observeEvent(input$btn_template_edit, 
-               OE_btn_template_edit(session = session, 
+               ..btn_template_edit(session = session,
+                                    output = output,
                                     rv_Template = rv_Template))
   
   observeEvent(input$btn_template_addEdit, 
-               OE_btn_template_add_edit(session = session, 
+               ..btn_template_add_edit(session = session, 
                                         rv_Template = rv_Template, 
                                         input = input, 
                                         current_user_oid = CURRENT_USER_OID(), 
                                         proxy = proxy_dt_template))
   
   observeEvent(input$sel_template_directory, 
-               OE_sel_template_directory(session = session, 
+               ..sel_template_directory(session = session, 
                                          input = input))
   
   observeEvent(input$sel_template_logo, 
-               OE_sel_template_logo(input = input, 
+               ..sel_template_logo(input = input, 
                                     output = output))
   
   observeEvent(input$btn_template_activate, 
-               OE_btn_template_activate_deactivate(activate = TRUE, 
+               ..btn_template_activate_deactivate(activate = TRUE, 
                                                    input = input, 
                                                    current_user_oid = CURRENT_USER_OID(), 
                                                    rv_Template = rv_Template, 
                                                    proxy = proxy_dt_template))
   
   observeEvent(input$btn_template_deactivate, 
-               OE_btn_template_activate_deactivate(activate = FALSE, 
+               ..btn_template_activate_deactivate(activate = FALSE, 
                                                    input = input, 
                                                    current_user_oid = CURRENT_USER_OID(), 
                                                    rv_Template = rv_Template, 
@@ -166,6 +207,49 @@ shinyServer(function(input, output, session){
       }
     })
   
+  # Report Template Schedule ----------------------------------------
+  # Report Template Schedule - Passive Observers --------------------
+  
+  observe({
+    toggleState(id = "btn_templateSchedule_edit", 
+                condition = USER_IS_REPORT_ADMIN() &&
+                  length(input$rdo_template) > 0)
+  })
+  
+  # Report Template Schedule - Event Observers ----------------------
+  
+  observeEvent(
+    input$btn_templateSchedule_edit, 
+    {
+      enable("sel_templateSchedule")
+      enable("dttm_templateSchedule")
+      enable("btn_templateSchedule_save")
+    }
+  )
+  
+  observeEvent(
+    input$btn_templateSchedule_save, 
+    {
+      addEditReportTemplateSchedule(
+        oid = rv_Template$SelectedTemplateSchedule$OID,
+        parent_report_template = as.numeric(input$rdo_template),
+        parent_schedule = as.numeric(input$sel_templateSchedule),
+        start_date = as.POSIXct(input$dttm_templateSchedule, 
+                                format = "%d-%b-%Y %H:%M", 
+                                tz = "UTC"),
+        index_date = as.POSIXct(input$dttm_templateIndexDate, 
+                                format = "%d-%b-%Y %H:%M", 
+                                tz = "UTC"),
+        is_active = TRUE, 
+        event_user = CURRENT_USER_OID()
+      )
+      
+      disable("sel_templateSchedule")
+      disable("dttm_templateSchedule")
+      disable("btn_templateSchedule_save")
+    }
+  )
+  
   # Report Template Layout ------------------------------------------
   # Report Template Layout - Passive Observers ----------------------
   
@@ -193,7 +277,7 @@ shinyServer(function(input, output, session){
                          inputId = "templateDisclaimer", 
                          choices = as.character(rv_Disclaimer$Disclaimer$OID), 
                          selected = as.character(Selected$OID), 
-                         names = rv_Disclaimer$Disclaimer$Title)
+                         names = rv_Disclaimer$Disclaimer$Disclaimer)
       
       toggleModal(session = session, 
                   modalId = "modal_templateDisclaimer_edit", 
@@ -201,68 +285,44 @@ shinyServer(function(input, output, session){
     }
   )
   
-  observeEvent(
-    input$templateDisclaimer_move_all_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_all_right")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_all_right"))
   
-  observeEvent(
-    input$templateDisclaimer_move_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_right")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_right"))
   
-  observeEvent(
-    input$templateDisclaimer_move_all_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_all_left")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_all_left"))
   
-  observeEvent(
-    input$templateDisclaimer_move_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_left")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_left"))
   
-  observeEvent(
-    input$templateDisclaimer_move_up, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_up")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_up"))
   
-  observeEvent(
-    input$templateDisclaimer_move_down, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateDisclaimer", 
-                        input = input,
-                        action = "move_down")
-    }
-  )
+  observeEvent(input$templateDisclaimer_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDisclaimer", 
+                                 input = input,
+                                 action = "move_down"))
   
   observeEvent(input$btn_templateDisclaimer_addEdit,
-               OE_btn_templateDisclaimer_addEdit(session = session,
+               ..btn_templateDisclaimer_addEdit(session = session,
                                                  input = input, 
                                                  rv_Template = rv_Template,
                                                  current_user_oid = CURRENT_USER_OID(),
@@ -280,7 +340,7 @@ shinyServer(function(input, output, session){
                          inputId = "templateFooter", 
                          choices = as.character(rv_Footer$Footer$OID), 
                          selected = as.character(Selected$OID), 
-                         names = rv_Footer$Footer$Title)
+                         names = rv_Footer$Footer$Footer)
       
       toggleModal(session = session, 
                   modalId = "modal_templateFooter_edit", 
@@ -288,68 +348,44 @@ shinyServer(function(input, output, session){
     }
   )
   
-  observeEvent(
-    input$templateFooter_move_all_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_all_right")
-    }
-  )
+  observeEvent(input$templateFooter_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_all_right"))
   
-  observeEvent(
-    input$templateFooter_move_right, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_right")
-    }
-  )
+  observeEvent(input$templateFooter_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_right"))
   
-  observeEvent(
-    input$templateFooter_move_all_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_all_left")
-    }
-  )
+  observeEvent(input$templateFooter_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_all_left"))
   
-  observeEvent(
-    input$templateFooter_move_left, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_left")
-    }
-  )
+  observeEvent(input$templateFooter_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_left"))
   
-  observeEvent(
-    input$templateFooter_move_up, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_up")
-    }
-  )
+  observeEvent(input$templateFooter_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_up"))
   
-  observeEvent(
-    input$templateFooter_move_down, 
-    {
-      updateMultiSelect(session = session, 
-                        inputId = "templateFooter", 
-                        input = input,
-                        action = "move_down")
-    }
-  )
+  observeEvent(input$templateFooter_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateFooter", 
+                                 input = input,
+                                 action = "move_down"))
   
   observeEvent(input$btn_templateFooter_addEdit,
-               OE_btn_templateFooter_addEdit(session = session,
+               ..btn_templateFooter_addEdit(session = session,
                                              input = input, 
                                              rv_Template = rv_Template,
                                              current_user_oid = CURRENT_USER_OID(),
@@ -394,13 +430,231 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templateSignature_edit, 
     {
+      Selected <- rv_Template$SelectedTemplateSignature
+      Selected <- Selected[order(Selected$Order), ]
+      Selected <- Selected[Selected$IsActive, ]
+      
+      replaceMultiSelect(session = session, 
+                         inputId = "templateSignature", 
+                         choices = as.character(rv_Roles$Roles$OID), 
+                         selected = as.character(Selected$OID), 
+                         names = rv_Roles$Roles$RoleName)
+      
       toggleModal(session = session, 
                   modalId = "modal_templateSignature_edit", 
                   toggle = "open")
     }
   )
   
+  observeEvent(input$templateSignature_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_all_right"))
+  
+  observeEvent(input$templateSignature_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_right"))
+  
+  observeEvent(input$templateSignature_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_all_left"))
+  
+  observeEvent(input$templateSignature_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_left"))
+  
+  observeEvent(input$templateSignature_move_up, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_up"))
+  
+  observeEvent(input$templateSignature_move_down, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateSignature", 
+                                 input = input,
+                                 action = "move_down"))
+  
+  observeEvent(input$btn_templateSignature_addEdit,
+               ..btn_templateSignature_addEdit(session = session,
+                                                input = input, 
+                                                rv_Template = rv_Template,
+                                                current_user_oid = CURRENT_USER_OID(),
+                                                proxy = proxy_dt_templateSignature))
+  
+  
   # Report Template Signature - Output ------------------------------
+  
+  output$dt_templateSignature <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplateSignature)
+      
+      makeTemplateSignatureData(rv_Template$SelectedTemplateSignature, 
+                                rv_Roles$Roles) %>% 
+        RM_datatable()
+    })
+  
+  proxy_dt_templateSignature <- DT::dataTableProxy("dt_templateSignature")
+  
+  
+  # Report Template Distribution ------------------------------------
+  # Report Template Distribution - Passive Observers ----------------
+  
+  observe({
+    toggleState(id = "btn_templateDistribution_edit", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
+  })
+  
+  # Report Template Distribution - Event Observers ------------------
+  
+  observeEvent(
+    input$btn_templateDistribution_edit, 
+    {
+      Selected <- rv_Template$SelectedTemplateDistribution
+      SelectedUser <- Selected[!is.na(Selected$ParentUser), ]
+      SelectedUser <- SelectedUser[SelectedUser$IsActive, ]
+      
+      SelectedRole <- Selected[!is.na(Selected$ParentRole), ]
+      SelectedRole <- SelectedRole[SelectedRole$IsActive, ]
+      
+      
+      replaceMultiSelect(session = session,
+                         inputId = "templateDistributionUser",
+                         choices = as.character(rv_User$User$OID),
+                         selected = as.character(Selected$ParentUser),
+                         names = sprintf("%s, %s (%s)", 
+                                         rv_User$User$LastName, 
+                                         rv_User$User$FirstName, 
+                                         rv_User$User$LoginId))
+      
+      replaceMultiSelect(session = session,
+                         inputId = "templateDistributionRole",
+                         choices = as.character(rv_Roles$Roles$OID),
+                         selected = as.character(Selected$ParentUser),
+                         names = rv_Roles$Roles$RoleName)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_templateDistribution_edit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(input$templateDistributionUser_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionUser", 
+                                 input = input,
+                                 action = "move_all_right"))
+  
+  observeEvent(input$templateDistributionUser_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionUser", 
+                                 input = input,
+                                 action = "move_right"))
+  
+  observeEvent(input$templateDistributionUser_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionUser", 
+                                 input = input,
+                                 action = "move_all_left"))
+  
+  observeEvent(input$templateDistributionUser_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionUser", 
+                                 input = input,
+                                 action = "move_left"))
+  
+  observeEvent(input$templateDistributionRole_move_all_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionRole", 
+                                 input = input,
+                                 action = "move_all_right"))
+  
+  observeEvent(input$templateDistributionRole_move_right, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionRole", 
+                                 input = input,
+                                 action = "move_right"))
+  
+  observeEvent(input$templateDistributionRole_move_all_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionRole", 
+                                 input = input,
+                                 action = "move_all_left"))
+  
+  observeEvent(input$templateDistributionRole_move_left, 
+               updateMultiSelect(session = session, 
+                                 inputId = "templateDistributionRole", 
+                                 input = input,
+                                 action = "move_left"))
+  
+  observeEvent(input$btn_templateDistribution_addEdit, 
+               {
+                 DistributionUser <- jsonlite::fromJSON(input$templateDistributionUser)
+                 InputUser <- DistributionUser[c("choices", "selected")]
+                 names(InputUser) <- c("ParentUser", "IsActive")
+                 InputUser$ParentRole <- rep(NA_real_, nrow(InputUser))
+                 InputUser <- merge(InputUser, 
+                                    rv_Template$SelectedTemplateDistribution[c("OID", "ParentUser", "ParentReportTemplate")], 
+                                    by = c("ParentUser"),
+                                    all.x = TRUE, 
+                                    all.y = TRUE)
+                 InputUser <- InputUser[(InputUser$IsActive & is.na(InputUser$ParentReportTemplate)) | # New records
+                                          !is.na(InputUser$ParentReportTemplate), ]                    # Existing records
+                 
+                 DistributionRole <- jsonlite::fromJSON(input$templateDistributionRole)
+                 InputRole <- DistributionRole[c("choices", "selected")]
+                 names(InputRole) <- c("ParentRole", "IsActive")
+                 InputRole$ParentUser <- rep(NA_real_, nrow(InputRole))
+                 InputRole <- merge(InputRole, 
+                                rv_Template$SelectedTemplateDistribution[c("OID", "ParentRole", "ParentReportTemplate")], 
+                                by = c("ParentRole"),
+                                all.x = TRUE, 
+                                all.y = TRUE)
+                 InputRole <- InputRole[(InputRole$IsActive & is.na(InputRole$ParentReportTemplate)) | # New records
+                                          !is.na(InputRole$ParentReportTemplate), ]                    # Existing records
+              
+                 Input <- rbind(InputUser[c("OID", "ParentUser", "ParentRole", "IsActive", "ParentReportTemplate")], 
+                                InputRole[c("OID", "ParentUser", "ParentRole", "IsActive", "ParentReportTemplate")])
+
+                 for(i in seq_len(nrow(Input))){
+                   addEditReportTemplateDistribution(
+                     oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
+                     parent_report_template = as.numeric(input$rdo_template),
+                     parent_user = if (is.na(Input$ParentUser[i])) numeric(0) else as.numeric(Input$ParentUser[i]),
+                     parent_role = if (is.na(Input$ParentRole[i])) numeric(0) else as.numeric(Input$ParentRole[i]),
+                     is_active = isTRUE(Input$IsActive[i]),
+                     event_user = CURRENT_USER_OID()
+                   )
+                 }
+                 New <- queryReportTemplateDistribution(parent_report_template = as.numeric(input$rdo_template))
+                 rv_Template$SelectedTemplateDistribution <- New
+
+                 toggleModal(session = session, 
+                             modalId = "modal_templateDistribution_edit", 
+                             toggle = "close")
+               })
+  
+  
+  # Report Template Distribution - Output ---------------------------
+  
+  output$dt_templateDistribution <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplateDistribution)
+      
+      makeTemplateDistributionData(as.numeric(input$rdo_template)) %>% 
+        RM_datatable()
+    })
+  
+  proxy_dt_templateSignature <- DT::dataTableProxy("dt_templateSignature")
+  
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
   
@@ -438,33 +692,33 @@ shinyServer(function(input, output, session){
   # Schedule - Event Observers --------------------------------------
   
   observeEvent(input$rdo_schedule, 
-               OE_rdo_schedule(rv_Schedule, 
+               ..rdo_schedule(rv_Schedule, 
                                input))
   
   observeEvent(input$btn_schedule_addSchedule, 
-               OE_btn_schedule_addSchedule(session, 
+               ..btn_schedule_addSchedule(session, 
                                            rv_Schedule))
   
   observeEvent(input$btn_schedule_editSchedule,
-               OE_btn_schedule_editSchedule(session, 
+               ..btn_schedule_editSchedule(session, 
                                             rv_Schedule))
   
   observeEvent(input$btn_schedule_addEditSchedule,
-               OE_btn_schedule_addEditSchedule(session = session, 
+               ..btn_schedule_addEditSchedule(session = session, 
                                                rv_Schedule = rv_Schedule, 
                                                input = input, 
                                                current_user_oid = CURRENT_USER_OID(), 
                                                proxy = proxy_dt_schedule))
   
   observeEvent(input$btn_schedule_deactivate, 
-               OE_btn_schedule_activateDeactivate(activate = FALSE, 
+               ..btn_schedule_activateDeactivate(activate = FALSE, 
                                                   rv_Schedule = rv_Schedule, 
                                                   input = input, 
                                                   current_user_oid = CURRENT_USER_OID(), 
                                                   proxy = proxy_dt_schedule))
   
   observeEvent(input$btn_schedule_activate, 
-               OE_btn_schedule_activateDeactivate(activate = TRUE, 
+               ..btn_schedule_activateDeactivate(activate = TRUE, 
                                                   rv_Schedule = rv_Schedule, 
                                                   input = input, 
                                                   current_user_oid = CURRENT_USER_OID(), 
@@ -530,33 +784,33 @@ shinyServer(function(input, output, session){
   # Date Reporting Format - Event Observers -------------------------
   
   observeEvent(input$rdo_dateFormat, 
-               OE_rdo_dateFormat(rv_DateFormat = rv_DateFormat, 
+               ..rdo_dateFormat(rv_DateFormat = rv_DateFormat, 
                                  input = input))
   
   observeEvent(input$btn_dateFormat_addFormat, 
-               OE_dateFormat_addFormat(session = session, 
+               ..dateFormat_addFormat(session = session, 
                                        rv_DateFormat = rv_DateFormat))
   
   observeEvent(input$btn_dateFormat_editFormat, 
-               OE_btn_dateFormat_editFormat(session = session, 
+               ..btn_dateFormat_editFormat(session = session, 
                                             rv_DateFormat = rv_DateFormat))
   
   observeEvent(input$btn_dateFormat_addEditFormat, 
-               OE_btn_dateFormat_addEditFormat(session = session, 
+               ..btn_dateFormat_addEditFormat(session = session, 
                                                rv_DateFormat = rv_DateFormat, 
                                                input = input, 
                                                current_user_oid = CURRENT_USER_OID(), 
                                                proxy = proxy_dt_dateFormat))
   
   observeEvent(input$btn_dateFormat_activate, 
-               OE_btn_dateFormat_activateDeactivate(activate = TRUE, 
+               ..btn_dateFormat_activateDeactivate(activate = TRUE, 
                                                     rv_DateFormat = rv_DateFormat, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
                                                     proxy = proxy_dt_dateFormat))
   
   observeEvent(input$btn_dateFormat_deactivate, 
-               OE_btn_dateFormat_activateDeactivate(activate = FALSE, 
+               ..btn_dateFormat_activateDeactivate(activate = FALSE, 
                                                     rv_DateFormat = rv_DateFormat, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
@@ -621,35 +875,35 @@ shinyServer(function(input, output, session){
   # Disclaimer - Event Observers ------------------------------------
   
   observeEvent(input$rdo_disclaimer, 
-               OE_rdo_disclaimer(rv_Disclaimer, 
-                                 input))
+               ..rdo_disclaimer(rv_Disclaimer, 
+                                input))
   
   observeEvent(input$btn_disclaimer_add, 
-               OE_btn_disclaimer_add(session = session, 
+               ..btn_disclaimer_add(session = session, 
+                                    rv_Disclaimer = rv_Disclaimer, 
+                                    input = input))
+  
+  observeEvent(input$btn_disclaimer_edit, 
+               ..btn_disclaimer_edit(session = session, 
                                      rv_Disclaimer = rv_Disclaimer, 
                                      input = input))
   
-  observeEvent(input$btn_disclaimer_edit, 
-               OE_btn_disclaimer_edit(session = session, 
-                                      rv_Disclaimer = rv_Disclaimer, 
-                                      input = input))
-  
   observeEvent(input$btn_disclaimer_addEditDisclaimer, 
-               OE_btn_disclaimer_addEditDisclaimer(session = session, 
-                                                   rv_Disclaimer = rv_Disclaimer, 
-                                                   input = input, 
-                                                   current_user_oid = CURRENT_USER_OID(), 
-                                                   proxy = proxy_dt_disclaimer))
+               ..btn_disclaimer_addEditDisclaimer(session = session, 
+                                                  rv_Disclaimer = rv_Disclaimer, 
+                                                  input = input, 
+                                                  current_user_oid = CURRENT_USER_OID(), 
+                                                  proxy = proxy_dt_disclaimer))
   
   observeEvent(input$btn_disclaimer_activate,
-               OE_btn_disclaimer_activateDeactivate(activate = TRUE, 
+               ..btn_disclaimer_activateDeactivate(activate = TRUE, 
                                                     rv_Disclaimer = rv_Disclaimer, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
                                                     proxy = proxy_dt_disclaimer))
   
   observeEvent(input$btn_disclaimer_deactivate, 
-               OE_btn_disclaimer_activateDeactivate(activate = FALSE, 
+               ..btn_disclaimer_activateDeactivate(activate = FALSE, 
                                                     rv_Disclaimer = rv_Disclaimer, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
@@ -714,35 +968,35 @@ shinyServer(function(input, output, session){
   # Footer - Event Observers ----------------------------------------
   
   observeEvent(input$rdo_footer, 
-               OE_rdo_footer(rv_Footer, 
+               ..rdo_footer(rv_Footer, 
                                  input))
   
   observeEvent(input$btn_footer_add, 
-               OE_btn_footer_add(session = session, 
+               ..btn_footer_add(session = session, 
                                      rv_Footer = rv_Footer, 
                                      input = input))
   
   observeEvent(input$btn_footer_edit, 
-               OE_btn_footer_edit(session = session, 
+               ..btn_footer_edit(session = session, 
                                       rv_Footer = rv_Footer, 
                                       input = input))
   
   observeEvent(input$btn_footer_addEditFooter, 
-               OE_btn_footer_addEditFooter(session = session, 
+               ..btn_footer_addEditFooter(session = session, 
                                                    rv_Footer = rv_Footer, 
                                                    input = input, 
                                                    current_user_oid = CURRENT_USER_OID(), 
                                                    proxy = proxy_dt_footer))
   
   observeEvent(input$btn_footer_activate,
-               OE_btn_footer_activateDeactivate(activate = TRUE, 
+               ..btn_footer_activateDeactivate(activate = TRUE, 
                                                     rv_Footer = rv_Footer, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
                                                     proxy = proxy_dt_footer))
   
   observeEvent(input$btn_footer_deactivate, 
-               OE_btn_footer_activateDeactivate(activate = FALSE, 
+               ..btn_footer_activateDeactivate(activate = FALSE, 
                                                     rv_Footer = rv_Footer, 
                                                     input = input, 
                                                     current_user_oid = CURRENT_USER_OID(), 
@@ -796,22 +1050,22 @@ shinyServer(function(input, output, session){
   # Logo - Event Observers ------------------------------------------
   
   observeEvent(input$rdo_logo, 
-               OE_rdo_logo(rv_Logo, input))
+               ..rdo_logo(rv_Logo, input))
   
   observeEvent(input$btn_logo_add, 
-               OE_btn_logo_add(session = session, 
+               ..btn_logo_add(session = session, 
                                rv_Logo = rv_Logo))
   
   observeEvent(input$btn_logo_edit,
-               OE_btn_logo_edit(session = session, 
+               ..btn_logo_edit(session = session, 
                                 rv_Logo = rv_Logo))
   
   observeEvent(input$file_logo_add,
-               OE_file_logo_add(session = session, 
+               ..file_logo_add(session = session, 
                                 input = input))
   
   observeEvent(input$btn_logo_addEdit, 
-               OE_btn_logo_addEdit(session = session, 
+               ..btn_logo_addEdit(session = session, 
                                    rv_Logo = rv_Logo, 
                                    input = input, 
                                    proxy = proxy_dt_logo))
@@ -837,7 +1091,7 @@ shinyServer(function(input, output, session){
         } else {
           File <- queryFromFileArchive(rv_Logo$SelectedLogo$OID, 
                                        file_dir = tempdir())
-          File$SavedTo
+          if (nrow(File)) File$SavedTo
         }
       
       list(src = filepath, 
@@ -888,20 +1142,20 @@ shinyServer(function(input, output, session){
   # Roles - Event Observers -----------------------------------------
   
   observeEvent(input$rdo_role, 
-               OE_rdo_role(rv_Roles = rv_Roles, 
+               ..rdo_role(rv_Roles = rv_Roles, 
                            input    = input))
   
   observeEvent(input$btn_role_add,
-               OE_btn_role_add(session  = session, 
+               ..btn_role_add(session  = session, 
                                rv_Roles = rv_Roles))
   
   observeEvent(input$btn_role_edit, 
-               OE_brn_role_edit(session  = session, 
+               ..btn_role_edit(session  = session, 
                                 rv_Roles = rv_Roles, 
                                 input    = input))
   
   observeEvent(input$btn_role_addEditRole, 
-               OE_btn_role_addEditRole(session          = session, 
+               ..btn_role_addEditRole(session          = session, 
                                        rv_Roles         = rv_Roles, 
                                        input            = input, 
                                        is_edit          = rv_Roles$AddEdit == "Edit", 
@@ -910,21 +1164,21 @@ shinyServer(function(input, output, session){
                                        proxy            = proxy_dt_role))
   
   observeEvent(input$btn_role_activate, 
-               OE_btn_role_activateDeactivate(active           = TRUE, 
+               ..btn_role_activateDeactivate(active           = TRUE, 
                                               rv_Roles         = rv_Roles,
                                               input            = input, 
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
   observeEvent(input$btn_role_deactivate, 
-               OE_btn_role_activateDeactivate(active           = FALSE, 
+               ..btn_role_activateDeactivate(active           = FALSE, 
                                               rv_Roles         = rv_Roles,
                                               input            = input, 
                                               current_user_oid = CURRENT_USER_OID(), 
                                               proxy            = proxy_dt_role))
   
   observeEvent(input$btn_role_viewEdit, 
-               OE_btn_role_viewEdit(rv_User  = rv_User, 
+               ..btn_role_viewEdit(rv_User  = rv_User, 
                                     rv_Roles = rv_Roles, 
                                     session  = session))
   
@@ -955,7 +1209,7 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_userRole_save, 
     {
-      OE_btn_userRole_save(input = input, 
+      ..btn_userRole_save(input = input, 
                            current_user_oid = CURRENT_USER_OID())
     })
   
@@ -1026,21 +1280,21 @@ shinyServer(function(input, output, session){
   # User - Event Observer -------------------------------------------
   
   observeEvent(input$rdo_user, 
-               OE_rdo_user(rv_User = rv_User, 
+               ..rdo_user(rv_User = rv_User, 
                                  input         = input))
   
   observeEvent(input$btn_user_add, 
-               OE_btn_user_add(session       = session, 
+               ..btn_user_add(session       = session, 
                                      rv_User = rv_User, 
                                      input         = input))
   
   observeEvent(input$btn_user_edit, 
-               OE_btn_user_edit(session       = session, 
+               ..btn_user_edit(session       = session, 
                                       rv_User = rv_User, 
                                       input         = input))
   
   observeEvent(input$btn_user_addEditUser,
-               OE_btn_user_addEditUser(session          = session, 
+               ..btn_user_addEditUser(session          = session, 
                                                    rv_User    = rv_User, 
                                                    input            = input, 
                                                    current_user_oid = CURRENT_USER_OID(), 
@@ -1049,14 +1303,14 @@ shinyServer(function(input, output, session){
                                                    this_login_id    = rv_User$SelectedUser$LoginId))
   
   observeEvent(input$btn_user_activate, 
-               OE_btn_user_activate(active           = TRUE, 
+               ..btn_user_activate(active           = TRUE, 
                                           rv_User    = rv_User, 
                                           input            = input, 
                                           current_user_oid = CURRENT_USER_OID(), 
                                           proxy            = proxy_dt_user))
   
   observeEvent(input$btn_user_deactivate, 
-               OE_btn_user_activate(active           = FALSE, 
+               ..btn_user_activate(active           = FALSE, 
                                     rv_User          = rv_User, 
                                     input            = input, 
                                     current_user_oid = CURRENT_USER_OID(), 
@@ -1087,5 +1341,7 @@ shinyServer(function(input, output, session){
     })
   
   # Stop App when Session Ends --------------------------------------
-  session$onSessionEnded(function(){ stopApp() })
+  session$onSessionEnded(function(){ 
+    stopApp()
+  })
 })

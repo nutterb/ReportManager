@@ -16,7 +16,6 @@
 #' @export
 
 addEditFooter <- function(oid = numeric(0),
-                          title,
                           footer, 
                           is_active = TRUE, 
                           event_user){
@@ -28,12 +27,8 @@ addEditFooter <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
-  checkmate::assertString(x = title, 
-                          max.chars = 100, 
-                          add = coll)
-  
   checkmate::assertString(x = footer, 
-                          max.chars = 2000, 
+                          max.chars = 200, 
                           add = coll)
   
   checkmate::assertLogical(x = is_active, 
@@ -56,20 +51,17 @@ addEditFooter <- function(oid = numeric(0),
   
   event_time <- Sys.time()
   
-  AddEditData <- data.frame(Title = title, 
-                            Footer = footer, 
+  AddEditData <- data.frame(Footer = footer, 
                             IsActive = as.numeric(is_active))
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 4), 
+    data.frame(EventUser = rep(event_user, 3), 
                EventType = c("Add", 
-                             "EditTitle",
                              "EditFooter", 
                              if (is_active) "Activate" else "Deactivate"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 4), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 3), 
                NewValue = c("", 
-                            title,
                             footer,
                             is_active))
   
@@ -109,8 +101,7 @@ addEditFooter <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisFooter <- queryFooter(oid)
   
-  CurrentValue <- c(ThisFooter$Title, 
-                    ThisFooter$Footer, 
+  CurrentValue <- c(ThisFooter$Footer, 
                     ThisFooter$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]

@@ -16,6 +16,10 @@
 #'   offset overlap. One of `c("None", "Minute", "Hour", "Day", "Week", "Month", "Year")`.
 #' @param is_active `logical(1)`. When `TRUE`, the schedule is marked as 
 #'   active. 
+#' @param is_period_to_date `logical(1)`. When `TRUE`, the schedule will take
+#'   the form of a "period-to-date" (year-to-date, for example). These schedules
+#'   may have multiple instances with the same start date but end dates that
+#'   progress throughout the periodicity.
 #' @param event_user `integerish(1)`. the User.OID of the user performing 
 #'   the action. 
 #'   
@@ -28,6 +32,7 @@ addEditSchedule <- function(oid = numeric(0),
                             offset_overlap = 0, 
                             offset_overlap_unit = "Day", 
                             is_active = TRUE, 
+                            is_period_to_date = FALSE,
                             event_user){
   # Argument Validation ---------------------------------------------
   
@@ -63,6 +68,10 @@ addEditSchedule <- function(oid = numeric(0),
                            len = 1, 
                            add = coll)
   
+  checkmate::assertLogical(x = is_period_to_date, 
+                           len = 1, 
+                           add = coll)
+  
   checkmate::assertIntegerish(x = event_user, 
                               len = 1, 
                               add = coll)
@@ -84,19 +93,22 @@ addEditSchedule <- function(oid = numeric(0),
                             OffsetOverlap = offset_overlap, 
                             OffsetOverlapUnit = offset_overlap_unit, 
                             IsActive = as.numeric(is_active), 
+                            IsPeriodToDate = as.numeric(is_period_to_date),
                             stringsAsFactors = FALSE)
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 5), 
+    data.frame(EventUser = rep(event_user, 6), 
                EventType = c("Add", 
-                             if (is_active) "Activate" else "Deactivate", 
+                             if (is_active) "Activate" else "Deactivate",
+                             if (is_period_to_date) "SetIsPeriodToDateTrue" else "SetIsPeriodToDateFalse",
                              "EditScheduleName", 
                              "EditFrequency", 
                              "EditOverlap"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 5), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 6), 
                NewValue = c("", 
                             is_active, 
+                            is_period_to_date,
                             schedule_name, 
                             sprintf("%s %s", frequency, frequency_unit), 
                             sprintf("%s %s", offset_overlap, offset_overlap_unit)), 
@@ -107,7 +119,7 @@ addEditSchedule <- function(oid = numeric(0),
     OID <- insertRecord(AddEditData, 
                         table_name = "Schedule", 
                         return_oid = TRUE)
-    
+
     EventList$ParentSchedule <- rep(OID$OID, 
                                     nrow(EventList))
   } else {
@@ -141,7 +153,8 @@ addEditSchedule <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisSchedule <- querySchedule(oid)
   
-  CurrentValue <- c(ThisSchedule$IsActive, 
+  CurrentValue <- c(ThisSchedule$IsActive,
+                    ThisSchedule$IsPeriodToDate,
                     ThisSchedule$ScheduleName, 
                     sprintf("%s %s", ThisSchedule$Frequency, ThisSchedule$FrequencyUnit), 
                     sprintf("%s %s", ThisSchedule$OffsetOverlap, ThisSchedule$OffsetOverlapUnit))

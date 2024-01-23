@@ -11,6 +11,8 @@
 #'   object being associated with a disclaimer. 
 #' @param parent_disclaimer `integerish(1)`. The OID of the Disclaimer
 #'   object being associated with the ReportTemplate.
+#' @param order `integerish(1)`. The ordered position in which the 
+#'   disclaimer is displayed on the report.
 #' @param is_active `logical(1)`. When `TRUE`, the association will be marked
 #'   as active. 
 #' @param event_user `integerish(1)`. The OID of the User performing the action.

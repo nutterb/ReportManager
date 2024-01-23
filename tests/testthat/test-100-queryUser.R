@@ -11,37 +11,33 @@ test_that(
   }
 )
 
-# Report Users for SQL Server ---------------------------------------
+# Report Users Functionality ----------------------------------------
 
-options(RM_sql_flavor = "sql_server")
-
-test_that(
-  "queryUser works in SQL Server", 
-  {
-    skip_if_not(SQL_SERVER_READY, 
-                SQL_SERVER_READY_MESSAGE)
-    
-    User <- queryUser()
-    
-    expect_data_frame(User, 
-                      ncols = 7)
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+    purgeReportManagerDatabase()
+    initializeReportManagerDatabase(SQL_FILE[flavor], 
+                                    last_name = "Doe", 
+                                    first_name = "Jane", 
+                                    login_id = "jdoe", 
+                                    email = "jdoe@domain.com")
   }
-)
-
-
-# Report Users for SQLite -------------------------------------------
-
-options(RM_sql_flavor = "sqlite")
-
-test_that(
-  "queryUser works in SQLite", 
-  {
-    skip_if_not(SQLITE_READY, 
-                SQLITE_READY_MESSAGE)
-    
-    User <- queryUser()
-    
-    expect_data_frame(User, 
-                      ncols = 7)
-  }
-)
+  
+  test_that(
+    "queryUser works in SQL Server", 
+    {
+      skip_if_not(.ready, 
+                  .message)
+      
+      User <- queryUser()
+      
+      expect_data_frame(User, 
+                        ncols = 7)
+    }
+  )
+}
