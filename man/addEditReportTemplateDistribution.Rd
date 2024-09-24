@@ -7,9 +7,8 @@
 addEditReportTemplateDistribution(
   oid = numeric(0),
   parent_report_template,
-  parent_user,
-  parent_role,
-  order,
+  parent_user = numeric(0),
+  parent_role = numeric(0),
   is_active = TRUE,
   event_user
 )
@@ -29,13 +28,13 @@ may be given.}
 designated as a recipient. Only one of \code{parent_user} or \code{parent_role}
 may be given.}
 
-\item{order}{\code{integerish(1)}. The ordered position in which the
-signature is displayed on the report.}
-
 \item{is_active}{\code{logical(1)}. When \code{TRUE}, the association will be marked
 as active.}
 
 \item{event_user}{\code{integerish(1)}. The OID of the User performing the action.}
+
+\item{order}{\code{integerish(1)}. The ordered position in which the
+signature is displayed on the report.}
 }
 \description{
 Enables the user to add ReportTemplateDistribution objects

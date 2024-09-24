@@ -48,6 +48,7 @@ querySchedule <- function(oid = numeric(0)){
   
   if (getOption("RM_sql_flavor") == "sqlite"){
     Schedule$IsActive <- as.logical(Schedule$IsActive)
+    Schedule$IsPeriodToDate <- as.logical(Schedule$IsPeriodToDate)
   }
   
   Schedule

@@ -9,6 +9,7 @@ addEditReportTemplateSchedule(
   parent_report_template,
   parent_schedule,
   start_date,
+  index_date = NA_character_,
   is_active = TRUE,
   event_user
 )
@@ -25,6 +26,9 @@ object being associated with the ReportTemplate.}
 
 \item{start_date}{\code{POSIXct(1)}. The date/time for start of the the
 first instance of the report.}
+
+\item{index_date}{\code{POSIXct(1)}. The date/time to index the start of
+period-to-date style reports.}
 
 \item{is_active}{\code{logical(1)}. When \code{TRUE}, the association will be marked
 as active.}

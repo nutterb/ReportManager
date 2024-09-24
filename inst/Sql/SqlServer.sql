@@ -498,3 +498,44 @@ CREATE TABLE dbo.[ReportTemplateDistributionEvent] (
                                                                     'Activate', 
                                                                     'Deactivate'))
 );
+
+/* ReportTemplatePermission ****************************************/
+
+CREATE TABLE dbo.[ReportTemplatePermission](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplate] INT NOT NULL, 
+  [ParentRole] INT NOT NULL, 
+  [CanView] BIT DEFAULT 0, 
+  [CanAddNotes] BIT DEFAULT 0, 
+  [CanEditNarrative] BIT DEFAULT 0, 
+  [CanSubmit] BIT DEFAULT 0, 
+  [CanStartRevision] BIT DEFAULT 0, 
+  [IsActive] BIT DEFAULT 0, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)  
+);
+
+/* ReportTemplatePermissionEvent ***********************************/
+
+CREATE TABLE dbo.[ReportTemplatePermissionEvent] (
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportTemplatePermission] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventType] VARCHAR(25) NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportTemplatePermission) REFERENCES [ReportTemplatePermission](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportTemplatePermissionEventType CHECK (EventType IN ('Add', 
+                                                                    'Activate', 
+                                                                    'Deactivate', 
+                                                                    'SetCanView', 
+                                                                    'SetCanAddNotes', 
+                                                                    'SetCanEditNarrative', 
+                                                                    'SetCanSubmit', 
+                                                                    'SetCanStartRevision'))
+);
