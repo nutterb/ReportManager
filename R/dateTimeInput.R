@@ -78,7 +78,7 @@ dateTimeInput <- function(inputId,
   }
   
   shiny::tagList(
-              shiny::p(label, style = "font-weight:bold"),
+              shiny::p(label, id = sprintf("%s-label", inputId), style = "font-weight:bold"),
               shiny::tags$input(type = "text", name = inputId, id = inputId, ...),
               shiny::tags$script(paste0("$(function() {
                               $('input[name=\"", inputId, "\"]').daterangepicker({

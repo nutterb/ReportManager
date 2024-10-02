@@ -12,6 +12,7 @@ addEditSchedule(
   offset_overlap = 0,
   offset_overlap_unit = "Day",
   is_active = TRUE,
+  is_period_to_date = FALSE,
   event_user
 )
 }
@@ -34,6 +35,11 @@ offset overlap. One of \code{c("None", "Minute", "Hour", "Day", "Week", "Month",
 
 \item{is_active}{\code{logical(1)}. When \code{TRUE}, the schedule is marked as
 active.}
+
+\item{is_period_to_date}{\code{logical(1)}. When \code{TRUE}, the schedule will take
+the form of a "period-to-date" (year-to-date, for example). These schedules
+may have multiple instances with the same start date but end dates that
+progress throughout the periodicity.}
 
 \item{event_user}{\code{integerish(1)}. the User.OID of the user performing
 the action.}

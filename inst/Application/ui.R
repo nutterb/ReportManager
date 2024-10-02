@@ -33,6 +33,29 @@ dashboardPage(
     MODAL_USER_ROLE,
     MODAL_USER,
     
+    bsModal(
+      id = "modal_templatePermission_addEdit",
+      title = "Edit Template Permissions",
+      trigger = "trg_none",
+      size = "large",
+
+      selectInput(inputId = "sel_templatePermissionRole",
+                  label = "Role", 
+                  choices = character(0)),
+
+      checkboxGroupInput(inputId = "chkgrp_templatePermission",
+                         label = "Permissions for Role",
+                         choices = c("View" = "CanView",
+                                     "Add Notes" = "CanAddNotes",
+                                     "Edit Narrative" = "CanEditNarrative",
+                                     "Submit" = "CanSubmit",
+                                     "Start Revision" = "CanStartRevision"),
+                         selected = "CanView"),
+
+      actionButton(inputId = "btn_saveTemplatePermission",
+                   label = "Save")
+    ),
+    
     # Menu Pages ----------------------------------------------------
     
     # Generate a Report ---------------------------------------------

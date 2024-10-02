@@ -19,6 +19,7 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
                            selected = character(0))),
       disabled(dateTimeInput(inputId = "dttm_templateSchedule", 
                              label = "Schedule Start Time")),
+      br(),br(),
       disabled(dateTimeInput(inputId = "dttm_templateIndexDateTime", 
                              label = "Index Start Time (Period-to-date reporting)")),
       br(),
@@ -59,6 +60,10 @@ UI_TAB_REPORT_TEMPLATE_PAGE <-
                    activate = FALSE)
     ),
     tabPanel(
-      title = "Permissions"
+      title = "Permissions", 
+      RM_tabLayout("templatePermission", 
+                   add = TRUE, 
+                   edit = TRUE, 
+                   activate = FALSE)
     )
   )

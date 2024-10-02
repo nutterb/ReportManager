@@ -109,15 +109,17 @@ shinyServer(function(input, output, session){
                         choices = choice,
                         selected = sel)
 
+      print(rv_Template$SelectedTemplateSchedule$StartDateTime)
+      print(class(rv_Template$SelectedTemplateSchedule$StartDateTime))
       updateTextInput(session = session,
                       inputId = "dttm_templateSchedule",
                       value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
-                                     format = "%d-%b-%Y %H:%M:%S"))
+                                     format = "%d-%b-%Y %H:%M"))
 
       updateTextInput(session = session,
                       inputId = "dttm_templateIndexDateTime",
                       value = format(rv_Template$SelectedTemplateSchedule$IndexDateTime,
-                                     format = "%d-%b-%Y %H:%M:%S"))
+                                     format = "%d-%b-%Y %H:%M"))
       
       rv_Template$SelectedTemplateDisclaimer <- 
         queryReportTemplateDisclaimer(parent_report_template = oid)
@@ -215,6 +217,16 @@ shinyServer(function(input, output, session){
                 condition = USER_IS_REPORT_ADMIN() &&
                   length(input$rdo_template) > 0)
   })
+
+  observe({
+    sched <- input$sel_templateSchedule
+    ThisSchedule <- rv_Schedule$Schedule[rv_Schedule$Schedule$OID == as.numeric(sched), ]
+
+    toggle(id = "dttm_templateIndexDateTime", 
+           condition = isTRUE(ThisSchedule$IsPeriodToDate))
+    toggle(id = "dttm_templateIndexDateTime-label", 
+           condition = isTRUE(ThisSchedule$IsPeriodToDate))
+  })
   
   # Report Template Schedule - Event Observers ----------------------
   
@@ -223,6 +235,7 @@ shinyServer(function(input, output, session){
     {
       enable("sel_templateSchedule")
       enable("dttm_templateSchedule")
+      enable("dttm_templateIndexDateTime")
       enable("btn_templateSchedule_save")
     }
   )
@@ -230,6 +243,11 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templateSchedule_save, 
     {
+      print(input$dttm_templateSchedule)
+      print(input$dttm_templateIndexDateTime)
+      print(as.POSIXct(input$dttm_templateSchedule, 
+                       format = "%d-%b-%Y %H:%M", 
+                       tz = "UTC"))
       addEditReportTemplateSchedule(
         oid = rv_Template$SelectedTemplateSchedule$OID,
         parent_report_template = as.numeric(input$rdo_template),
@@ -237,7 +255,7 @@ shinyServer(function(input, output, session){
         start_date = as.POSIXct(input$dttm_templateSchedule, 
                                 format = "%d-%b-%Y %H:%M", 
                                 tz = "UTC"),
-        index_date = as.POSIXct(input$dttm_templateIndexDate, 
+        index_date = as.POSIXct(input$dttm_templateIndexDateTime, 
                                 format = "%d-%b-%Y %H:%M", 
                                 tz = "UTC"),
         is_active = TRUE, 
@@ -653,7 +671,70 @@ shinyServer(function(input, output, session){
         RM_datatable()
     })
   
-  proxy_dt_templateSignature <- DT::dataTableProxy("dt_templateSignature")
+  proxy_dt_templateDistribution <- DT::dataTableProxy("dt_templateDistribution")
+  
+  # Report Template Permission - Passive Observers ------------------
+  
+  observe({
+    toggleState(id = "btn_templatePermission_add", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_template) > 0)
+    
+    toggleState(id = "btn_templatePermission_edit", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_reportTemplatePermission) > 0)
+  })
+  
+  # Report Template Permission - Event Observers --------------------
+  
+  observeEvent(
+    input$btn_templatePermission_add,
+    {
+      CurrentRole <- queryReportTemplatePermission(parent_report_template = input$rdo_template)
+      CurrentRole <- CurrentRole[CurrentRole$IsActive, ]
+      
+      role <- rv_Roles$Roles$OID
+      names(role) <- rv_Roles$Roles$RoleName
+      role <- role[!role %in% CurrentRole$OID]
+      updateSelectInput(session = session, 
+                        inputId = "sel_templatePermissionRole", 
+                        choices = role)
+      
+      updateCheckboxGroupInput(session = session, 
+                               inputId = "chkgrp_templatePermission",
+                               choices = c("View" = "CanView",
+                                           "Add Notes" = "CanAddNotes",
+                                           "Edit Narrative" = "CanEditNarrative",
+                                           "Submit" = "CanSubmit",
+                                           "Start Revision" = "CanStartRevision"),
+                               selected = "CanView")
+      
+      toggleModal(session = session, 
+                  modalId = "modal_templatePermission_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  
+  
+  observeEvent(
+    input$btn_saveTemplatePermission, 
+    {
+      
+    }
+  )
+  
+  # Report Template Permission - Output -----------------------------
+  
+  output$dt_templatePermission <- 
+    DT::renderDataTable({
+      req(rv_Template$SelectedTemplate)
+      
+      makeTemplatePermissionData(as.numeric(input$rdo_template)) %>% 
+        RM_datatable()
+    })
+  
+  proxy_dt_templatePermission <- DT::dataTableProxy("dt_templatePermission")
   
   # Schedule --------------------------------------------------------
   # Schedule - Reactive Values --------------------------------------
@@ -741,7 +822,7 @@ shinyServer(function(input, output, session){
       if (rv_Schedule$AddEdit == "Add"){
         "Add a New Schedule"
       } else {
-        sprintf("Editing Schedule %s (%s)", 
+        sprintf("Editing Schedule: %s (%s)", 
                 rv_Schedule$SelectedSchedule$ScheduleName, 
                 rv_Schedule$SelectedSchedule$OID)
       }
