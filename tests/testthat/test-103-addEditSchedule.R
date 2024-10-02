@@ -422,7 +422,7 @@ test_that(
               "EditFrequency" = 2, 
               "EditOverlap" = 2, 
               "EditScheduleName" = 2, 
-              "SetIsPeriodToDateFalse" = 2))
+              "SetIsPeriodToDateFalse" = 1))
     )
     
     dbDisconnect(conn)

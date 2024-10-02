@@ -88,7 +88,7 @@ queryReportTemplatePermission <- function(oid = numeric(0),
 
 # Unexported --------------------------------------------------------
 
-.queryReportTemplateFooter_statement_sqlServer <- "
+.queryReportTemplatePermission_statement_sqlServer <- "
   SELECT [OID], 
          [ParentReportTemplate], 
          [ParentRole], 
@@ -101,7 +101,7 @@ queryReportTemplatePermission <- function(oid = numeric(0),
   FROM dbo.[ReportTemplateFooter]
 "
 
-.queryReportTemplateFooter_statement_sqlite <- "
+.queryReportTemplatePermission_statement_sqlite <- "
   SELECT [OID], 
          [ParentReportTemplate], 
          [ParentRole], 
