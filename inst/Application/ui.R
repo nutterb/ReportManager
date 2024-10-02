@@ -60,9 +60,7 @@ dashboardPage(
     
     # Generate a Report ---------------------------------------------
     tabItems(
-      tabItem(
-        "tab_generateReport" 
-      ), 
+      tabItem("tab_generateReport", UI_TAB_GENERATE_REPORT), 
       
       tabItem("tab_reportTemplate", UI_TAB_REPORT_TEMPLATE_PAGE), 
       

@@ -23,6 +23,65 @@ shinyServer(function(input, output, session){
   # Global - Passive Observer ---------------------------------------
   # Global - Event Observer -----------------------------------------
   
+  # Generate Report -------------------------------------------------
+  # Generate Report - Reactive Values -------------------------------
+  
+  rv_GenerateReport <- reactiveValues(
+    Templates = queryReportSelection(), 
+    SelectedTemplate = NULL
+  )
+  # Generate Report - Template --------------------------------------
+  
+  # Generate Report - Template - Event Observers --------------------
+  
+  observeEvent(
+    input$rdo_genReport_template, 
+    {
+      rv_GenerateReport$SelectedTemplate = as.numeric(input$rdo_genReport_template)
+    }
+  )
+  
+  # Generate Report - Template - Output -----------------------------
+  
+  output$dt_genReport_template <- 
+    DT::renderDataTable({
+      rv_GenerateReport$Templates[c("OID", "TemplateDirectory", 
+                                    "Title", "ScheduleName", 
+                                    "IsSignatureRequired", "StartDateTime")] %>%
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_genReport_template") %>% 
+        transform(TemplateDirectory = factor(TemplateDirectory), 
+                  Title = factor(Title), 
+                  ScheduleName = factor(ScheduleName)) %>% 
+        DT::datatable(rownames = FALSE, 
+                      colnames = c("Select", "Template", "Title", 
+                                   "Schedule", "Signature Required", 
+                                   "Reporting Start"),
+                      escape = -1, 
+                      selection = "none", 
+                      filter = "top", 
+                      class = "compact cell-border") %>% 
+        DT::formatDate(c("StartDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+        
+    })
+  
+  # Generate Report - Instance --------------------------------------
+  # Generate Report - Notes -----------------------------------------
+  # Generate Report - Signatures ------------------------------------
+  # Generate Report - Narrative -------------------------------------
+  # Generate Report - Preview ---------------------------------------
+  # Generate Report - Archival and Submission -----------------------
+  # Generate Report - Archived Reports ------------------------------
+  
   # Report Template -------------------------------------------------
   # Report Template - Reactive Values -------------------------------
   
