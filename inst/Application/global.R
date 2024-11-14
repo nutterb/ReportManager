@@ -3,7 +3,7 @@ library(shinyBS)
 library(shinydashboard)
 library(shinyjs)
 library(DT)
-library(magrittr)
+library(dplyr)
 library(ReportManager)
 
 TEMPLATE_FOLDERS <- system.file(package = "ReportManager")

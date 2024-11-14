@@ -28,7 +28,10 @@ shinyServer(function(input, output, session){
   
   rv_GenerateReport <- reactiveValues(
     Templates = queryReportSelection(), 
-    SelectedTemplate = NULL
+    SelectedTemplate = NULL, 
+    
+    ReportInstance = queryReportInstance(report_template_oid = -1),
+    SelectedReportInstance = numeric(0)
   )
   # Generate Report - Template --------------------------------------
   
@@ -37,7 +40,17 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$rdo_genReport_template, 
     {
-      rv_GenerateReport$SelectedTemplate = as.numeric(input$rdo_genReport_template)
+      template_oid <- as.numeric(input$rdo_genReport_template)
+      rv_GenerateReport$SelectedTemplate <- template_oid
+      
+      updateReportInstanceSchedule(report_template_oid = template_oid,
+                                   event_user = CURRENT_USER_OID())
+      
+      rv_GenerateReport$ReportInstance = 
+        queryReportInstance(report_template_oid = template_oid)
+     
+      show("div_genReport_reportInstance") 
+      hide("h3_genReport_reportInstance_noTemplateSelected")
     }
   )
   
@@ -75,6 +88,115 @@ shinyServer(function(input, output, session){
     })
   
   # Generate Report - Instance --------------------------------------
+  # Generate Report - Instance - Event Observer ---------------------
+  
+  observeEvent(
+    input$cd_genReport_scheduledReport, 
+    {
+      if (isTRUE(input$cd_genReport_scheduledReport)){
+         updateCheckboxInput(session = session, 
+                             inputId = "cd_genReport_unscheduledReport", 
+                             value = FALSE)
+        updateCheckboxInput(session = session, 
+                            inputId = "cd_genReport_adhocReport", 
+                            value = FALSE)
+        
+        rv_GenerateReport$SelectedReportInstance <- 
+          as.numeric(input$rdo_report_instance_scheduled)
+      }
+    }
+  )
+  
+  observeEvent(
+    input$cd_genReport_unscheduledReport, 
+    {
+      if (isTRUE(input$cd_genReport_unscheduledReport)){
+        updateCheckboxInput(session = session, 
+                            inputId = "cd_genReport_scheduledReport", 
+                            value = FALSE)
+        updateCheckboxInput(session = session, 
+                            inputId = "cd_genReport_adhocReport", 
+                            value = FALSE)
+        
+        rv_GenerateReport$SelectedReportInstance <- 
+          as.numeric(input$rdo_report_instance_unscheduled)
+      }
+    }
+  )
+  
+  observeEvent(
+    input$cd_genReport_adhocReport, 
+    {
+      if (isTRUE(input$cd_genReport_adhocReport)){
+        updateCheckboxInput(session = session, 
+                            inputId = "cd_genReport_scheduledReport", 
+                            value = FALSE)
+        updateCheckboxInput(session = session, 
+                            inputId = "cd_genReport_unscheduledReport", 
+                            value = FALSE)
+        
+        rv_GenerateReport$SelectedReportInstance <- 
+          numeric(0)
+      }
+    }
+  )
+  
+  # Generate Report - Instance - Output -----------------------------
+  
+  output$dt_instance_scheduled <- 
+    DT::renderDataTable({
+      selected <- as.character(rv_GenerateReport$SelectedReportInstance)
+      
+      rv_GenerateReport$ReportInstance %>% 
+        filter(IsScheduled) %>% 
+        select(-ParentReportTemplate, 
+               -IsScheduled) %>% 
+        arrange(desc(StartDateTime), 
+                desc(EndDateTime)) %>% 
+        radioDataTable(data = ., 
+                       id_variable = "OID", 
+                       element_name = "rdo_report_instance_scheduled", 
+                       checked = selected) %>% 
+        RM_datatable(escape = -1) %>% 
+        DT::formatDate(c("StartDateTime", "EndDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+    })
+  
+  output$dt_instance_unscheduled <- 
+    DT::renderDataTable({
+      selected <- as.character(rv_GenerateReport$SelectedReportInstance)
+      
+      rv_GenerateReport$ReportInstance %>% 
+        filter(!IsScheduled) %>% 
+        select(-ParentReportTemplate, 
+               -IsScheduled) %>% 
+        arrange(desc(StartDateTime), 
+                desc(EndDateTime)) %>% 
+        radioDataTable(data = ., 
+                       id_variable = "OID", 
+                       element_name = "rdo_report_instance_unscheduled", 
+                       checked = selected) %>% 
+        RM_datatable(escape = -1) %>% 
+        DT::formatDate(c("StartDateTime", "EndDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+    })
+  
   # Generate Report - Notes -----------------------------------------
   # Generate Report - Signatures ------------------------------------
   # Generate Report - Narrative -------------------------------------
@@ -168,8 +290,6 @@ shinyServer(function(input, output, session){
                         choices = choice,
                         selected = sel)
 
-      print(rv_Template$SelectedTemplateSchedule$StartDateTime)
-      print(class(rv_Template$SelectedTemplateSchedule$StartDateTime))
       updateTextInput(session = session,
                       inputId = "dttm_templateSchedule",
                       value = format(rv_Template$SelectedTemplateSchedule$StartDateTime,
