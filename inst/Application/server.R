@@ -10,14 +10,27 @@ shinyServer(function(input, output, session){
       rv_User$User$OID[rv_User$User$LoginId %in% Sys.info()["login"]]
     })
   
+  CURRENT_USER_ROLE <- 
+    reactive({
+      req(CURRENT_USER_OID())
+      queryUserRole(user_oid = CURRENT_USER_OID()) %>% 
+        filter(IsActive & IsActiveUser & IsActiveRole)
+    })
+  
   USER_IS_USER_ADMIN <- 
     reactive({
-      TRUE
+      req(CURRENT_USER_ROLE())
+
+      "UserAdministrator" %in% 
+        CURRENT_USER_ROLE()$RoleName[CURRENT_USER_ROLE()$IsActiveRole]
     })
   
   USER_IS_REPORT_ADMIN <- 
     reactive({
-      TRUE
+      req(CURRENT_USER_ROLE())
+      
+      "ReportAdministrator" %in% 
+        CURRENT_USER_ROLE()$RoleName[CURRENT_USER_ROLE()$IsActiveRole]
     })
   
   # Global - Passive Observer ---------------------------------------
@@ -1378,7 +1391,10 @@ shinyServer(function(input, output, session){
     
     toggleState(id = "btn_role_edit", 
                 condition = USER_IS_USER_ADMIN() &&
-                  length(input$rdo_role) > 0)
+                  length(input$rdo_role) > 0 & 
+                  !rv_Roles$SelectedRole$RoleName %in% c("UserAdministrator", 
+                                                         "ReportAdministrator", 
+                                                         "ReportSubmission"))
     
     toggleState(id = "btn_role_viewEdit", 
                 condition = USER_IS_USER_ADMIN() &&
@@ -1396,7 +1412,10 @@ shinyServer(function(input, output, session){
     toggleState(id = "btn_role_deactivate", 
                 condition = USER_IS_USER_ADMIN() &&
                   length(input$rdo_role) > 0 &&
-                  isTRUE(rv_Roles$SelectedRole$IsActive))
+                  isTRUE(rv_Roles$SelectedRole$IsActive) & 
+                  !rv_Roles$SelectedRole$RoleName %in% c("UserAdministrator", 
+                                                         "ReportAdministrator", 
+                                                         "ReportSubmission"))
   })
   
   # Roles - Event Observers -----------------------------------------
