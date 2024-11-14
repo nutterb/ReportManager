@@ -304,8 +304,10 @@ CREATE TABLE dbo.[ReportInstance](
   [ParentReportTemplate] INT NOT NULL, 
   [StartDateTime] DATETIME NOT NULL, 
   [EndDateTime] DATETIME NOT NULL, 
+  [IsSignatureRequired] BIT DEFAULT 0,
   [IsScheduled] BIT DEFAULT 0, 
   [InstanceTitle] VARCHAR(200), 
+  [IsSubmitted] BIT DEFAULT 0,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID)
@@ -326,9 +328,10 @@ CREATE TABLE dbo.[ReportInstanceEvent](
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
   CONSTRAINT chk_ReportInstanceEventType CHECK (EventType IN ('EditStartTime',
                                                               'EditEndTime', 
-                                                              'EditTitleSize',
                                                               'EditIsScheduled', 
                                                               'EditInstanceTitle',
+                                                              'EditIsSignatureRequired',
+                                                              'EditIsSubmitted',
                                                               'Add'))
 ); 
 
