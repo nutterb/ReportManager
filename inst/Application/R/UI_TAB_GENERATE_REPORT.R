@@ -48,13 +48,32 @@ UI_TAB_GENERATE_REPORT <-
                  radioDataTableOutput(outputId = "dt_instance_unscheduled", 
                                       radioId = "rdo_report_instance_unscheduled")), 
                collapsibleDiv(title = "Adhoc Reporting", 
-                              id = "cd_genReport_adhocReport")
+                              id = "cd_genReport_adhocReport", 
+                              dateTimeInput(inputId = "dttm_genReport_adhocInstance", 
+                                            label = "Date Range", 
+                                            start = NULL, 
+                                            end = NULL, 
+                                            single_date = FALSE, 
+                                            timepicker = TRUE, 
+                                            style = "width:250px;"))
              ))
     ),
     # NOTES TAB -----------------------------------------------------
-    tabPanel(title = "Notes"),
-    tabPanel(title = "Signatures"),
+    tabPanel(title = "Notes", 
+             fluidRow(
+               column(width = 4, 
+                      hidden(textAreaInput(inputId = "txt_reportInstanceNote", 
+                                           label = "Add a Note", 
+                                           width = "100%", 
+                                           height = "200px")),
+                      hidden(actionButton(inputId = "btn_addReportInstanceNote", 
+                                          label = "Save"))),
+               
+               column(width = 8, 
+                      DT::dataTableOutput("dt_reportInstanceNote"))
+             )),
     tabPanel(title = "Narrative"),
+    tabPanel(title = "Signatures"),
     tabPanel(title = "Preview"),
     tabPanel(title = "Archival & Submission"),
     tabPanel(title = "Archived Reports")

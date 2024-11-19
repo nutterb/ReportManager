@@ -335,6 +335,41 @@ CREATE TABLE dbo.[ReportInstanceEvent](
                                                               'Add'))
 ); 
 
+/* ReportInstanceNote **********************************************/
+CREATE TABLE dbo.[ReportInstanceNote](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [ParentReportInstance] INT NOT NULL, 
+  [ParentUser] INT NOT NULL, 
+  [NoteDateTime] DATETIME NOT NULL,
+  [Note] TEXT, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
+/* ReportInstanceNarrative *****************************************/
+CREATE TABLE dbo.[ReportInstanceNarrative](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [ParentReportInstance] INT NOT NULL, 
+  [Narrative] TEXT, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
+);
+
+CREATE TABLE dbo.[ReportInstanceNarrativeEvent](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstanceNarrative] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] TEXT, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportInstanceNarrative) REFERENCES [ReportInstanceNarrative](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID)
+);
+
 /* ReportTemplateDisclaimer ****************************************/
 
 CREATE TABLE dbo.[ReportTemplateDisclaimer](

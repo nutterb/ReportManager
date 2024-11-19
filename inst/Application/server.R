@@ -43,9 +43,23 @@ shinyServer(function(input, output, session){
     Templates = queryReportSelection(), 
     SelectedTemplate = NULL, 
     
-    ReportInstance = queryReportInstance(report_template_oid = -1),
-    SelectedReportInstance = numeric(0)
+    ScheduledReportInstance = queryReportInstance(report_template_oid = -1),
+    SelectedScheduledReportInstance = numeric(0), 
+    
+    UnscheduledReportInstance = queryReportInstance(report_template_oid = -1),
+    SelectedUnscheduledReportInstance = numeric(0), 
   )
+  
+  selected_instance_oid <- reactive({
+    if (input$cd_genReport_scheduledReport){
+      rv_GenerateReport$SelectedScheduledReportInstance
+    } else if (input$cd_genReport_unscheduledReport){
+      rv_GenerateReport$SelectedUnscheduledReportInstance
+    } else {
+      -1
+    }
+  })
+  
   # Generate Report - Template --------------------------------------
   
   # Generate Report - Template - Event Observers --------------------
@@ -59,8 +73,15 @@ shinyServer(function(input, output, session){
       updateReportInstanceSchedule(report_template_oid = template_oid,
                                    event_user = CURRENT_USER_OID())
       
-      rv_GenerateReport$ReportInstance = 
-        queryReportInstance(report_template_oid = template_oid)
+      ReportInstance <- queryReportInstance(report_template_oid = template_oid)
+      
+      rv_GenerateReport$ScheduledReportInstance <-
+        ReportInstance %>% 
+        filter(IsScheduled)
+      
+      rv_GenerateReport$UnscheduledReportInstance <-
+        ReportInstance %>% 
+        filter(!IsScheduled)
      
       show("div_genReport_reportInstance") 
       hide("h3_genReport_reportInstance_noTemplateSelected")
@@ -101,6 +122,13 @@ shinyServer(function(input, output, session){
     })
   
   # Generate Report - Instance --------------------------------------
+  # Generate Report - Instance - Passive Observer -------------------
+  
+  observe({
+    toggleState("btn_genReport_unscheduled_changeSignatureRequirement", 
+                condition = length(rv_GenerateReport$SelectedUnscheduledReportInstance) > 0)
+  })
+  
   # Generate Report - Instance - Event Observer ---------------------
   
   observeEvent(
@@ -113,10 +141,15 @@ shinyServer(function(input, output, session){
         updateCheckboxInput(session = session, 
                             inputId = "cd_genReport_adhocReport", 
                             value = FALSE)
-        
-        rv_GenerateReport$SelectedReportInstance <- 
-          as.numeric(input$rdo_report_instance_scheduled)
       }
+    }
+  )
+  
+  observeEvent(
+    input$rdo_report_instance_scheduled, 
+    {
+      rv_GenerateReport$SelectedScheduledReportInstance <- 
+        as.numeric(input$rdo_report_instance_scheduled)
     }
   )
   
@@ -130,10 +163,15 @@ shinyServer(function(input, output, session){
         updateCheckboxInput(session = session, 
                             inputId = "cd_genReport_adhocReport", 
                             value = FALSE)
-        
-        rv_GenerateReport$SelectedReportInstance <- 
-          as.numeric(input$rdo_report_instance_unscheduled)
       }
+    }
+  )
+  
+  observeEvent(
+    input$rdo_report_instance_unscheduled, 
+    {
+      rv_GenerateReport$SelectedUnscheduledReportInstance <- 
+        as.numeric(input$rdo_report_instance_unscheduled)
     }
   )
   
@@ -148,9 +186,87 @@ shinyServer(function(input, output, session){
                             inputId = "cd_genReport_unscheduledReport", 
                             value = FALSE)
         
-        rv_GenerateReport$SelectedReportInstance <- 
-          numeric(0)
       }
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_unscheduled_addUnscheduledReport, 
+    {
+      start_end <- 
+        strsplit(input$dttm_genReport_newUnscheduledInstance, 
+                 split = " - ") %>% 
+        unlist() %>% 
+        as.POSIXct(format = "%d-%b-%Y %H:%M", tz = "UTC")
+      
+      addEditReportInstance(report_instance_oid = numeric(0), 
+                            parent_report_template = rv_GenerateReport$SelectedTemplate, 
+                            start_time = start_end[1], 
+                            end_time = start_end[2], 
+                            is_signature_required = input$chk_genReport_unscheduled_isSignatureRequired, 
+                            is_scheduled = FALSE, 
+                            instance_title = "", 
+                            is_submitted = FALSE, 
+                            event_user = CURRENT_USER_OID())
+      
+      rv_GenerateReport$ScheduledReportInstance <- 
+        queryReportInstance(report_template_oid = rv_GenerateReport$SelectedTemplate)
+    }
+  )
+  
+  observeEvent(
+    input$dt_instance_unscheduled_cell_edit,
+    {
+      edit_info <- input$dt_instance_unscheduled_cell_edit
+      row <- edit_info$row
+      val <- edit_info$value
+      
+      Ref <- 
+        rv_GenerateReport$UnscheduledReportInstance %>% 
+        filter(!IsScheduled) %>%
+        select(-IsScheduled, -InstanceTitle) %>%
+        arrange(desc(StartDateTime))
+      
+      instance_oid <- Ref$OID[row]
+      
+      ThisInstance <- rv_GenerateReport$UnscheduledReportInstance %>% 
+        filter(OID == instance_oid)
+
+      addEditReportInstance(report_instance_oid = ThisInstance$OID, 
+                            parent_report_template = ThisInstance$ParentReportTemplate, 
+                            start_time = ThisInstance$StartDateTime, 
+                            end_time = ThisInstance$EndDateTime, 
+                            is_signature_required = ThisInstance$IsSignatureRequired, 
+                            is_scheduled = FALSE, 
+                            instance_title = val, 
+                            is_submitted = ThisInstance$IsSubmitted, 
+                            event_user = CURRENT_USER_OID())
+      
+      rv_GenerateReport$UnscheduledReportInstance <- 
+        queryReportInstance(rv_GenerateReport$SelectedTemplate) %>% 
+        filter(!IsScheduled)
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_unscheduled_changeSignatureRequirement, 
+    {
+      ThisInstance <- rv_GenerateReport$UnscheduledReportInstance %>% 
+        filter(OID == rv_GenerateReport$SelectedUnscheduledReportInstance)
+      
+      addEditReportInstance(report_instance_oid = ThisInstance$OID, 
+                            parent_report_template = ThisInstance$ParentReportTemplate, 
+                            start_time = ThisInstance$StartDateTime, 
+                            end_time = ThisInstance$EndDateTime, 
+                            is_signature_required = !ThisInstance$IsSignatureRequired, 
+                            is_scheduled = FALSE, 
+                            instance_title = ThisInstance$InstanceTitle, 
+                            is_submitted = ThisInstance$IsSubmitted, 
+                            event_user = CURRENT_USER_OID())
+      
+      rv_GenerateReport$UnscheduledReportInstance <- 
+        queryReportInstance(rv_GenerateReport$SelectedTemplate) %>% 
+        filter(!IsScheduled)
     }
   )
   
@@ -158,9 +274,10 @@ shinyServer(function(input, output, session){
   
   output$dt_instance_scheduled <- 
     DT::renderDataTable({
-      selected <- as.character(rv_GenerateReport$SelectedReportInstance)
+      req(input$cd_genReport_scheduledReport)
+      selected <- as.character(rv_GenerateReport$SelectedScheduledReportInstance)
       
-      rv_GenerateReport$ReportInstance %>% 
+      rv_GenerateReport$ScheduledReportInstance %>% 
         filter(IsScheduled) %>% 
         select(-ParentReportTemplate, 
                -IsScheduled) %>% 
@@ -183,11 +300,16 @@ shinyServer(function(input, output, session){
                                           timeZone = 'UTC')))
     })
   
+  proxy_dt_instance_scheduled <- DT::dataTableProxy("dt_instance_scheduled")
+  
+  
+  
   output$dt_instance_unscheduled <- 
     DT::renderDataTable({
-      selected <- as.character(rv_GenerateReport$SelectedReportInstance)
+      req(input$cd_genReport_unscheduledReport)
+      selected <- as.character(rv_GenerateReport$SelectedUnscheduledReportInstance)
       
-      rv_GenerateReport$ReportInstance %>% 
+      rv_GenerateReport$UnscheduledReportInstance %>% 
         filter(!IsScheduled) %>% 
         select(-ParentReportTemplate, 
                -IsScheduled) %>% 
@@ -197,7 +319,9 @@ shinyServer(function(input, output, session){
                        id_variable = "OID", 
                        element_name = "rdo_report_instance_unscheduled", 
                        checked = selected) %>% 
-        RM_datatable(escape = -1) %>% 
+        RM_datatable(escape = -1, 
+                     editable = list(target = "cell", 
+                                     disable = list(columns = c(0:3, 5)))) %>% 
         DT::formatDate(c("StartDateTime", "EndDateTime"),
                        method = 'toLocaleTimeString',
                        params = list('en-gb',
@@ -210,9 +334,66 @@ shinyServer(function(input, output, session){
                                           timeZone = 'UTC')))
     })
   
+  proxy_dt_instance_unscheduled <- DT::dataTableProxy("dt_instance_unscheduled")
+  
   # Generate Report - Notes -----------------------------------------
-  # Generate Report - Signatures ------------------------------------
+  # Generate Report - Notes - Passive Observer ----------------------
+  
+  observe({
+    toggle(id = "txt_reportInstanceNote", 
+           condition = length(selected_instance_oid()) > 0 & 
+             isTRUE(selected_instance_oid() > 0))
+    toggle(id = "btn_addReportInstanceNote", 
+           condition = length(selected_instance_oid()) > 0 & 
+             isTRUE(selected_instance_oid() > 0))
+  })
+  
+  # Generate Report - Notes - Event Observer ------------------------
+  
+  observeEvent(
+    input$btn_addReportInstanceNote,
+    {
+      req(isTRUE(selected_instance_oid() > 0))
+      addReportInstanceNote(report_instance_oid = selected_instance_oid(), 
+                            parent_user = CURRENT_USER_OID(),
+                            note = input$txt_reportInstanceNote)
+      
+      DT::replaceData(proxy = proxy_dt_reportInstanceNote, 
+                      data = queryReportInstanceNote(selected_instance_oid()), 
+                      resetPaging = FALSE,
+                      rownames = FALSE)
+      updateTextAreaInput(session = session, 
+                          inputId = "txt_reportInstanceNote", 
+                          value = "")
+    }
+  )
+  
+  # Generate Report - Notes - Output --------------------------------
+  
+  output$dt_reportInstanceNote <- 
+    DT::renderDataTable({
+      req(isTRUE(selected_instance_oid() > 0))
+      DT::datatable(
+        queryReportInstanceNote(selected_instance_oid()), 
+        rownames = FALSE
+      )%>% 
+        DT::formatDate(c("NoteDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+    })
+  
+  proxy_dt_reportInstanceNote <- DT::dataTableProxy("dt_reportInstanceNote")
+  
   # Generate Report - Narrative -------------------------------------
+  
+  # Generate Report - Signatures ------------------------------------
   # Generate Report - Preview ---------------------------------------
   # Generate Report - Archival and Submission -----------------------
   # Generate Report - Archived Reports ------------------------------

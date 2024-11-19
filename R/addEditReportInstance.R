@@ -144,11 +144,11 @@ addEditReportInstance <- function(report_instance_oid = numeric(0),
   EventList$ParentReportInstance <- rep(oid, 
                                         nrow(EventList))
   EventList <- EventList[!EventList$EventType == "Add", ]
-  
-  ThisReportInstance <- queryReportInstance(oid)
-  
-  CurrentValue <- c(format(ThisReportInstance$StartDateTime), 
-                    format(ThisReportInstance$EndDateTime), 
+
+  ThisReportInstance <- queryReportInstance(report_instance_oid = oid)
+
+  CurrentValue <- c(format(ThisReportInstance$StartDateTime, format = "%Y-%m-%d %H:%M:%S"), 
+                    format(ThisReportInstance$EndDateTime, format = "%Y-%m-%d %H:%M:%S"), 
                     ThisReportInstance$IsScheduled,
                     ThisReportInstance$IsSignatureRequired, 
                     ThisReportInstance$IsSubmitted, 
