@@ -60,6 +60,6 @@ queryReportInstanceNote <- function(report_instance_oid){
   FROM ReportInstanceNote RIN
     LEFT JOIN [User] U
       ON RIN.ParentUser = U.OID
-  WHERE RIN.OID = ?oid
+  WHERE RIN.ParentReportInstance = ?oid
   ORDER BY RIN.NoteDateTime DESC
 "

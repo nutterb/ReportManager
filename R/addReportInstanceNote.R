@@ -52,18 +52,21 @@ addReportInstanceNote <- function(report_instance_oid,
                       stop(sprintf("Query not defined for SQL flavor '%s'",
                                    getOption("RM_sql_flavor"))))
   
-  DBI::dbGetQuery(
-    conn, 
-    DBI::sqlInterpolate(
+  result <- 
+    DBI::dbSendStatement(
       conn, 
-      statement, 
-      ParentReportInstance = report_instance_oid, 
-      ParentUser = parent_user, 
-      Note = trimws(note), 
-      NoteDateTime = format(note_date_time, 
-                            format = "%Y-%m-%d %H:%M:%S")
+      DBI::sqlInterpolate(
+        conn, 
+        statement, 
+        ParentReportInstance = report_instance_oid, 
+        ParentUser = parent_user, 
+        Note = trimws(note), 
+        NoteDateTime = format(note_date_time, 
+                              format = "%Y-%m-%d %H:%M:%S")
+      )
     )
-  )
+  
+  DBI::dbClearResult(result)
 }
 
 # Unexported --------------------------------------------------------

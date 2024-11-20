@@ -127,6 +127,10 @@ shinyServer(function(input, output, session){
   observe({
     toggleState("btn_genReport_unscheduled_changeSignatureRequirement", 
                 condition = length(rv_GenerateReport$SelectedUnscheduledReportInstance) > 0)
+    toggle("h3_genReport_reportInstanceNote_noInstanceSelected", 
+           condition = length(selected_instance_oid()) == 0)
+    toggle("div_genReport_reportInstanceNote", 
+           condition = length(selected_instance_oid()) > 0)
   })
   
   # Generate Report - Instance - Event Observer ---------------------
@@ -410,7 +414,7 @@ shinyServer(function(input, output, session){
     SelectedTemplateFooter = NULL,
     SelectedTemplateSignature = NULL, 
     SelectedTemplateDistribution = NULL, 
-    SelectedTemplatePermission = NULL
+    SelectedTemplatePermission = numeric(0)
   )
   
   # Report Template - Passive Observers -----------------------------
@@ -1063,7 +1067,9 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_templatePermission_add,
     {
-      CurrentRole <- queryReportTemplatePermission(parent_report_template = input$rdo_template)
+      CurrentRole <- 
+        queryReportTemplatePermission(parent_report_template = 
+                                        as.numeric(input$rdo_template))
       CurrentRole <- CurrentRole[CurrentRole$IsActive, ]
       
       role <- rv_Roles$Roles$OID
@@ -1093,7 +1099,19 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_saveTemplatePermission, 
     {
+      addEditReportTemplatePermission(parent_report_template = rv_Template$SelectedTemplate, 
+                                      parent_role = as.numeric(input$sel_templatePermissionRole),
+                                      can_view = "CanView" %in% input$chkgrp_templatePermission, 
+                                      can_add_notes = "CanAddNotes" %in% input$chkgrp_templatePermission, 
+                                      can_edit_narrative = "CanEditNarrative"  %in% input$chkgrp_templatePermission, 
+                                      can_submit = "CanSubmit" %in% input$chkgrp_templatePermission,
+                                      can_start_revision = "CanStartRevision" %in% input$chkgrp_templatePermission,
+                                      is_active = TRUE, 
+                                      event_user = CURRENT_USER_OID())
       
+      toggleModal(session = session, 
+                  modalId = "modal_templatePermission_addEdit", 
+                  toggle = "close")
     }
   )
   

@@ -75,10 +75,10 @@ queryReportTemplatePermission <- function(oid = numeric(0),
         .dots = param_list))
   
   if (getOption("RM_sql_flavor") == "sqlite"){
-    ReportTemplatePermission$IsActive <- as.logical(ReportTemplatePermission$IsActive)
     ReportTemplatePermission$CanView <- as.logical(ReportTemplatePermission$CanView)
     ReportTemplatePermission$CanAddNotes <- as.logical(ReportTemplatePermission$CanAddNotes)
     ReportTemplatePermission$CanEditNarrative <- as.logical(ReportTemplatePermission$CanEditNarrative)
+    ReportTemplatePermission$CanSubmit <- as.logical(ReportTemplatePermission$CanSubmit)
     ReportTemplatePermission$CanStartRevision <- as.logical(ReportTemplatePermission$CanStartRevision)
     ReportTemplatePermission$IsActive <- as.logical(ReportTemplatePermission$IsActive)
   }
@@ -98,7 +98,7 @@ queryReportTemplatePermission <- function(oid = numeric(0),
          [CanSubmit], 
          [CanStartRevision],
          [IsActive]
-  FROM dbo.[ReportTemplateFooter]
+  FROM dbo.[ReportTemplatePermission]
 "
 
 .queryReportTemplatePermission_statement_sqlite <- "
@@ -111,5 +111,5 @@ queryReportTemplatePermission <- function(oid = numeric(0),
          [CanSubmit], 
          [CanStartRevision],
          [IsActive]
-  FROM [ReportTemplateFooter]
+  FROM [ReportTemplatePermission]
 "

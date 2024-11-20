@@ -59,19 +59,27 @@ UI_TAB_GENERATE_REPORT <-
              ))
     ),
     # NOTES TAB -----------------------------------------------------
-    tabPanel(title = "Notes", 
-             fluidRow(
-               column(width = 4, 
-                      hidden(textAreaInput(inputId = "txt_reportInstanceNote", 
-                                           label = "Add a Note", 
-                                           width = "100%", 
-                                           height = "200px")),
-                      hidden(actionButton(inputId = "btn_addReportInstanceNote", 
-                                          label = "Save"))),
-               
-               column(width = 8, 
-                      DT::dataTableOutput("dt_reportInstanceNote"))
-             )),
+    tabPanel(title = "Notes",
+             h3(id = "h3_genReport_reportInstanceNote_noInstanceSelected", 
+                "No Report Instance Selected"),
+             hidden(
+               div(
+                 id = "div_genReport_reportInstanceNote",
+                 fluidRow(
+                   column(width = 4, 
+                          hidden(textAreaInput(inputId = "txt_reportInstanceNote", 
+                                               label = "Add a Note", 
+                                               width = "100%", 
+                                               height = "200px")),
+                          hidden(actionButton(inputId = "btn_addReportInstanceNote", 
+                                              label = "Save"))),
+                   
+                   column(width = 8, 
+                          DT::dataTableOutput("dt_reportInstanceNote"))
+                 )
+               )
+             )
+    ),
     tabPanel(title = "Narrative"),
     tabPanel(title = "Signatures"),
     tabPanel(title = "Preview"),
