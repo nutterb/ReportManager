@@ -1,6 +1,7 @@
 ..rdo_template <- function(rdo_template, 
                            rv_Template, 
-                           rv_Schedule){
+                           rv_Schedule, 
+                           session){
   oid <- as.numeric(rdo_template)
   
   rv_Template$SelectedTemplate <- 

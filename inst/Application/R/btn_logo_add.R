@@ -1,7 +1,7 @@
 ..btn_logo_add <- function(session, 
                             rv_Logo){
   rv_Logo$AddEdit <- "Add"
-  show("file_logo_add")
+  shinyjs::show("file_logo_add")
   updateTextInput(session = session, 
                   inputId = "txt_logo_add_fileName",
                   value = "")

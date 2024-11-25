@@ -80,9 +80,42 @@ UI_TAB_GENERATE_REPORT <-
                )
              )
     ),
-    tabPanel(title = "Narrative"),
+    # NARRATIVE TAB -------------------------------------------------
+    tabPanel(title = "Narrative",
+             h3(id = "h3_genReport_reportInstanceNarrative_noInstanceSelected", 
+                "No Report Instance Selected"),
+             hidden(
+               div(
+                 id = "div_genReport_reportInstanceNarrative",
+                 disabled(actionButton(inputId = "btn_reportInstanceNarrativeSave", 
+                                       label = "Save",
+                                       style = "float:right")),
+                 disabled(actionButton(inputId = "btn_reportInstanceNarrativeEdit", 
+                                       label = "Edit",
+                                       style = "float:right")),
+                 disabled(textAreaInput(inputId = "txt_reportInstanceNarrative", 
+                                        label = "Narrative", 
+                                        width = "100%", 
+                                        height = "500px")), 
+                 collapsibleDiv(
+                   title = "Narrative History",
+                   id = "cd_genReport_narrativeHistory", 
+                   checked = FALSE, 
+                   DT::dataTableOutput("dt_reportInstanceNarrativeHistory")
+                 )
+               )
+             )
+    ),
+    
+    # SIGNATURES TAB ------------------------------------------------
     tabPanel(title = "Signatures"),
+    
+    # PREVIEW TAB ---------------------------------------------------
     tabPanel(title = "Preview"),
+    
+    # SUBMISSION TAB ------------------------------------------------
     tabPanel(title = "Archival & Submission"),
+    
+    # ARCHIVED REPORTS TAB ------------------------------------------
     tabPanel(title = "Archived Reports")
   )

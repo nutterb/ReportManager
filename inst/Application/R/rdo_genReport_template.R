@@ -15,6 +15,10 @@
   rv_GenerateReport$UnscheduledReportInstance <-
     ReportInstance[!ReportInstance$IsScheduled, ]
   
-  show("div_genReport_reportInstance") 
-  hide("h3_genReport_reportInstance_noTemplateSelected")
+  rv_GenerateReport$ReportTemplateUserPermission <- 
+    queryReportTemplateUserPermission(parent_report_template = template_oid, 
+                                      parent_user = current_user_oid)
+  
+  shinyjs::show("div_genReport_reportInstance") 
+  shinyjs::hide("h3_genReport_reportInstance_noTemplateSelected")
 }
