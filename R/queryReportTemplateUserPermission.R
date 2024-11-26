@@ -55,7 +55,7 @@ queryReportTemplateUserPermission <- function(parent_report_template,
     Permission$CanAddNotes <- as.logical(Permission$CanAddNotes)
     Permission$CanEditNarrative <- as.logical(Permission$CanEditNarrative)
     Permission$CanSubmit <- as.logical(Permission$CanSubmit)
-    Permission$CanStartRevision <- as.logical(CanStartRevision)
+    Permission$CanStartRevision <- as.logical(Permission$CanStartRevision)
   }
   
   Permission

@@ -274,74 +274,6 @@ CREATE TABLE [ReportTemplateEvent](
                                                               'Add'))
 );
 
-/* ReportInstance **************************************************/
-
-CREATE TABLE [ReportInstance](
-  OID INTEGER PRIMARY KEY, 
-  ParentReportTemplate INT NOT NULL, 
-  StartDateTime DATETIME NOT NULL, 
-  EndDateTime DATETIME NOT NULL, 
-  IsSignatureRequired BIT DEFAULT 0,
-  IsScheduled BIT DEFAULT 0, 
-  InstanceTitle VARCHAR(200), 
-  IsSubmitted BIT DEFAULT 0,
-  
-  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID)
-);
-
-/* ReportInstanceEvent *********************************************/
-
-CREATE TABLE [ReportInstanceEvent](
-  OID INTEGER PRIMARY KEY, 
-  ParentReportInstance INT NOT NULL, 
-  EventUser INT NOT NULL, 
-  EventType VARCHAR(25) NOT NULL, 
-  EventDateTime DATETIME NOT NULL, 
-  NewValue VARCHAR(250) NULL, 
-  
-  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
-  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportInstanceEventType CHECK (EventType IN ('EditStartTime',
-                                                              'EditEndTime', 
-                                                              'EditIsScheduled', 
-                                                              'EditInstanceTitle',
-                                                              'EditIsSignatureRequired',
-                                                              'EditIsSubmitted',
-                                                              'Add'))
-); 
-
-/* ReportInstanceNote **********************************************/
-CREATE TABLE [ReportInstanceNote](
-  [OID] INTEGER PRIMARY KEY,
-  [ParentReportInstance] INT NOT NULL, 
-  [ParentUser] INT NOT NULL, 
-  [NoteDateTime] DATETIME NOT NULL,
-  [Note] TEXT, 
-  
-  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
-  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
-);
-
-/* ReportInstanceNarrative *****************************************/
-CREATE TABLE [ReportInstanceNarrative](
-  [OID] INTEGER PRIMARY KEY,
-  [ParentReportInstance] INT NOT NULL, 
-  [Narrative] TEXT, 
-  
-  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
-);
-
-CREATE TABLE [ReportInstanceNarrativeEvent](
-  [OID] INTEGER PRIMARY KEY, 
-  [ParentReportInstanceNarrative] INT NOT NULL, 
-  [EventUser] INT NOT NULL, 
-  [EventDateTime] DATETIME NOT NULL, 
-  [NewValue] TEXT, 
-  
-  FOREIGN KEY (ParentReportInstanceNarrative) REFERENCES [ReportInstanceNarrative](OID), 
-  FOREIGN KEY (EventUser) REFERENCES [User](OID)
-);
-
 /* ReportTemplateDisclaimer ****************************************/
 
 CREATE TABLE [ReportTemplateDisclaimer](
@@ -443,7 +375,7 @@ CREATE TABLE [ReportTemplateSignature](
   OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL,
   ParentRole INT NOT NULL,
-  [ORDER] INT NOT NULL,
+  [Order] INT NOT NULL,
   IsActive BIT DEFAULT 0, 
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
@@ -536,4 +468,90 @@ CREATE TABLE [ReportTemplatePermissionEvent] (
                                                                     'SetCanEditNarrative', 
                                                                     'SetCanSubmit', 
                                                                     'SetCanStartRevision'))
+);
+
+/* ReportInstance **************************************************/
+
+CREATE TABLE [ReportInstance](
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplate INT NOT NULL, 
+  StartDateTime DATETIME NOT NULL, 
+  EndDateTime DATETIME NOT NULL, 
+  IsSignatureRequired BIT DEFAULT 0,
+  IsScheduled BIT DEFAULT 0, 
+  InstanceTitle VARCHAR(200), 
+  IsSubmitted BIT DEFAULT 0,
+  
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID)
+);
+
+/* ReportInstanceEvent *********************************************/
+
+CREATE TABLE [ReportInstanceEvent](
+  OID INTEGER PRIMARY KEY, 
+  ParentReportInstance INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportInstanceEventType CHECK (EventType IN ('EditStartTime',
+                                                              'EditEndTime', 
+                                                              'EditIsScheduled', 
+                                                              'EditInstanceTitle',
+                                                              'EditIsSignatureRequired',
+                                                              'EditIsSubmitted',
+                                                              'Add'))
+); 
+
+/* ReportInstanceNote **********************************************/
+CREATE TABLE [ReportInstanceNote](
+  [OID] INTEGER PRIMARY KEY,
+  [ParentReportInstance] INT NOT NULL, 
+  [ParentUser] INT NOT NULL, 
+  [NoteDateTime] DATETIME NOT NULL,
+  [Note] TEXT, 
+  
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
+/* ReportInstanceNarrative *****************************************/
+CREATE TABLE [ReportInstanceNarrative](
+  [OID] INTEGER PRIMARY KEY,
+  [ParentReportInstance] INT NOT NULL, 
+  [Narrative] TEXT, 
+  
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
+);
+
+CREATE TABLE [ReportInstanceNarrativeEvent](
+  [OID] INTEGER PRIMARY KEY, 
+  [ParentReportInstanceNarrative] INT NOT NULL, 
+  [EventUser] INT NOT NULL, 
+  [EventDateTime] DATETIME NOT NULL, 
+  [NewValue] TEXT, 
+  
+  FOREIGN KEY (ParentReportInstanceNarrative) REFERENCES [ReportInstanceNarrative](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID)
+);
+
+
+/* ReportInstanceSignature *****************************************/
+
+CREATE TABLE dbo.[ReportInstanceSignature](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstance] INT NOT NULL, 
+  [ParentReportTemplateSignature] INT NOT NULL, 
+  [ParentUser] INT NOT NULL,
+  [SignatureDateTime] DATETIME NOT NULL,
+  [SignatureName] VARCHAR(200) NOT NULL, --Persisting because names sometimes change
+  [IsSigned] BIT NOT NULL,
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (ParentReportTemplateSignature) REFERENCES [ReportTemplateSignature](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
 );

@@ -87,6 +87,9 @@ UI_TAB_GENERATE_REPORT <-
              hidden(
                div(
                  id = "div_genReport_reportInstanceNarrative",
+                 disabled(actionButton(inputId = "btn_reportInstanceNarrativeDiscard", 
+                                       label = "Discard changes",
+                                       style = "float:right")),
                  disabled(actionButton(inputId = "btn_reportInstanceNarrativeSave", 
                                        label = "Save",
                                        style = "float:right")),
@@ -108,7 +111,24 @@ UI_TAB_GENERATE_REPORT <-
     ),
     
     # SIGNATURES TAB ------------------------------------------------
-    tabPanel(title = "Signatures"),
+    tabPanel(title = "Signatures",
+             h3(id = "h3_genReport_reportInstanceSignature_noInstanceSelected", 
+                "No Report Instance Selected"),
+             hidden(
+               div(
+                 id = "div_genReport_reportInstanceSignature", 
+                 br(),
+                 uiOutput("tbl_genReport_reportInstanceSignature"),
+                 
+                 collapsibleDiv(
+                   title = "Signature History", 
+                   id = "cd_genReport_reportInstanceSignatureHistory", 
+                   checked = FALSE, 
+                   DT::dataTableOutput("dt_reportInstanceSignatureHistory")
+                 )
+               )
+             )
+    ),
     
     # PREVIEW TAB ---------------------------------------------------
     tabPanel(title = "Preview"),

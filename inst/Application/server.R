@@ -47,7 +47,12 @@ shinyServer(function(input, output, session){
     SelectedUnscheduledReportInstance = numeric(0),
     
     ReportTemplateUserPermission = queryReportTemplateUserPermission(parent_report_template = -1, 
-                                                                     parent_user = -1)
+                                                                     parent_user = -1),
+    
+    ReportInstanceNarrative = queryReportInstanceNarrative(report_instance_oid = -1),
+    ReportInstanceNarrativeEvent = queryReportInstanceNarrativeEvent(report_instance_oid = -1),
+    
+    ReportInstanceSignature = queryReportInstanceSignature(report_instance_oid = -1)
   )
   
   selected_instance_oid <- reactive({
@@ -95,26 +100,50 @@ shinyServer(function(input, output, session){
   observeEvent(
     selected_instance_oid(),
     {
+      req(selected_instance_oid())
+      
+      # Report Instance Notes ---------------------------------------
       toggle(id        = "h3_genReport_reportInstanceNote_noInstanceSelected",
              condition = length(selected_instance_oid()) == 0)
       toggle(id        = "div_genReport_reportInstanceNote",
              condition = length(selected_instance_oid()) > 0)
+      
+      toggleState(id        = "txt_reportInstanceNote", 
+                  condition = length(selected_instance_oid()) > 0 & 
+                    rv_GenerateReport$ReportTemplateUserPermission$CanAddNote)
+      toggleState(id        = "btn_addReportInstanceNote", 
+                  condition = length(selected_instance_oid()) > 0 & 
+                    rv_GenerateReport$ReportTemplateUserPermission$CanAddNote)
 
+      # Report Instance Narrative -----------------------------------
       toggle(id        = "h3_genReport_reportInstanceNarrative_noInstanceSelected",
              condition = length(selected_instance_oid()) == 0)
       toggle(id        = "div_genReport_reportInstanceNarrative",
              condition = length(selected_instance_oid()) > 0)
-      
-      toggleState(id        = "txt_reportInstanceNote", 
-                  condition = length(selected_instance_oid()) > 0 & 
-                              rv_GenerateReport$ReportTemplateUserPermission$CanAddNote)
-      toggleState(id        = "btn_addReportInstanceNote", 
-                  condition = length(selected_instance_oid()) > 0 & 
-                              rv_GenerateReport$ReportTemplateUserPermission$CanAddNote)
 
       toggleState(id        = "btn_reportInstanceNarrativeEdit",
                   condition = length(selected_instance_oid()) > 0 &
                               rv_GenerateReport$ReportTemplateUserPermission$CanEditNarrative)
+      
+      rv_GenerateReport$ReportInstanceNarrative <- 
+        queryReportInstanceNarrative(report_instance_oid = selected_instance_oid())
+      
+      rv_GenerateReport$ReportInstanceNarrativeEvent <- 
+        queryReportInstanceNarrativeEvent(report_instance_oid = selected_instance_oid())
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_reportInstanceNarrative", 
+                      value = rv_GenerateReport$ReportInstanceNarrative$Narrative)
+      
+      # Report Instance Signatures ----------------------------------
+      
+      toggle(id        = "h3_genReport_reportInstanceSignature_noInstanceSelected",
+             condition = length(selected_instance_oid()) == 0)
+      toggle(id        = "div_genReport_reportInstanceSignature",
+             condition = length(selected_instance_oid()) > 0)
+      
+      rv_GenerateReport$ReportInstanceSignature <- 
+        queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
     })
 
   observeEvent(
@@ -252,7 +281,7 @@ shinyServer(function(input, output, session){
       DT::datatable(
         queryReportInstanceNote(selected_instance_oid()),
         rownames = FALSE
-      )%>%
+      ) %>%
         DT::formatDate(columns = c("NoteDateTime"),
                        method  = 'toLocaleTimeString',
                        params  = list('en-gb',
@@ -278,6 +307,7 @@ shinyServer(function(input, output, session){
     input$btn_reportInstanceNarrativeEdit,
     {
       shinyjs::disable("btn_reportInstanceNarrativeEdit")
+      shinyjs::enable("btn_reportInstanceNarrativeDiscard")
       shinyjs::enable("btn_reportInstanceNarrativeSave")
       shinyjs::enable("txt_reportInstanceNarrative")
     }
@@ -287,8 +317,38 @@ shinyServer(function(input, output, session){
     input$btn_reportInstanceNarrativeSave, 
     {
       shinyjs::enable("btn_reportInstanceNarrativeEdit")
+      shinyjs::disable("btn_reportInstanceNarrativeDiscard")
       shinyjs::disable("btn_reportInstanceNarrativeSave")
       shinyjs::disable("txt_reportInstanceNarrative")
+      
+      addEditReportInstanceNarrative(report_instance_oid = selected_instance_oid(), 
+                                     narrative = input$txt_reportInstanceNarrative, 
+                                     event_user = CURRENT_USER_OID())
+      
+      rv_GenerateReport$ReportInstanceNarrative <- 
+        queryReportInstanceNarrative(report_instance_oid = selected_instance_oid())
+      
+      rv_GenerateReport$ReportInstanceNarrativeEvent <- 
+        queryReportInstanceNarrativeEvent(report_instance_oid = selected_instance_oid())
+      
+      DT::replaceData(proxy = proxy_dt_reportInstanceNarrativeHistory, 
+                      data = rv_GenerateReport$ReportInstanceNarrativeEvent, 
+                      resetPaging = FALSE,
+                      rownames = FALSE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_reportInstanceNarrativeDiscard, 
+    {
+      shinyjs::enable("btn_reportInstanceNarrativeEdit")
+      shinyjs::disable("btn_reportInstanceNarrativeDiscard")
+      shinyjs::disable("btn_reportInstanceNarrativeSave")
+      shinyjs::disable("txt_reportInstanceNarrative")
+      
+      updateTextInput(session = session, 
+                      inputId = "txt_reportInstanceNarrative", 
+                      value = rv_GenerateReport$ReportInstanceNarrative$Narrative)
     }
   )
   
@@ -310,7 +370,59 @@ shinyServer(function(input, output, session){
                                            timeZone = 'UTC')))
     })
   
+  proxy_dt_reportInstanceNarrativeHistory <- 
+    DT::dataTableProxy("dt_reportInstanceNarrativeHistory")
+  
   # Generate Report - Signatures ------------------------------------
+  # Generate Reoprt - Event Observers -------------------------------
+  
+  observe({
+    sign_btn <- names(input)[grepl("btn_reportInstanceSignature_sign", 
+                                   names(input))]
+    
+    lapply(sign_btn, 
+           function(b){
+             observeEvent(
+               input[[b]],
+               {
+                 role_oid <- as.numeric(sub(".+_sign_", "", b))
+                 print(role_oid)
+               }
+             )
+           })
+    
+    
+  })
+
+  # Generate Report - Output ----------------------------------------
+  
+  output$tbl_genReport_reportInstanceSignature <- 
+    renderUI({
+      Signature <- rv_GenerateReport$ReportInstanceSignature
+      HTML(makeSignatureTable(Signature))
+    })
+  
+  output$dt_reportInstanceSignatureHistory <- 
+    DT::renderDataTable({
+      Signature <- rv_GenerateReport$ReportInstanceSignature
+      Signature <- Signature[order(Signature$SignatureDateTime, 
+                                   decreasing = TRUE), ]
+      Signature <- Signature[c("RoleName", "SignatureName", 
+                               "SignatureDateTime", "IsSigned")]
+      Signature <- Signature[!is.na(Signature$SignatureDateTime), ]
+      RM_datatable(data = Signature) %>% 
+        DT::formatDate(columns = c("SignatureDateTime"),
+                       method  = 'toLocaleTimeString',
+                       params  = list('en-gb',
+                                      list(year     = 'numeric',
+                                           month    = 'short',
+                                           day      = 'numeric',
+                                           hour     = 'numeric',
+                                           minute   = 'numeric',
+                                           second   = 'numeric',
+                                           timeZone = 'UTC')))
+    })
+  
   # Generate Report - Preview ---------------------------------------
   # Generate Report - Archival and Submission -----------------------
   # Generate Report - Archived Reports ------------------------------
