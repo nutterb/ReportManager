@@ -82,7 +82,7 @@ addReportInstanceSignature <- function(report_instance_oid,
 .addReportInstanceSignature_sqlite <- "
 INSERT INTO ReportInstanceSignature
 (ParentReportInstance, ParentReportTemplateSignature, ParentUser, 
- SignatureDateTime, SignatureName, Signed)
+ SignatureDateTime, SignatureName, IsSigned)
 VALUES
 (?report_instance_oid, ?report_template_signature, ?event_user, 
  ?signed_datetime, ?signed_name, ?signed)
@@ -91,7 +91,7 @@ VALUES
 .addReportInstanceSignature_sqlServer <- "
 INSERT INTO dbo.ReportInstanceSignature
 (ParentReportInstance, ParentReportTemplateSignature, ParentUser, 
- SignatureDateTime, SignatureName, Signed)
+ SignatureDateTime, SignatureName, IsSigned)
 VALUES
 (?report_instance_oid, ?report_template_signature, ?event_user, 
  ?signed_datetime, ?signed_name, ?signed)

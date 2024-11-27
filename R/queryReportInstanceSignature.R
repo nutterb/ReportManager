@@ -69,6 +69,8 @@ queryReportInstanceSignature <- function(report_instance_oid){
 SELECT RI.[ParentReportTemplate],
 	RI.[OID] AS ParentReportInstance, 
 	RTS.[ParentRole],
+	RIS.ParentReportTemplateSignature,
+	RTS.OID AS ReportTemplateSignatureOID,
 	R.[RoleName], 
 	RTS.[Order],
 	RIS.[ParentUser], 
@@ -78,13 +80,16 @@ SELECT RI.[ParentReportTemplate],
 	RTS.[IsActive],
 	ROW_NUMBER() OVER (PARTITION BY RTS.[ParentRole] 
 	                   ORDER BY RIS.[SignatureDateTime] DESC) AS MostRecentSignature
-FROM dbo.[ReportInstance] RI
-	LEFT JOIN dbo.[ReportInstanceSignature] RIS
-		ON RI.[OID] = RIs.[ParentReportInstance]
-	LEFT JOIN dbo.[ReportTemplateSignature] RTS
-		ON RI.[ParentReportTemplate] = RTS.[ParentReportTemplate]
-	LEFT JOIN dbo.[Role] R
-		ON RTS.[ParentRole] = R.OID
+FROM [ReportTemplateSignature] RTS
+	LEFT JOIN [ReportTemplate] RT
+		ON RTS.[ParentReportTemplate] = RT.[OID]
+	LEFT JOIN [ReportInstance] RI
+		ON RT.[OID] = RI.[ParentReportTemplate]
+	LEFT JOIN [ReportInstanceSignature] RIS
+		ON RI.[OID] = RIS.[ParentReportInstance]
+			AND RIS.[ParentReportTemplateSignature] = RTS.[OID]
+	LEFT JOIN [Role] R
+		ON RTS.[ParentRole] = R.[OID]
 WHERE RI.[OID] = ?report_instance_oid
 ORDER BY RTS.[IsActive] DESC, 
 	RTS.[Order], 
@@ -95,6 +100,8 @@ ORDER BY RTS.[IsActive] DESC,
 SELECT RI.[ParentReportTemplate],
 	RI.[OID] AS ParentReportInstance, 
 	RTS.[ParentRole],
+	RIS.ParentReportTemplateSignature,
+	RTS.OID AS ReportTemplateSignatureOID,
 	R.[RoleName], 
 	RTS.[Order],
 	RIS.[ParentUser], 
@@ -104,13 +111,16 @@ SELECT RI.[ParentReportTemplate],
 	RTS.[IsActive],
 	ROW_NUMBER() OVER (PARTITION BY RTS.[ParentRole] 
 	                   ORDER BY RIS.[SignatureDateTime] DESC) AS MostRecentSignature
-FROM [ReportInstance] RI
-	LEFT JOIN [ReportInstanceSignature] RIS
-		ON RI.[OID] = RIs.[ParentReportInstance]
-	LEFT JOIN [ReportTemplateSignature] RTS
-		ON RI.[ParentReportTemplate] = RTS.[ParentReportTemplate]
-	LEFT JOIN [Role] R
-		ON RTS.[ParentRole] = R.OID
+FROM dbo.[ReportTemplateSignature] RTS
+	LEFT JOIN dbo.[ReportTemplate] RT
+		ON RTS.[ParentReportTemplate] = RT.[OID]
+	LEFT JOIN dbo.[ReportInstance] RI
+		ON RT.[OID] = RI.[ParentReportTemplate]
+	LEFT JOIN dbo.[ReportInstanceSignature] RIS
+		ON RI.[OID] = RIS.[ParentReportInstance]
+			AND RIS.[ParentReportTemplateSignature] = RTS.[OID]
+	LEFT JOIN dbo.[Role] R
+		ON RTS.[ParentRole] = R.[OID]
 WHERE RI.[OID] = ?report_instance_oid
 ORDER BY RTS.[IsActive] DESC, 
 	RTS.[Order], 

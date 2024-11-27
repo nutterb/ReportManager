@@ -374,7 +374,7 @@ shinyServer(function(input, output, session){
     DT::dataTableProxy("dt_reportInstanceNarrativeHistory")
   
   # Generate Report - Signatures ------------------------------------
-  # Generate Reoprt - Event Observers -------------------------------
+  # Generate Report - Event Observers -------------------------------
   
   observe({
     sign_btn <- names(input)[grepl("btn_reportInstanceSignature_sign", 
@@ -386,12 +386,59 @@ shinyServer(function(input, output, session){
                input[[b]],
                {
                  role_oid <- as.numeric(sub(".+_sign_", "", b))
-                 print(role_oid)
+
+                 RIS <- rv_GenerateReport$ReportInstanceSignature
+                 RIS <- RIS[RIS$ParentRole == role_oid & 
+                              RIS$MostRecent == 1, ]
+                 addReportInstanceSignature(
+                   report_instance_oid = selected_instance_oid(),
+                   report_template_signature = RIS$ReportTemplateSignatureOID,
+                   signed = TRUE,
+                   event_user = CURRENT_USER_OID())
+                 
+                 rv_GenerateReport$ReportInstanceSignature <- 
+                   queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
+                 
+                 hide(sprintf("btn_reportInstanceSignature_sign_%s", 
+                              role_oid))
+                 show(sprintf("btn_reportInstanceSignature_remove_%s", 
+                              role_oid))
                }
              )
            })
+  })
+  
+  observe({
+    sign_btn <- names(input)[grepl("btn_reportInstanceSignature_remove", 
+                                   names(input))]
     
-    
+    lapply(sign_btn, 
+           function(b){
+             observeEvent(
+               input[[b]],
+               {
+                 role_oid <- as.numeric(sub(".+_remove_", "", b))
+
+                 RIS <- rv_GenerateReport$ReportInstanceSignature
+                 RIS <- RIS[RIS$ParentRole == role_oid & 
+                              RIS$MostRecent == 1, ]
+                 
+                 addReportInstanceSignature(
+                   report_instance_oid = selected_instance_oid(),
+                   report_template_signature = RIS$ReportTemplateSignatureOID,
+                   signed = FALSE,
+                   event_user = CURRENT_USER_OID())
+                 
+                 rv_GenerateReport$ReportInstanceSignature <- 
+                   queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
+                 
+                 show(sprintf("btn_reportInstanceSignature_sign_%s", 
+                              role_oid))
+                 hide(sprintf("btn_reportInstanceSignature_remove_%s", 
+                              role_oid))
+               }
+             )
+           })
   })
 
   # Generate Report - Output ----------------------------------------

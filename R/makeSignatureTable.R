@@ -58,6 +58,16 @@ makeSignatureTable <- function(signature_data){
                                    btn_sign, 
                                    btn_unsign)
   
+  signature_data$SignatureName <- ifelse(signature_data$IsSigned, 
+                                         signature_data$SignatureName, 
+                                         NA)
+  
+  signature_data$SignatureDateTime <- format(signature_data$SignatureDateTime, 
+                                             format = "%d %b %Y %H:%M:%S")
+  signature_data$SignatureDateTime <- ifelse(signature_data$IsSigned, 
+                                             signature_data$SignatureDateTime, 
+                                             as.POSIXct(NA))
+  
   signature_data <- 
     signature_data[c("RoleName", "SignatureName", 
                      "SignatureDateTime", "Button")]
