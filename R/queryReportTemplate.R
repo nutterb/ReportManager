@@ -69,7 +69,8 @@ queryReportTemplate <- function(oid = numeric(0)){
          [DefaultEmailText],
          [IsSignatureRequired], 
          [IsActive],
-         [LogoFileArchive]
+         [LogoFileArchive], 
+         [DateReportingFormat]
   FROM [ReportTemplate]
 "
 
@@ -83,6 +84,7 @@ queryReportTemplate <- function(oid = numeric(0)){
          [DefaultEmailText],
          [IsSignatureRequired], 
          [IsActive], 
-         [LogoFileArchive]
+         [LogoFileArchive], 
+         [DateReportingFormat]
   FROM dbo.[ReportTemplate]
 "

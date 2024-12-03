@@ -480,6 +480,8 @@ for (flavor in FLAVOR){
       expect_true(
         all(table(PermissionEvent2$EventType) == 1)
       )
+      
+      dbDisconnect(conn)
     }
   )
   

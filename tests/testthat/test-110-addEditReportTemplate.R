@@ -270,6 +270,31 @@ test_that(
 )
 
 test_that(
+  "Return an error if date_reporting_format is not integerish(1)", 
+  {
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       date_reporting_format = "1",
+                                       event_user = 1), 
+                 "'date_reporting_format': Must be of type 'integerish'")
+    
+    expect_error(addEditReportTemplate(template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       date_reporting_format = 1:2,
+                                       event_user = 1), 
+                 "'date_reporting_format': Must have length 1")
+  }
+)
+
+test_that(
   "Return an error if event_user is not integerish(1)", 
   {
     expect_error(addEditReportTemplate(template_directory = "dir", 
@@ -407,7 +432,8 @@ for (flavor in FLAVOR){
                      "SetSignatureRequiredTrue", "Deactivate", 
                      "EditTemplateFolder", "EditTemplateFile", 
                      "EditTitle", "EditTitleSize", 
-                     "EditDefaultEmailText", "EditLogoFile"))
+                     "EditDefaultEmailText", "EditLogoFile", 
+                     "EditDateReportingFormat"))
       expect_true(all(table(TemplateEvent$EventType) == 1))
       
       addEditReportTemplate(oid = next_template_oid, 
@@ -436,6 +462,7 @@ for (flavor in FLAVOR){
               c("Activate" = 1, 
                 "Add" = 1, 
                 "Deactivate" = 1, 
+                "EditDateReportingFormat" = 1,
                 "EditDefaultEmailText" = 2,
                 "EditLogoFile" = 2, 
                 "EditTemplateFile" = 2, 
@@ -449,7 +476,7 @@ for (flavor in FLAVOR){
       )
       
       dbDisconnect(conn)
-    }
+     }
   )
 } 
 

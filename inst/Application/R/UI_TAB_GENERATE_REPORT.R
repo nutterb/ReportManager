@@ -131,7 +131,27 @@ UI_TAB_GENERATE_REPORT <-
     ),
     
     # PREVIEW TAB ---------------------------------------------------
-    tabPanel(title = "Preview"),
+    tabPanel(title = "Preview", 
+             h3(id = "h3_genReport_reportInstancePreview_noInstanceSelected", 
+                "No Report Instance Selected"), 
+             hidden(
+               div(
+                 id = "div_genReport_reportInstancePreview", 
+                 downloadButton(outputId = "btn_genReport_reportInstancePreview_html", 
+                                label = "HTML", 
+                                style = "float:right;"),
+                 downloadButton(outputId = "btn_genReport_reportInstancePreview_pdf", 
+                                label = "PDF", 
+                                style = "float:right;"), 
+                 actionButton(inputId = "btn_genReport_reportInstancePreview_preview", 
+                              label = "Preview", 
+                              style = "float:right;"), 
+                 hidden(actionButton(inputId = "btn_genReport_reportInstancePreview_interactive", 
+                                     label = "Configuration", 
+                                     style = "float:right;"))
+               )
+             )
+    ),
     
     # SUBMISSION TAB ------------------------------------------------
     tabPanel(title = "Archival & Submission"),

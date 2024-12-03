@@ -126,14 +126,14 @@ for (flavor in FLAVOR){
     configureReportManager(flavor = flavor)
   }
   
-  Current <- queryReportInstanceSignature(report_instance_oid = 4)
-  
-  expect_true(sum(Current$IsSigned) == 0)
-  
   addEditReportTemplateSignature(parent_report_template = 2, 
                                  parent_role = 1, 
                                  order = 1,
                                  event_user = 1)
+  
+  Current <- queryReportInstanceSignature(report_instance_oid = 4)
+  
+  expect_true(sum(Current$IsSigned) == 0)
   
   addReportInstanceSignature(report_instance_oid = 4, 
                              report_template_signature = 1,

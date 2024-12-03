@@ -30,7 +30,7 @@ queryReportInstanceSignature <- function(report_instance_oid){
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
-  ReportInstance <- queryReportInstance(report_instance_oid)
+  ReportInstance <- queryReportInstance(report_instance_oid = report_instance_oid)
   
   # If a report instance isn't yet defined, we don't want the query to fail.
   # Use a negative number to get the query to return an empty data frame.

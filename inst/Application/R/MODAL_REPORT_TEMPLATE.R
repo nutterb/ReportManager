@@ -19,6 +19,10 @@ MODAL_REPORT_TEMPLATE <-
                       label = "Include Table of Contents"),
         checkboxInput(inputId = "chk_template_isSignatureRequired", 
                       label = "Signature Required"), 
+        selectInput(inputId = "sel_template_dateReportingFormat",
+                    label = "Date Reporting Format",
+                    width = "100%",
+                    choices = character(0)),
         checkboxInput(inputId = "chk_template_isActive", 
                       label = "Active", 
                       value = TRUE), 
@@ -38,7 +42,7 @@ MODAL_REPORT_TEMPLATE <-
         selectInput(inputId = "sel_template_logo", 
                     label = "Logo", 
                     choices = character(0)), 
-        imageOutput("img_template_logo_preview")
+        imageOutput("img_template_logo_preview"), 
       )
     )
   )

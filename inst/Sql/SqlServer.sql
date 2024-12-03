@@ -264,9 +264,11 @@ CREATE TABLE dbo.[ReportTemplate](
   [IsSignatureRequired] BIT NOT NULL DEFAULT 0, 
   [IsActive] BIT NOT NULL DEFAULT 0, 
   [LogoFileArchive] INT NULL, 
+  [DateReportingFormat] INT NOT NULL,
   
   PRIMARY KEY (OID), 
-  FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID)
+  FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID),
+  FOREIGN KEY (DateReportingFormat) REFERENCES [DateReportingFormat](OID)
 );
 
 /* ReportTemplateEvent *********************************************/
@@ -282,7 +284,8 @@ CREATE TABLE dbo.[ReportTemplateEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditTemplateFolder',
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDateReportingFormat',
+                                                              'EditTemplateFolder',
                                                               'EditTemplateFile',
                                                               'EditTitle', 
                                                               'EditTitleSize',
@@ -593,4 +596,63 @@ CREATE TABLE dbo.[ReportInstanceSignature](
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
   FOREIGN KEY (ParentReportTemplateSignature) REFERENCES [ReportTemplateSignature](OID),
   FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
+CREATE TABLE dbo.[ReportInstancePreview](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstance] INT NOT NULL, 
+  [PreviewType] VARCHAR(10) NOT NULL,
+  [IncludeData] BIT NOT NULL, 
+  [PreviewDateTime] DATETIME NOT NULL, 
+  [PreviewUser] INT NOT NULL, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (PreviewUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportInstancePreviewType CHECK (PreviewType IN ('shiny',
+                                                                  'html',
+                                                                  'pdf', 
+                                                                  'preview'))
+);
+
+CREATE TABLE dbo.[ReportInstanceGeneration](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstance] INT NOT NULL, 
+  [GenerationType] VARCHAR(10) NOT NULL,
+  [IncludeData] BIT NOT NULL, 
+  [GenerationDateTime] DATETIME NOT NULL, 
+  [GenerationUser] INT NOT NULL, 
+  [IsArchived] BIT NOT NULL,
+  [IsDistributed] BIT NOT NULL, 
+  [IsSubmission] BIT NOT NULL,
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (GenerationUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportInstanceGenerationType CHECK (GenerationType IN ('email', 
+                                                                        'pdf'))
+);
+
+CREATE TABLE dbo.[ReportInstanceGenerationRecipient](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [ParentReportInstanceGeneration] INT NOT NULL, 
+  [ParentUser] INT NOT NULL,
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstanceGeneration) REFERENCES [ReportInstanceGeneration](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
+
+CREATE TABLE dbo.[ReportInstanceDistribution](
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [ParentReportInstance] INT NOT NULL, 
+  [ParentUser] INT NULL, 
+  [ParentRole] INT NULL, 
+  [IsActive] BIT NOT NULL, 
+  
+  PRIMARY KEY (OID),
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID),
+  FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
 );

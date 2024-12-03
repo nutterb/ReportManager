@@ -144,6 +144,12 @@ shinyServer(function(input, output, session){
       
       rv_GenerateReport$ReportInstanceSignature <- 
         queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
+      
+      # Report Instance Preview
+      toggle(id        = "h3_genReport_reportInstancePreview_noInstanceSelected",
+             condition = length(selected_instance_oid()) == 0)
+      toggle(id        = "div_genReport_reportInstancePreview",
+             condition = length(selected_instance_oid()) > 0)
     })
 
   observeEvent(
@@ -240,7 +246,7 @@ shinyServer(function(input, output, session){
   output$dt_instance_unscheduled <-
     DT::renderDataTable({
       req(input$cd_genReport_unscheduledReport)
-      ..out_dt_instance_unscheduled(rv_GenreateReport = rv_GenerateReport)
+      ..out_dt_instance_unscheduled(rv_GenerateReport = rv_GenerateReport)
     })
 
   proxy_dt_instance_unscheduled <- DT::dataTableProxy("dt_instance_unscheduled")
@@ -537,6 +543,17 @@ shinyServer(function(input, output, session){
                      rv_Template  = rv_Template,
                      rv_Schedule  = rv_Schedule, 
                      session      = session)
+
+      DForm <- rv_DateFormat$DateFormat
+      sel <- DForm$OID
+      names(sel) <- sprintf("%s (%s)", 
+                            DForm$FormatName, 
+                            DForm$Description)
+
+      updateSelectInput(session = session, 
+                        inputId = "sel_template_dateReportingFormat", 
+                        choices = sel, 
+                        selected = as.character(rv_Template$SelectedTemplate$DateReportingFormat))
     }
   )
 

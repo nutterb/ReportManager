@@ -40,6 +40,7 @@ addEditReportTemplate <- function(oid = numeric(0),
                                   is_signature_required = FALSE, 
                                   is_active = TRUE, 
                                   logo_oid = numeric(0), 
+                                  date_reporting_format = 1,
                                   event_user){
   # Argument Validation ---------------------------------------------
   coll <- checkmate::makeAssertCollection()
@@ -85,6 +86,10 @@ addEditReportTemplate <- function(oid = numeric(0),
                               max.len = 1, 
                               add = coll)
   
+  checkmate::assertIntegerish(x = date_reporting_format, 
+                              len = 1, 
+                              add = coll)
+  
   checkmate::assertIntegerish(x = event_user, 
                               len = 1, 
                               add = coll)
@@ -112,10 +117,11 @@ addEditReportTemplate <- function(oid = numeric(0),
                             DefaultEmailText = default_email,
                             IsSignatureRequired = as.numeric(is_signature_required), 
                             IsActive = as.numeric(is_active), 
-                            LogoFileArchive = logo_oid)
+                            LogoFileArchive = logo_oid, 
+                            DateReportingFormat = date_reporting_format)
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 10), 
+    data.frame(EventUser = rep(event_user, 11), 
                EventType = c("Add", 
                              if (include_toc) "SetIncludeTocTrue" else "SetIncludeTocFalse",
                              if (is_signature_required) "SetSignatureRequiredTrue" else "SetSignatureRequiredFalse", 
@@ -125,9 +131,10 @@ addEditReportTemplate <- function(oid = numeric(0),
                              "EditTitle", 
                              "EditTitleSize",
                              "EditDefaultEmailText",
-                             "EditLogoFile"), 
+                             "EditLogoFile", 
+                             "EditDateReportingFormat"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 10), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 11), 
                NewValue = c("", 
                             include_toc,
                             is_signature_required, 
@@ -137,7 +144,8 @@ addEditReportTemplate <- function(oid = numeric(0),
                             title, 
                             title_size, 
                             default_email,
-                            logo_oid))
+                            logo_oid, 
+                            date_reporting_format))
   
   if (length(oid) == 0){
     
@@ -183,7 +191,8 @@ addEditReportTemplate <- function(oid = numeric(0),
                     ThisReportTemplate$Title, 
                     ThisReportTemplate$TitleSize, 
                     ThisReportTemplate$DefaultEmailText,
-                    ThisReportTemplate$LogoFileArchive)
+                    ThisReportTemplate$LogoFileArchive,
+                    ThisReportTemplate$DateReportingFormat)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }
