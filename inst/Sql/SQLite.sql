@@ -558,38 +558,33 @@ CREATE TABLE [ReportInstanceSignature](
   FOREIGN KEY (ParentUser) REFERENCES [User](OID)
 );
 
-CREATE TABLE [ReportInstancePreview](
-  [OID] INTEGER PRIMARY KEY, 
-  [ParentReportInstance] INT NOT NULL, 
-  [PreviewType] VARCHAR(10) NOT NULL,
-  [IncludeData] BIT NOT NULL, 
-  [PreviewDateTime] DATETIME NOT NULL, 
-  [PreviewUser] INT NOT NULL, 
-  
-  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
-  FOREIGN KEY (PreviewUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportInstancePreviewType CHECK (PreviewType IN ('shiny',
-                                                                  'html',
-                                                                  'pdf', 
-                                                                  'preview'))
-);
-
 CREATE TABLE [ReportInstanceGeneration](
   [OID] INTEGER PRIMARY KEY, 
   [ParentReportInstance] INT NOT NULL, 
-  [GenerationType] VARCHAR(10) NOT NULL,
+  [ParentReportTemplate] INT NOT NULL,
+  [StartDateTime] DATETIME NULL, 
+  [EndDateTime] DATETIME NULL,
+  [ReportFormat] VARCHAR(10) NOT NULL,
   [IncludeData] BIT NOT NULL, 
-  [GenerationDateTime] DATETIME NOT NULL, 
-  [GenerationUser] INT NOT NULL, 
-  [IsArchived] BIT NOT NULL,
-  [IsDistributed] BIT NOT NULL, 
+  [IsPreview] BIT NOT NULL,
+  [IsDistributed] BIT NOT NULL,
+  [IsArchived] BIT NOT NULL, 
   [IsSubmission] BIT NOT NULL,
+  [PreviewDateTime] DATETIME NOT NULL, 
+  [ParentUser] INT NOT NULL, 
   
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
-  FOREIGN KEY (GenerationUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportInstanceGenerationType CHECK (GenerationType IN ('email', 
-                                                                        'pdf'))
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID),
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_ReportInstanceGenerationReportFormat CHECK (ReportFormat IN ('shiny',
+                                                                              'html',
+                                                                              'pdf', 
+                                                                              'preview')),
+  CONSTRAINT chk_ReportInstanceGenerationAttribute CHECK
+    ((IsPreview = 0 AND (IsDistributed = 1 OR IsArchived = 1 OR IsSubmission = 1)) OR
+     (IsPreview = 1 AND (IsDistributed = 0 AND IsArchived = 0 AND IsSubmission = 0)))
 );
+
 
 CREATE TABLE [ReportInstanceGenerationRecipient](
   [OID] INTEGER PRIMARY KEY,

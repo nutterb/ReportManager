@@ -477,6 +477,27 @@ shinyServer(function(input, output, session){
     })
   
   # Generate Report - Preview ---------------------------------------
+  # Generate Report - Preview - Event Observer ----------------------
+  
+  observeEvent(
+    input$btn_genReport_reportInstancePreview_preview, 
+    {
+      addReportInstanceGeneration(
+        report_instance_oid = selected_instance_oid(), 
+        report_template_oid = rv_GenerateReport$SelectedTemplate,
+        start_date_time = Sys.time(), 
+        end_date_time = Sys.time(), 
+        report_format = "preview", 
+        include_data = FALSE, 
+        is_preview = TRUE, 
+        is_distributed = FALSE, 
+        is_archived = FALSE, 
+        is_submission = FALSE, 
+        user_oid = CURRENT_USER_OID()
+      )
+    }
+  )
+  
   # Generate Report - Archival and Submission -----------------------
   # Generate Report - Archived Reports ------------------------------
 
