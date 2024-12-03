@@ -55,11 +55,9 @@ queryReportInstanceSignature <- function(report_instance_oid){
     )
   
   if (getOption("RM_sql_flavor") == "sqlite"){
-    Signature$IsActive <- as.logical(Signature(IsActive))
+    Signature$IsActive <- as.logical(Signature$IsActive)
   }
-  
-  Signature$Signed
-  
+
   Signature
 }
 

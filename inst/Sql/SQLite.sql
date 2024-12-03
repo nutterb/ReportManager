@@ -541,13 +541,13 @@ CREATE TABLE [ReportInstanceNarrativeEvent](
 
 /* ReportInstanceSignature *****************************************/
 
-CREATE TABLE dbo.[ReportInstanceSignature](
+CREATE TABLE [ReportInstanceSignature](
   [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
   [ParentReportInstance] INT NOT NULL, 
   [ParentReportTemplateSignature] INT NOT NULL, 
   [ParentUser] INT NOT NULL,
   [SignatureDateTime] DATETIME NOT NULL,
-  [SignatureName] VARCHAR(200) NOT NULL, --Persisting because names sometimes change
+  [SignatureName] VARCHAR(200) NOT NULL, 
   [IsSigned] BIT NOT NULL,
   
   PRIMARY KEY (OID),

@@ -116,3 +116,46 @@ test_that(
 )
 
 # Functionality -----------------------------------------------------
+
+for (flavor in FLAVOR){
+  message(sprintf("Testing for SQL Flavor: %s\n", flavor))
+  .ready <- READY[flavor]
+  .message <- MESSAGE[flavor]
+  
+  if (.ready){
+    configureReportManager(flavor = flavor)
+  }
+  
+  Current <- queryReportInstanceSignature(report_instance_oid = 4)
+  
+  expect_true(sum(Current$IsSigned) == 0)
+  
+  addEditReportTemplateSignature(parent_report_template = 2, 
+                                 parent_role = 1, 
+                                 order = 1,
+                                 event_user = 1)
+  
+  addReportInstanceSignature(report_instance_oid = 4, 
+                             report_template_signature = 1,
+                             signed = TRUE, 
+                             event_user = 1)
+  
+  Signed <- queryReportInstanceSignature(report_instance_oid = 4)
+  
+  expect_data_frame(Signed, 
+                    nrows = nrow(Current))
+  
+  expect_true(sum(Signed$IsSigned) == 1)
+  
+  addReportInstanceSignature(report_instance_oid = 4, 
+                             report_template_signature = 1,
+                             signed = FALSE, 
+                             event_user = 1)
+  
+  Unsigned <- queryReportInstanceSignature(report_instance_oid = 4)
+  
+  expect_data_frame(Unsigned, 
+                    nrows = nrow(Signed) + 1)
+  
+  expect_true(sum(Signed$IsSigned) == 1)
+}
