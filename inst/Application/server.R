@@ -159,10 +159,16 @@ shinyServer(function(input, output, session){
       rv_GenerateReport$ReportInstanceSignature <- 
         queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
       
-      # Report Instance Preview
+      # Report Instance Preview -------------------------------------
       toggle(id        = "h3_genReport_reportInstancePreview_noInstanceSelected",
              condition = length(selected_instance_oid()) == 0)
       toggle(id        = "div_genReport_reportInstancePreview",
+             condition = length(selected_instance_oid()) > 0)
+      
+      # Report Instance Submission ----------------------------------
+      toggle(id        = "h3_genReport_reportInstanceSubmit_noInstanceSelected",
+             condition = length(selected_instance_oid()) == 0)
+      toggle(id        = "div_genReport_reportInstanceSubmit",
              condition = length(selected_instance_oid()) > 0)
     })
 

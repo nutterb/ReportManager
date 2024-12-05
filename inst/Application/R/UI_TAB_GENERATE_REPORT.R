@@ -165,7 +165,57 @@ UI_TAB_GENERATE_REPORT <-
     ),
     
     # SUBMISSION TAB ------------------------------------------------
-    tabPanel(title = "Archival & Submission"),
+    tabPanel(title = "Archival & Submission",
+             h3(id = "h3_genReport_reportInstanceSubmit_noInstanceSelected", 
+                "No Report Instance Selected"),
+             hidden(
+               div(
+                 id = "div_genReport_reportInstanceSubmit", 
+                 fluidRow(
+                   column(
+                     width = 5, 
+                     div(
+                       style = "border:solid gray 1px;border-radius:10px;padding-left:10px;padding-right:10px;height:2.2in;overflow-y:scroll; max-height:200px; width:100%;",
+                       fluidRow(
+                         column(
+                           width = 6,
+                           checkboxGroupInput(
+                             inputId = "chk_genReport_reportInstanceSubmit_archiveDistribute", 
+                             label = "Archive / Distribute", 
+                             choices = c("Add to Archive", 
+                                         "Distribute Internally")
+                           )
+                         ),
+                         column(
+                           width = 6,
+                           actionButton(inputId = "btn_genReport_reportInstanceSubmit_archiveDistribute", 
+                                        label = "Add and/or Distribute", 
+                                        style = "float:right")
+                         )
+                       ),
+                       hr(style = "border-top:solid black 1pt"), 
+                       actionButton(inputId = "btn_genReport_reportInstanceSubmit_submitToClient", 
+                                    label = "Submit to Client"),
+                       actionButton(inputId = "btn_genReport_reportInstanceSubmit_startRevision", 
+                                    label = "Start Revision", 
+                                    style = "float:right")
+                     )
+                   ), 
+                   column(
+                     width = 7, 
+                     div(
+                       style = "border:solid black 1px;border-radius:10px;padding-left:10px;padding-right:10px;height:2.2in;overflow-y:scroll; max-height:200px; width:100%;"
+                     )
+                   )
+                 ), 
+                 collapsibleDiv(title = "Distribution",
+                                id = "cd_genReport_reportInstanceSubmit_archiveReviseHistory",
+                                actionButton(inputId = "btn_genReport_reportInstanceSubmission_editDistributionList", 
+                                             label = "Edit Distribution List", 
+                                             style = "float:right"))
+               )
+             )
+    ),
     
     # ARCHIVED REPORTS TAB ------------------------------------------
     tabPanel(title = "Archived Reports")
