@@ -136,19 +136,30 @@ UI_TAB_GENERATE_REPORT <-
                 "No Report Instance Selected"), 
              hidden(
                div(
-                 id = "div_genReport_reportInstancePreview", 
-                 downloadButton(outputId = "btn_genReport_reportInstancePreview_html", 
-                                label = "HTML", 
-                                style = "float:right;"),
-                 downloadButton(outputId = "btn_genReport_reportInstancePreview_pdf", 
-                                label = "PDF", 
+                 id = "div_genReport_reportInstancePreview",
+                 div(
+                   downloadButton(outputId = "btn_genReport_reportInstancePreview_html", 
+                                  label = "HTML", 
+                                  style = "float:right;"),
+                   downloadButton(outputId = "btn_genReport_reportInstancePreview_pdf", 
+                                  label = "PDF", 
+                                  style = "float:right;"), 
+                   actionButton(inputId = "btn_genReport_reportInstancePreview_preview", 
+                                label = "Preview", 
                                 style = "float:right;"), 
-                 actionButton(inputId = "btn_genReport_reportInstancePreview_preview", 
-                              label = "Preview", 
-                              style = "float:right;"), 
-                 hidden(actionButton(inputId = "btn_genReport_reportInstancePreview_interactive", 
-                                     label = "Configuration", 
-                                     style = "float:right;"))
+                   hidden(actionButton(inputId = "btn_genReport_reportInstancePreview_shiny", 
+                                       label = "Configuration", 
+                                       style = "float:right;")),
+                   checkboxGroupInput(inputId = "chkgrp_genReport_reportInstancePreview_supplementalFile", 
+                                      label = "Include with Download", 
+                                      choices = c("Data", 
+                                                  "Images"), 
+                                      width = "100%"),
+                   style = "float:right"), 
+                 br(), 
+                 div(
+                   htmlOutput("html_genReport_reportInstancePreview")
+                 )
                )
              )
     ),

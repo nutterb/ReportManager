@@ -254,7 +254,8 @@ CREATE TABLE dbo.[FileArchive](
 /* ReportTemplate **************************************************/
 
 CREATE TABLE dbo.[ReportTemplate](
-  [OID] INTEGER IDENTITY(1, 1) NOT NULL, 
+  [OID] INTEGER IDENTITY(1, 1) NOT NULL,
+  [TemplateName] VARCHAR(50) NOT NULL,
   [TemplateDirectory] VARCHAR(50) NOT NULL, 
   [TemplateFile] VARCHAR(50) NOT NULL,
   [Title] VARCHAR(200) NOT NULL, 
@@ -265,6 +266,7 @@ CREATE TABLE dbo.[ReportTemplate](
   [IsActive] BIT NOT NULL DEFAULT 0, 
   [LogoFileArchive] INT NULL, 
   [DateReportingFormat] INT NOT NULL,
+  [SupportingDataFile] VARCHAR(150) NOT NULL,
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID),
@@ -284,7 +286,9 @@ CREATE TABLE dbo.[ReportTemplateEvent](
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditDateReportingFormat',
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditSupportingDataFile', 
+                                                              'EditTemplateName',
+                                                              'EditDateReportingFormat',
                                                               'EditTemplateFolder',
                                                               'EditTemplateFile',
                                                               'EditTitle', 

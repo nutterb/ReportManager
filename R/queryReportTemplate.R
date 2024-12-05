@@ -63,6 +63,7 @@ queryReportTemplate <- function(oid = numeric(0)){
   SELECT [OID], 
          [Title],
          [TitleSize],
+         [TemplateName],
          [TemplateDirectory], 
          [TemplateFile], 
          [IncludeTableOfContents],
@@ -70,7 +71,8 @@ queryReportTemplate <- function(oid = numeric(0)){
          [IsSignatureRequired], 
          [IsActive],
          [LogoFileArchive], 
-         [DateReportingFormat]
+         [DateReportingFormat], 
+         [SupportingDataFile]
   FROM [ReportTemplate]
 "
 
@@ -78,6 +80,7 @@ queryReportTemplate <- function(oid = numeric(0)){
   SELECT [OID], 
          [Title],
          [TitleSize],
+         [TemplateName],
          [TemplateDirectory], 
          [TemplateFile], 
          [IncludeTableOfContents],
@@ -85,6 +88,7 @@ queryReportTemplate <- function(oid = numeric(0)){
          [IsSignatureRequired], 
          [IsActive], 
          [LogoFileArchive], 
-         [DateReportingFormat]
+         [DateReportingFormat],
+         [SupportingDataFile]
   FROM dbo.[ReportTemplate]
 "

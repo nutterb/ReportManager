@@ -39,6 +39,7 @@ shinyServer(function(input, output, session){
   rv_GenerateReport <- reactiveValues(
     Templates = queryReportSelection(), 
     SelectedTemplate = NULL, 
+    SelectedTemplateData = queryReportTemplate(oid = -1),
     
     ScheduledReportInstance = queryReportInstance(report_template_oid = -1),
     SelectedScheduledReportInstance = numeric(0), 
@@ -46,16 +47,23 @@ shinyServer(function(input, output, session){
     UnscheduledReportInstance = queryReportInstance(report_template_oid = -1),
     SelectedUnscheduledReportInstance = numeric(0),
     
+    SelectedInstance = queryReportInstance(report_instance_oid = -1),
+    
     ReportTemplateUserPermission = queryReportTemplateUserPermission(parent_report_template = -1, 
                                                                      parent_user = -1),
     
     ReportInstanceNarrative = queryReportInstanceNarrative(report_instance_oid = -1),
     ReportInstanceNarrativeEvent = queryReportInstanceNarrativeEvent(report_instance_oid = -1),
     
-    ReportInstanceSignature = queryReportInstanceSignature(report_instance_oid = -1)
+    ReportInstanceSignature = queryReportInstanceSignature(report_instance_oid = -1), 
+    
+    Preview = NULL
   )
   
   selected_instance_oid <- reactive({
+    # When a new instance is selected, we want to clear the preview.
+    rv_GenerateReport$Preview <- NULL
+    
     if (input$cd_genReport_scheduledReport){
       rv_GenerateReport$SelectedScheduledReportInstance
     } else if (input$cd_genReport_unscheduledReport){
@@ -77,6 +85,9 @@ shinyServer(function(input, output, session){
         current_user_oid       = CURRENT_USER_OID(),
         rv_GenerateReport      = rv_GenerateReport
       )
+      
+      # When a new template is selected, we want to clear the preview.
+      rv_GenerateReport$Preview <- NULL
     }
   )
   
@@ -101,6 +112,9 @@ shinyServer(function(input, output, session){
     selected_instance_oid(),
     {
       req(selected_instance_oid())
+      
+      rv_GenerateReport$SelectedReportInstance <- 
+        queryReportInstance(report_instance_oid = selected_instance_oid())
       
       # Report Instance Notes ---------------------------------------
       toggle(id        = "h3_genReport_reportInstanceNote_noInstanceSelected",
@@ -482,11 +496,28 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_genReport_reportInstancePreview_preview, 
     {
+      filename <- 
+        ReportManager:::generateReportFile(
+          report_instance_oid = selected_instance_oid(), 
+          is_preview = TRUE,
+          is_submission = FALSE,
+          params = list(), 
+          build_dir = tempdir(), 
+          report_format = "html")
+      
+      report_code <- readLines(filename,
+                               encoding = "UTF-8")
+      report_code <- paste0(report_code, collapse = "\n")
+      report_code <- sub("^.+[<]body[>]", "<div>", report_code)
+      report_code <- sub("[<]/body[>].+", "</div>", report_code)
+      
+      rv_GenerateReport$Preview <- report_code
+      
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
         report_template_oid = rv_GenerateReport$SelectedTemplate,
-        start_date_time = Sys.time(), 
-        end_date_time = Sys.time(), 
+        start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
+        end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
         report_format = "preview", 
         include_data = FALSE, 
         is_preview = TRUE, 
@@ -497,6 +528,97 @@ shinyServer(function(input, output, session){
       )
     }
   )
+  
+  observeEvent(
+    input$btn_genReport_reportInstancePreview_shiny, 
+    {
+      addReportInstanceGeneration(
+        report_instance_oid = selected_instance_oid(), 
+        report_template_oid = rv_GenerateReport$SelectedTemplate,
+        start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
+        end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+        report_format = "shiny", 
+        include_data = FALSE, 
+        is_preview = TRUE, 
+        is_distributed = FALSE, 
+        is_archived = FALSE, 
+        is_submission = FALSE, 
+        user_oid = CURRENT_USER_OID()
+      )
+    }
+  )
+  
+  # Generate Report - Preview - Download Handler --------------------
+  
+  output$btn_genReport_reportInstancePreview_html <- 
+    downloadHandler(
+      filename = 
+        makeReportFileName(report_instance_oid = selected_instance_oid(),
+                           is_preview = TRUE),
+      content = function(file){
+        makeReportPreview(report_instance_oid = selected_instance_oid(), 
+                          zipfile = file, 
+                          include_image = "Images" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile, 
+                          include_data = "Data" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile,
+                          build_dir = tempdir(), 
+                          params = list(), 
+                          report_format = "html")
+        
+        addReportInstanceGeneration(
+          report_instance_oid = selected_instance_oid(), 
+          report_template_oid = rv_GenerateReport$SelectedTemplate,
+          start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
+          end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+          report_format = "html", 
+          include_data = FALSE, 
+          is_preview = TRUE, 
+          is_distributed = FALSE, 
+          is_archived = FALSE, 
+          is_submission = FALSE, 
+          user_oid = CURRENT_USER_OID()
+        )
+      }
+    )
+  
+  output$btn_genReport_reportInstancePreview_pdf <- 
+    downloadHandler(
+      filename = 
+        makeReportFileName(report_instance_oid = selected_instance_oid(),
+                           is_preview = TRUE),
+      content = function(file){
+        makeReportPreview(report_instance_oid = selected_instance_oid(), 
+                          zipfile = file, 
+                          include_image = "Images" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile, 
+                          include_data = "Data" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile,
+                          build_dir = tempdir(), 
+                          params = list(), 
+                          report_format = "pdf")
+        
+        addReportInstanceGeneration(
+          report_instance_oid = selected_instance_oid(), 
+          report_template_oid = rv_GenerateReport$SelectedTemplate,
+          start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
+          end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+          report_format = "pdf", 
+          include_data = FALSE, 
+          is_preview = TRUE, 
+          is_distributed = FALSE, 
+          is_archived = FALSE, 
+          is_submission = FALSE, 
+          user_oid = CURRENT_USER_OID()
+        )
+      }
+    )
+  
+  # Generate Report - Preview - Output Options ----------------------
+  
+  output$html_genReport_reportInstancePreview <- 
+    renderUI({
+      req(rv_GenerateReport$Preview)
+      
+      html <- HTML(rv_GenerateReport$Preview)
+      withMathJax(html)
+    })
   
   # Generate Report - Archival and Submission -----------------------
   # Generate Report - Archived Reports ------------------------------

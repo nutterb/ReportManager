@@ -26,6 +26,9 @@
   updateTextInput(session = session, 
                   inputId = "txt_template_defaultEmailText", 
                   value = rv_Template$SelectedTemplate$DefaultEmailText)
+  updateTextInput(session = session, 
+                  inputId = "txt_template_supportingDataFile", 
+                  value = rv_Template$SelectedTemplate$SupportingDataFile)
   updateSelectInput(session = session, 
                     inputId = "sel_template_logo", 
                     selected = rv_Template$SelectedTemplate$LogoFileArchive)

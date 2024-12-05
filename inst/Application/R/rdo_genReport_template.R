@@ -7,6 +7,8 @@
   updateReportInstanceSchedule(report_template_oid = template_oid,
                                event_user = current_user_oid)
   
+  rv_GenerateReport$SelectedTemplateData <- queryReportTemplate(oid = template_oid)
+  
   ReportInstance <- queryReportInstance(report_template_oid = template_oid)
   
   rv_GenerateReport$ScheduledReportInstance <-

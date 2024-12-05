@@ -113,7 +113,8 @@ addReportInstanceGeneration <- function(report_instance_oid,
                         IsDistributed = is_distributed, 
                         IsArchived = is_archived, 
                         IsSubmission = is_submission, 
-                        PreviewDateTime = preview_date_time, 
+                        PreviewDateTime = format(preview_date_time, 
+                                                 format = "%Y-%m-%d %H:%M:%S"),
                         ParentUser = user_oid)
   
   insertRecord(data = AddData, 

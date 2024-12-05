@@ -21,3 +21,10 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+write.csv(pressure, 
+          file = file.path(params$output_dir, 
+                           ReportTemplate$SupportingDataFile),
+          row.names = FALSE)
+```

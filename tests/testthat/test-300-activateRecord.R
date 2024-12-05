@@ -841,7 +841,8 @@ for (flavor in FLAVOR){
       conn <- connectToReportManager()
       
       # Make a new user for the test
-      addEditReportTemplate(template_directory = "EventDirectory", 
+      addEditReportTemplate(template_name = "TemplateName", 
+                            template_directory = "EventDirectory", 
                             template_file = "EventFile",
                             title = "Testing events are written", 
                             title_size = "LARGE", 
