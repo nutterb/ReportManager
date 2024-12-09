@@ -212,11 +212,25 @@ UI_TAB_GENERATE_REPORT <-
                                 id = "cd_genReport_reportInstanceSubmit_archiveReviseHistory",
                                 actionButton(inputId = "btn_genReport_reportInstanceSubmission_editDistributionList", 
                                              label = "Edit Distribution List", 
-                                             style = "float:right"))
+                                             style = "float:right"), 
+                                radioDataTableOutput(outputId = "dt_genReport_reportInstanceSubmit_distribution", 
+                                                     radioId = "rd_genReport_reportInstanceSubmit_distribution"))
                )
              )
     ),
     
     # ARCHIVED REPORTS TAB ------------------------------------------
-    tabPanel(title = "Archived Reports")
+    tabPanel(title = "Archived Reports", 
+             h3(id = "h3_genReport_archivedReport_noTemplateSelected", 
+                "No Report Template Selected"), 
+             hidden(
+               div(id = "div_genReport_archivedReport", 
+                   disabled(downloadButton(outputId = "dwn_genReport_archivedReport", 
+                                           label = "Download Selected Report", 
+                                           style = "float:right;")),
+                   radioDataTableOutput(outputId = "dt_genReport_archivedReport", 
+                                        radioId = "rdo_genReport_archivedReport")
+               )
+             )
+    )
   )

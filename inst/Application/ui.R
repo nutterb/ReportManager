@@ -58,6 +58,9 @@ dashboardPage(
     
     # Menu Pages ----------------------------------------------------
     
+    add_busy_spinner(spin = "fading-circle", 
+                     position = "top-right"),
+    
     # Generate a Report ---------------------------------------------
     tabItems(
       tabItem("tab_generateReport", UI_TAB_GENERATE_REPORT), 

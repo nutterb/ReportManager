@@ -13,7 +13,7 @@ addFileArchive(
   is_logo = FALSE,
   file_path,
   file_name = tools::file_path_sans_ext(basename(file_path)),
-  file_extension = tools::file_ext(file_name)
+  file_extension = tools::file_ext(file_path)
 )
 
 editFileArchive(

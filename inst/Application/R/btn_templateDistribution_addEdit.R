@@ -1,9 +1,10 @@
 ..btn_templateDistribution_addEdit <- function(templateDistributionUser,
                                                templateDistributionRole, 
                                                rdo_template, 
-                                               rv_Template, 
-                                               sesson){
-  DistributionUser <- jsonlite::fromJSON(input$templateDistributionUser)
+                                               rv_Template,
+                                               current_user_oid,
+                                               session){
+  DistributionUser <- jsonlite::fromJSON(templateDistributionUser)
   InputUser <- DistributionUser[c("choices", "selected")]
   names(InputUser) <- c("ParentUser", "IsActive")
   InputUser$ParentRole <- rep(NA_real_, nrow(InputUser))
@@ -15,7 +16,7 @@
   InputUser <- InputUser[(InputUser$IsActive & is.na(InputUser$ParentReportTemplate)) | # New records
                            !is.na(InputUser$ParentReportTemplate), ]                    # Existing records
   
-  DistributionRole <- jsonlite::fromJSON(input$templateDistributionRole)
+  DistributionRole <- jsonlite::fromJSON(templateDistributionRole)
   InputRole <- DistributionRole[c("choices", "selected")]
   names(InputRole) <- c("ParentRole", "IsActive")
   InputRole$ParentUser <- rep(NA_real_, nrow(InputRole))
@@ -33,14 +34,14 @@
   for(i in seq_len(nrow(Input))){
     addEditReportTemplateDistribution(
       oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
-      parent_report_template = as.numeric(input$rdo_template),
+      parent_report_template = as.numeric(rdo_template),
       parent_user = if (is.na(Input$ParentUser[i])) numeric(0) else as.numeric(Input$ParentUser[i]),
       parent_role = if (is.na(Input$ParentRole[i])) numeric(0) else as.numeric(Input$ParentRole[i]),
       is_active = isTRUE(Input$IsActive[i]),
-      event_user = CURRENT_USER_OID()
+      event_user = current_user_oid
     )
   }
-  New <- queryReportTemplateDistribution(parent_report_template = as.numeric(input$rdo_template))
+  New <- queryReportTemplateDistribution(parent_report_template = as.numeric(rdo_template))
   rv_Template$SelectedTemplateDistribution <- New
   
   toggleModal(session = session, 

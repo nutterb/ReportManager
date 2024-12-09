@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyBS)
+library(shinybusy)
 library(shinydashboard)
 library(shinyjs)
 library(DT)

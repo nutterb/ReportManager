@@ -3,6 +3,7 @@
 \name{generateReportFiles}
 \alias{generateReportFiles}
 \alias{makeReportPreview}
+\alias{makeReportForArchive}
 \title{Generate a Report and Supplemental Files}
 \usage{
 makeReportPreview(
@@ -10,6 +11,15 @@ makeReportPreview(
   zipfile,
   include_image = FALSE,
   include_data = FALSE,
+  build_dir = tempdir(),
+  params = list(),
+  report_format = c("html", "pdf")
+)
+
+makeReportForArchive(
+  report_instance_oid,
+  include_data = FALSE,
+  is_submission = FALSE,
   build_dir = tempdir(),
   params = list(),
   report_format = c("html", "pdf")
@@ -41,6 +51,9 @@ included already.}
 \item{report_format}{\code{character(1)}. One of \code{c("html", "pdf")}. The
 format of the report being generated.}
 
+\item{is_submission}{\code{logical(1)}. When \code{TRUE}, the report is generated
+as a submission (with a revision number).}
+
 \item{report_filename}{\code{character(1)}. full path to the file created
 by \code{rmarkdown::build}. Typically this is used to locate supplemental
 files, such as images and supporting data.}
@@ -50,9 +63,6 @@ in the zip file. Include the report file, images, and supplemental data.}
 
 \item{is_preview}{\code{logical(1)}. When \code{TRUE}, the report is generated as
 a preview. Otherwise it is generated ready for archival.}
-
-\item{is_submission}{\code{logical(1)}. When \code{TRUE}, the report is generated
-as a submission (with a revision number).}
 }
 \description{
 Generates the report, supplemental data, and image files

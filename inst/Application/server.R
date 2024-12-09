@@ -57,7 +57,12 @@ shinyServer(function(input, output, session){
     
     ReportInstanceSignature = queryReportInstanceSignature(report_instance_oid = -1), 
     
-    Preview = NULL
+    Preview = NULL, 
+    
+    ReportTemplateDistribution = queryReportTemplateDistribution(parent_report_template = -1), 
+    ReportInstanceDistribution = queryReportInstanceDistribution(parent_report_instance = -1),
+    
+    FileArchive = queryFileArchive(parent_report_template = -1)
   )
   
   selected_instance_oid <- reactive({
@@ -88,6 +93,8 @@ shinyServer(function(input, output, session){
       
       # When a new template is selected, we want to clear the preview.
       rv_GenerateReport$Preview <- NULL
+      rv_GenerateReport$FileArchive <- 
+        queryFileArchive(parent_report_template = as.numeric(input$rdo_genReport_template))
     }
   )
   
@@ -521,7 +528,7 @@ shinyServer(function(input, output, session){
       
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
-        report_template_oid = rv_GenerateReport$SelectedTemplate,
+        report_template_oid = rv_GenerateReport$SelectedTemplate$OID,
         start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
         end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
         report_format = "preview", 
@@ -607,7 +614,7 @@ shinyServer(function(input, output, session){
           end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
           report_format = "pdf", 
           include_data = FALSE, 
-          is_preview = TRUE, 
+          is_preview = FALSE, 
           is_distributed = FALSE, 
           is_archived = FALSE, 
           is_submission = FALSE, 
@@ -627,8 +634,97 @@ shinyServer(function(input, output, session){
     })
   
   # Generate Report - Archival and Submission -----------------------
+  # Generate Report - Archival and Submission - Observer ------------
+  
+  observe({
+    toggleState("btn_genReport_reportInstanceSubmit_archiveDistribute", 
+                condition = length(input$chk_genReport_reportInstanceSubmit_archiveDistribute) > 0)
+  })
+  
+  # Generate Report - Archival and Submission - Event Observer ------
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmit_archiveDistribute, 
+    {
+      if (length(input$chk_genReport_reportInstanceSubmit_archiveDistribute) == 0){
+        alert("Neither 'Add to Archive' nor 'Distribute Internally' was selected. No action performed.")
+        return(NULL)
+      }
+       
+      report_files <- 
+        makeReportForArchive(report_instance_oid = selected_instance_oid(), 
+                             include_data = rv_GenerateReport$SelectedReportData$IsIncludeData,
+                             is_submission = FALSE,
+                             build_dir = tempdir(), 
+                             params = list(), 
+                             report_format = "html")
+      
+      if ("add to archive" %in% tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)){
+        for (rf in report_files){
+          addFileArchive(parent_report_template = rv_GenerateReport$SelectedTemplate,
+                         parent_report_instance = selected_instance_oid(), 
+                         file_path = rf)
+        }
+      }
+      
+      if ("distribute internally" %in% tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)){
+        print("DISTRIBUTE CODE HERE")
+      }
+      
+      
+    }
+  )
+  
   # Generate Report - Archived Reports ------------------------------
 
+  # Generate Report - Archived Reports - Observer -------------------
+  
+  observe({
+    toggleState("dwn_genReport_archivedReport", 
+                condition = length(input$rdo_genReport_archivedReport))
+  })
+  
+  # Generate Report - Archived Reports - Download Handler -----------
+  
+  output$dwn_genReport_archivedReport <- 
+    downloadHandler(
+      filename = function(){
+        ThisFile <- rv_GenerateReport$FileArchive
+        ThisFile <- ThisFile[ThisFile$OID == as.numeric(input$rdo_genReport_archivedReport), ]
+        sprintf("%s.%s", ThisFile$FileName, ThisFile$FileExtension)
+      }, 
+      content = function(file){
+        File <- queryFromFileArchive(oid = as.numeric(input$rdo_genReport_archivedReport)) 
+        writeBin(as.raw(File$FileContent[[1]]), 
+                 con = file)
+      }
+    )
+  
+  # Generate Report - Archived Reports - Output ---------------------
+  
+  output$dt_genReport_archivedReport <- 
+    DT::renderDataTable({
+      DisplayTable <- rv_GenerateReport$FileArchive
+      DisplayTable <- DisplayTable[c("OID", "FileName", "FileExtension", 
+                                     "Description", "CreatedDateTime")]
+      DisplayTable <- DisplayTable[order(DisplayTable$CreatedDateTime, 
+                                         decreasing = TRUE), ]
+      radioDataTable(DisplayTable, 
+                     id_variable = "OID", 
+                     element_name = "rdo_genReport_archivedReport") %>% 
+        RM_datatable(escape = -1) %>% 
+        DT::formatDate(c("CreatedDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+    })
+  
   # Report Template -------------------------------------------------
   # Report Template - Reactive Values -------------------------------
 
@@ -1074,6 +1170,7 @@ shinyServer(function(input, output, session){
     {
       ..btn_templateDistribution_edit(rv_Template = rv_Template,
                                       rv_User     = rv_User,
+                                      rv_Roles    = rv_Roles,
                                       session     = session)
     }
   )
@@ -1132,6 +1229,8 @@ shinyServer(function(input, output, session){
                    templateDistributionUser = input$templateDistributionUser,
                    templateDistributionRole = input$templateDistributionRole,
                    rdo_template             = input$rdo_template,
+                   rv_Template              = rv_Template,
+                   current_user_oid         = CURRENT_USER_OID(),
                    session                  = session
                  )
 
@@ -1144,7 +1243,7 @@ shinyServer(function(input, output, session){
     DT::renderDataTable({
       req(rv_Template$SelectedTemplateDistribution)
 
-      makeTemplateDistributionData(as.numeric(input$rdo_template)) %>%
+      makeTemplateDistributionData(as.numeric(input$rdo_template)) %>% 
         RM_datatable()
     })
 

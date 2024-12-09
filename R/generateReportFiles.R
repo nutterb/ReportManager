@@ -10,7 +10,7 @@
 #'   by `rmarkdown::build`. Typically this is used to locate supplemental
 #'   files, such as images and supporting data.
 #' @param zipfile `character(1)`. The zip file to which the contents of
-#'   the report preview will be saved.
+#'   the report preview will be saved. 
 #' @param files_to_zip `character`. The full path to the files to be included
 #'   in the zip file. Include the report file, images, and supplemental data.
 #' @param include_image `logical(1)`. When `TRUE`, any images that are 
@@ -54,6 +54,7 @@ makeReportPreview <- function(report_instance_oid,
   
   checkmate::assertCharacter(x = zipfile, 
                              len = 1, 
+                             null.ok = TRUE,
                              add = coll)
   
   checkmate::assertLogical(x = include_image, 
@@ -102,11 +103,76 @@ makeReportPreview <- function(report_instance_oid,
     data_file <- getSupportingData(report_filename = report_filename)
   }
   
+  files_to_zip = c(report_filename, 
+                   image_file, 
+                   data_file)
+  
   zipReportFiles(zipfile = zipfile, 
-                 files_to_zip = c(report_filename, 
-                                  image_file, 
-                                  data_file))
+                 files_to_zip = files_to_zip)
+} 
+
+#' @rdname generateReportFiles
+#' @export
+
+
+makeReportForArchive <- function(report_instance_oid, 
+                                 include_data = FALSE,
+                                 is_submission = FALSE,
+                                 build_dir = tempdir(), 
+                                 params = list(), 
+                                 report_format = c("html", "pdf")){
+  # Argument Validation ---------------------------------------------
+  
+  coll <- checkmate::makeAssertCollection()
+  
+  checkmate::assertIntegerish(x = report_instance_oid, 
+                              len = 1, 
+                              add = coll)
+
+  checkmate::assertLogical(x = include_data, 
+                           len = 1, 
+                           add = coll)
+  
+  checkmate::assertLogical(x = is_submission, 
+                           len = 1, 
+                           add = coll)
+  
+  checkmate::assertCharacter(x = build_dir, 
+                             len = 1, 
+                             add = coll)
+  
+  checkmate::assertList(x = params, 
+                        names = "named", 
+                        add = coll)
+  
+  report_format <- checkmate::matchArg(x = report_format, 
+                                       choices = c("html", "pdf"), 
+                                       .var.name = "report_format", 
+                                       add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  # Functionality ---------------------------------------------------
+  
+  # Initialize values that are conditionally defined.
+  data_file <- character(0)
+  
+  report_filename <- 
+    generateReportFile(report_instance_oid = report_instance_oid, 
+                       is_preview = FALSE,
+                       is_submission = is_submission,
+                       params = params,
+                       build_dir = build_dir, 
+                       report_format = report_format)
+  
+  if (include_data){
+    data_file <- getSupportingData(report_filename = report_filename)
+  }
+  
+  c(report_filename, 
+    data_file)
 }
+
 
 # Unexported --------------------------------------------------------
 
@@ -264,3 +330,5 @@ zipReportFiles <- function(zipfile,
       files = files_to_zip, 
       extras = "-j")
 }
+
+

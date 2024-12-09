@@ -246,6 +246,7 @@ CREATE TABLE [ReportTemplate](
   [LogoFileArchive] INT NULL, 
   [DateReportingFormat] INT NOT NULL,
   [SupportingDataFile] VARCHAR(150) NOT NULL,
+  [IsIncludeData] BIT NOT NULL,
   
   FOREIGN KEY (LogoFileArchive) REFERENCES [FileArchive](OID),
   FOREIGN KEY (DateReportingFormat) REFERENCES [DateReportingFormat](OID) 
@@ -263,7 +264,8 @@ CREATE TABLE [ReportTemplateEvent](
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
   FOREIGN KEY (EventUser) REFERENCES [User](OID), 
-  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditSupportingDataFile', 
+  CONSTRAINT chk_ReportTemplateEventType CHECK (EventType IN ('EditIsIncludeData', 
+                                                              'EditSupportingDataFile', 
                                                               'EditTemplateName',
                                                               'EditDateReportingFormat',
                                                               'EditTemplateFolder',
@@ -421,7 +423,7 @@ CREATE TABLE [ReportTemplateDistribution](
   FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
 );
 
-/* ReportTemplateSignatureEvent ************************************/
+/* ReportTemplateDistributionEvent ************************************/
 
 CREATE TABLE [ReportTemplateDistributionEvent] (
   OID INTEGER PRIMARY KEY, 
@@ -610,4 +612,21 @@ CREATE TABLE [ReportInstanceDistribution](
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID),
   FOREIGN KEY (ParentUser) REFERENCES [User](OID),
   FOREIGN KEY (ParentRole) REFERENCES [Role](OID)
+);
+
+/* ReportInstanceDistributionEvent ************************************/
+
+CREATE TABLE [ReportInstanceDistributionEvent] (
+  OID INTEGER PRIMARY KEY, 
+  ParentReportInstanceDistribution INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(25) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentReportInstanceDistribution) REFERENCES [ReportInstanceDistribution](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID),
+  CONSTRAINT chk_ReportInstanceDistributionEventType CHECK (EventType IN ('Add', 
+                                                                          'Activate', 
+                                                                          'Deactivate'))
 );

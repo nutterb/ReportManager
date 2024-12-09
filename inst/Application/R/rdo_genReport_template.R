@@ -23,4 +23,7 @@
   
   shinyjs::show("div_genReport_reportInstance") 
   shinyjs::hide("h3_genReport_reportInstance_noTemplateSelected")
+  
+  shinyjs::show("div_genReport_archivedReport") 
+  shinyjs::hide("h3_genReport_archivedReport_noTemplateSelected")
 }

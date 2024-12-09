@@ -355,6 +355,73 @@ test_that(
 )
 
 test_that(
+  "Return an error when supporting_data_file is not character(1)",
+  {
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email",
+                                       supporting_data_file = 123,
+                                       event_user = 1), 
+                 "'supporting_data_file': Must be of type 'string'")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email",
+                                       supporting_data_file = letters,
+                                       event_user = 1), 
+                 "'supporting_data_file': Must have length 1")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email", 
+                                       supporting_data_file = randomVarchar(151),
+                                       event_user = 1), 
+                 "'supporting_data_file': All elements must have at most 150")
+  }
+)
+
+test_that(
+  "Return an error if is_include_data is not logical(1)", 
+  {
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       is_active = TRUE, 
+                                       is_include_data = "TRUE",
+                                       event_user = 1), 
+                 "'is_include_data': Must be of type 'logical'")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       is_active = TRUE, 
+                                       is_include_data = c(FALSE, TRUE),
+                                       event_user = 1), 
+                 "'is_include_data': Must have length 1")
+  }
+)
+
+test_that(
   "Return an error if event_user is not integerish(1)", 
   {
     expect_error(addEditReportTemplate(template_name = "name",
@@ -500,7 +567,8 @@ for (flavor in FLAVOR){
                      "EditDefaultEmailText", "EditLogoFile", 
                      "EditDateReportingFormat", 
                      "EditTemplateName", 
-                     "EditSupportingDataFile"))
+                     "EditSupportingDataFile", 
+                     "EditIsIncludeData"))
       expect_true(all(table(TemplateEvent$EventType) == 1))
       
       addEditReportTemplate(oid = next_template_oid, 
@@ -532,6 +600,7 @@ for (flavor in FLAVOR){
                 "Deactivate" = 1, 
                 "EditDateReportingFormat" = 1,
                 "EditDefaultEmailText" = 2,
+                "EditIsIncludeData" = 1,
                 "EditLogoFile" = 2, 
                 "EditSupportingDataFile" = 1,
                 "EditTemplateFile" = 2, 
