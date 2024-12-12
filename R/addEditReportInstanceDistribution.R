@@ -147,10 +147,9 @@ addEditReportInstanceDistribution <- function(oid = numeric(0),
                                                     nrow(EventList))
   
   EventList <- EventList[!EventList$EventType == "Add", ]
-  ThisRTD <- queryReportInstanceDistribution(oid)
+  ThisRID <- queryReportInstanceDistribution(oid)
   
-  CurrentValue <- c(ThisRTD$Order,
-                    ThisRTD$IsActive)
+  CurrentValue <- c(ThisRID$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

@@ -447,7 +447,7 @@ CREATE TABLE dbo.[ReportTemplateDistribution](
   [ParentReportTemplate] INT NOT NULL,
   [ParentUser] INT NULL,
   [ParentRole] INT NULL,
-  [IsActive] BIT DEFAULT 0, 
+  [IsActive] BIT DEFAULT 0,
   
   PRIMARY KEY (OID),
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 

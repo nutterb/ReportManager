@@ -2,12 +2,11 @@
 % Please edit documentation in R/queryReportInstanceDistribution.R
 \name{queryReportInstanceDistribution}
 \alias{queryReportInstanceDistribution}
-\alias{queryReportTemplateDistribution}
 \title{Retrieve ReportInstanceDistribution Objects}
 \usage{
-queryReportTemplateDistribution(
+queryReportInstanceDistribution(
   oid = numeric(0),
-  parent_report_template = numeric(0),
+  parent_report_instance = numeric(0),
   parent_user = numeric(0),
   parent_role = numeric(0)
 )
@@ -17,7 +16,7 @@ queryReportTemplateDistribution(
 ReportInstanceDistribution to be retrieved. Otherwise, all
 records are returned.}
 
-\item{parent_report_template}{\code{integerish(0/1)}. When length is 1, the
+\item{parent_report_instance}{\code{integerish(0/1)}. When length is 1, the
 OID of the ReportInstance to include in the query clause. Otherwise,
 all records are returned.}
 

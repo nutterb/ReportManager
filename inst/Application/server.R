@@ -59,8 +59,7 @@ shinyServer(function(input, output, session){
     
     Preview = NULL, 
     
-    ReportTemplateDistribution = queryReportTemplateDistribution(parent_report_template = -1), 
-    ReportInstanceDistribution = queryReportInstanceDistribution(parent_report_instance = -1),
+    ReportInstanceDistribution = makeReportInstanceDistributionData(report_instance_oid = -1),
     
     FileArchive = queryFileArchive(parent_report_template = -1)
   )
@@ -177,6 +176,10 @@ shinyServer(function(input, output, session){
              condition = length(selected_instance_oid()) == 0)
       toggle(id        = "div_genReport_reportInstanceSubmit",
              condition = length(selected_instance_oid()) > 0)
+      
+      rv_GenerateReport$ReportInstanceDistribution <- 
+        makeReportInstanceDistributionData(report_instance_oid = selected_instance_oid())
+
     })
 
   observeEvent(
@@ -674,6 +677,19 @@ shinyServer(function(input, output, session){
       
     }
   )
+  
+  # Generate Report - Archival and Submission - Output --------------
+  
+  output$dt_genReport_reportInstanceSubmit_distribution <- 
+    DT::renderDataTable({
+      req(rv_GenerateReport$ReportInstanceDistribution)
+      Distribution <- rv_GenerateReport$ReportInstanceDistribution
+      Distribution <- Distribution[c("RefId", "LastName", "FirstName", 
+                                     "EmailAddress", 
+                                     "IsActive", 
+                                     "IncludeInTest")]
+      DT::datatable(Distribution)
+    })
   
   # Generate Report - Archived Reports ------------------------------
 

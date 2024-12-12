@@ -167,7 +167,7 @@ for (flavor in FLAVOR){
       next_oid <- nrow(CurrentObjects) + 1
       
       addEditReportInstanceDistribution(parent_report_instance = 1, 
-                                        parent_role = 1,  
+                                        parent_role = 2,  
                                         event_user = 1)
       
       New <- queryReportInstanceDistribution(oid = next_oid)
@@ -177,7 +177,7 @@ for (flavor in FLAVOR){
       expect_equal(New$ParentReportInstance, 
                    1)
       expect_equal(New$ParentRole, 
-                   1)
+                   2)
     }
   )
   
@@ -188,8 +188,13 @@ for (flavor in FLAVOR){
                   .message)
       
       expect_error(addEditReportInstanceDistribution(parent_report_instance = 1, 
-                                                  parent_role = 1,  
+                                                  parent_user = 1,  
                                                   event_user = 1), 
+                   "A ReportInstanceDistribution record for ReportInstance.OID")
+      
+      expect_error(addEditReportInstanceDistribution(parent_report_instance = 1, 
+                                                     parent_role = 2,  
+                                                     event_user = 1), 
                    "A ReportInstanceDistribution record for ReportInstance.OID")
     }
   )
@@ -247,7 +252,7 @@ for (flavor in FLAVOR){
       expect_true(all(table(InstanceEvent$EventType) == 1))
       
       addEditReportInstanceDistribution(oid = next_oid, 
-                                     parent_report_instance = 2, 
+                                     parent_report_instance = 1, 
                                      parent_role = 3,
                                      is_active = FALSE,
                                      event_user = 1)

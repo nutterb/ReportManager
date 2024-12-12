@@ -210,6 +210,7 @@ UI_TAB_GENERATE_REPORT <-
                  ), 
                  collapsibleDiv(title = "Distribution",
                                 id = "cd_genReport_reportInstanceSubmit_archiveReviseHistory",
+                                checked = TRUE,
                                 actionButton(inputId = "btn_genReport_reportInstanceSubmission_editDistributionList", 
                                              label = "Edit Distribution List", 
                                              style = "float:right"), 
