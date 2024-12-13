@@ -177,9 +177,19 @@ shinyServer(function(input, output, session){
       toggle(id        = "div_genReport_reportInstanceSubmit",
              condition = length(selected_instance_oid()) > 0)
       
-      rv_GenerateReport$ReportInstanceDistribution <- 
-        makeReportInstanceDistributionData(report_instance_oid = selected_instance_oid())
+      InstanceDistribution <- makeReportInstanceDistributionData(report_instance_oid = selected_instance_oid())
 
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+        
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        "RefId", 
+                                        "rdo_genReport_reportInstanceSubmit_distribution"), 
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+      updateRadioButtons(session = session, 
+                         inputId = "rdo_genReport_reportInstanceSubmit_distribution", 
+                         selected = character(0))
     })
 
   observeEvent(
@@ -642,6 +652,12 @@ shinyServer(function(input, output, session){
   observe({
     toggleState("btn_genReport_reportInstanceSubmit_archiveDistribute", 
                 condition = length(input$chk_genReport_reportInstanceSubmit_archiveDistribute) > 0)
+
+    toggleState("btn_genReport_reportInstanceSubmission_changeTestEmailStatus", 
+                condition = length(input$rdo_genReport_reportInstanceSubmit_distribution) > 0)
+    
+    toggleState("btn_genReport_reportInstanceSubmission_changeActiveStatus", 
+                condition = length(input$rdo_genReport_reportInstanceSubmit_distribution) > 0)
   })
   
   # Generate Report - Archival and Submission - Event Observer ------
@@ -678,18 +694,261 @@ shinyServer(function(input, output, session){
     }
   )
   
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_editDistributionList,
+    {
+      hide(id = "btn_templateDistribution_addEdit")
+      show(id = "btn_instanceDistribution_addEdit")
+      
+      Selected <- 
+        queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
+      
+      SelectedUser <- Selected[Selected$DistributeBy == "Indiv.", ]
+      SelectedUser <- SelectedUser[SelectedUser$IsActive, ]
+      
+      SelectedRole <- Selected[Selected$DistributeBy == "Role", ]
+      SelectedRole <- SelectedRole[SelectedRole$IsActive, ]
+      
+      replaceMultiSelect(session = session,
+                         inputId = "templateDistributionUser",
+                         choices = as.character(rv_User$User$OID),
+                         selected = as.character(SelectedUser$ParentUser),
+                         names = sprintf("%s, %s (%s)", 
+                                         rv_User$User$LastName, 
+                                         rv_User$User$FirstName, 
+                                         rv_User$User$LoginId))
+      
+      replaceMultiSelect(session = session,
+                         inputId = "templateDistributionRole",
+                         choices = as.character(rv_Roles$Roles$OID),
+                         selected = as.character(SelectedRole$ParentRole),
+                         names = rv_Roles$Roles$RoleName)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_templateDistribution_edit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_addAllIncludeInTest, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      InstanceDistribution$IncludeInTest <- rep(TRUE, 
+                                                nrow(InstanceDistribution))
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution", 
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_removeAllIncludeInTest, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      InstanceDistribution$IncludeInTest <- rep(FALSE, 
+                                                nrow(InstanceDistribution))
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution",
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_changeTestEmailStatus, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      row <- which(InstanceDistribution$RefId == as.numeric(sel))
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      
+      InstanceDistribution$IncludeInTest[row] <- 
+        !InstanceDistribution$IncludeInTest[row]
+      
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution", 
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+      
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_activateAll, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      InstanceDistribution$IsActive <- rep(TRUE, 
+                                           nrow(InstanceDistribution))
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution", 
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_deactivateAll, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      InstanceDistribution$IsActive <- rep(FALSE, 
+                                           nrow(InstanceDistribution))
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution",
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmission_changeActiveStatus, 
+    {
+      sel <- input$rdo_genReport_reportInstanceSubmit_distribution
+      if (is.null(sel)) sel <- character(0)
+      
+      row <- which(InstanceDistribution$RefId == as.numeric(sel))
+      
+      InstanceDistribution <- rv_GenerateReport$ReportInstanceDistribution
+      
+      InstanceDistribution$IsActive[row] <- 
+        !InstanceDistribution$IsActive[row]
+      
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        id_variable = "RefId", 
+                                        element_name = "rdo_genReport_reportInstanceSubmit_distribution", 
+                                        checked = sel),
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+      
+    }
+  )
+  
+  observeEvent(
+    input$btn_instanceDistribution_addEdit,
+    {
+      # ..btn_instanceDistribution_addEdit(
+      #   templateDistributionUser = input$templateDistributionUser,
+      #   templateDistributionRole = input$templateDistributionRole,
+      #   rdo_template             = input$rdo_template,
+      #   rv_Template              = rv_Template,
+      #   current_user_oid         = CURRENT_USER_OID(),
+      #   session                  = session
+      # )
+      instanceDistributionUser <- input$templateDistributionUser
+      instanceDistributionRole <- input$templateDistributionRole
+      
+      InstanceDist <- queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
+      
+      DistributionUser <- jsonlite::fromJSON(instanceDistributionUser)
+      InputUser <- DistributionUser[c("choices", "selected")]
+      names(InputUser) <- c("ParentUser", "IsActive")
+      InputUser$ParentRole <- rep(NA_real_, nrow(InputUser))
+      InputUser <- merge(InputUser,
+                         InstanceDist[InstanceDist$DistributeBy == "Indiv." ,
+                                      c("ReportInstanceDistributionOID", 
+                                        "ParentUser", "ParentReportTemplate", 
+                                        "IsActiveInstance", "IsActiveTemplate")],
+                         by = c("ParentUser"),
+                         all.x = TRUE,
+                         all.y = TRUE)
+      InputUser <- InputUser[!is.na(InputUser$IsActiveInstance) | 
+                               vapply(InputUser$IsActive == InputUser$IsActiveTemplate, 
+                                      isFALSE, 
+                                      logical(1)), ]
+      
+      print(InputUser)
+
+      DistributionRole <- jsonlite::fromJSON(instanceDistributionRole)
+      InputRole <- DistributionRole[c("choices", "selected")]
+      names(InputRole) <- c("ParentRole", "IsActive")
+      InputRole$ParentUser <- rep(NA_real_, nrow(InputRole))
+      InputRole <- merge(InputRole,
+                         InstanceDist[InstanceDist$DistributeBy == "Role" ,
+                                      c("ReportInstanceDistributionOID", 
+                                        "ParentRole", "ParentReportTemplate", 
+                                        "IsActiveInstance", "IsActiveTemplate")],
+                         by = c("ParentRole"),
+                         all.x = TRUE,
+                         all.y = TRUE)
+      InputRole <- InputRole[!is.na(InputRole$IsActiveInstance) | 
+                               vapply(InputRole$IsActive == InputRole$IsActiveTemplate, 
+                                      isFALSE, 
+                                      logical(1)), ]                    # Existing records
+
+      Input <- rbind(InputUser[c("ReportInstanceDistributionOID", "ParentUser", "ParentRole", "IsActive")],
+                     InputRole[c("ReportInstanceDistributionOID", "ParentUser", "ParentRole", "IsActive")])
+
+      print(Input)
+      # for(i in seq_len(nrow(Input))){
+      #   addEditReportTemplateDistribution(
+      #     oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
+      #     parent_report_template = as.numeric(rdo_template),
+      #     parent_user = if (is.na(Input$ParentUser[i])) numeric(0) else as.numeric(Input$ParentUser[i]),
+      #     parent_role = if (is.na(Input$ParentRole[i])) numeric(0) else as.numeric(Input$ParentRole[i]),
+      #     is_active = isTRUE(Input$IsActive[i]),
+      #     event_user = current_user_oid
+      #   )
+      # }
+      # New <- queryReportTemplateDistribution(parent_report_template = as.numeric(rdo_template))
+      # rv_Template$SelectedTemplateDistribution <- New
+      # 
+      # toggleModal(session = session, 
+      #             modalId = "modal_templateDistribution_edit", 
+      #             toggle = "close")
+      
+    })
+  
   # Generate Report - Archival and Submission - Output --------------
   
   output$dt_genReport_reportInstanceSubmit_distribution <- 
     DT::renderDataTable({
-      req(rv_GenerateReport$ReportInstanceDistribution)
-      Distribution <- rv_GenerateReport$ReportInstanceDistribution
-      Distribution <- Distribution[c("RefId", "LastName", "FirstName", 
-                                     "EmailAddress", 
-                                     "IsActive", 
-                                     "IncludeInTest")]
-      DT::datatable(Distribution)
+      Distribution <- makeReportInstanceDistributionData(report_instance_oid = -1)
+      Distribution <- radioDataTable(Distribution, 
+                                     id_variable = "RefId", 
+                                     element_name = "rdo_genReport_reportInstanceSubmit_distribution")
+     RM_datatable(Distribution, 
+                  escape = -1)
     })
+  
+  proxy_dt_genReport_reportInstanceSubmit_distribution <- 
+    DT::dataTableProxy("dt_genReport_reportInstanceSubmit_distribution")
   
   # Generate Report - Archived Reports ------------------------------
 

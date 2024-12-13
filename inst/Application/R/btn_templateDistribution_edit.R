@@ -2,6 +2,9 @@
                                             rv_User,
                                             rv_Roles,
                                             session){
+  show(id = "btn_templateDistribution_addEdit")
+  hide(id = "btn_instanceDistribution_addEdit")
+  
   Selected <- rv_Template$SelectedTemplateDistribution
   SelectedUser <- Selected[!is.na(Selected$ParentUser), ]
   SelectedUser <- SelectedUser[SelectedUser$IsActive, ]

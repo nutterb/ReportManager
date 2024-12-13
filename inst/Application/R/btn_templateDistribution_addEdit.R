@@ -4,24 +4,28 @@
                                                rv_Template,
                                                current_user_oid,
                                                session){
+  TemplateDist <- rv_Template$SelectedTemplateDistribution
+
   DistributionUser <- jsonlite::fromJSON(templateDistributionUser)
   InputUser <- DistributionUser[c("choices", "selected")]
   names(InputUser) <- c("ParentUser", "IsActive")
   InputUser$ParentRole <- rep(NA_real_, nrow(InputUser))
   InputUser <- merge(InputUser, 
-                     rv_Template$SelectedTemplateDistribution[c("OID", "ParentUser", "ParentReportTemplate")], 
+                     TemplateDist[!is.na(TemplateDist$ParentUser), 
+                                  c("OID", "ParentUser", "ParentReportTemplate")], 
                      by = c("ParentUser"),
                      all.x = TRUE, 
                      all.y = TRUE)
   InputUser <- InputUser[(InputUser$IsActive & is.na(InputUser$ParentReportTemplate)) | # New records
-                           !is.na(InputUser$ParentReportTemplate), ]                    # Existing records
-  
+                           !is.na(InputUser$ParentReportTemplate), ]
+
   DistributionRole <- jsonlite::fromJSON(templateDistributionRole)
   InputRole <- DistributionRole[c("choices", "selected")]
   names(InputRole) <- c("ParentRole", "IsActive")
   InputRole$ParentUser <- rep(NA_real_, nrow(InputRole))
   InputRole <- merge(InputRole, 
-                     rv_Template$SelectedTemplateDistribution[c("OID", "ParentRole", "ParentReportTemplate")], 
+                     TemplateDist[!is.na(TemplateDist$ParentRole), 
+                                  c("OID", "ParentRole", "ParentReportTemplate")], 
                      by = c("ParentRole"),
                      all.x = TRUE, 
                      all.y = TRUE)
@@ -30,7 +34,7 @@
   
   Input <- rbind(InputUser[c("OID", "ParentUser", "ParentRole", "IsActive", "ParentReportTemplate")], 
                  InputRole[c("OID", "ParentUser", "ParentRole", "IsActive", "ParentReportTemplate")])
-  
+
   for(i in seq_len(nrow(Input))){
     addEditReportTemplateDistribution(
       oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],

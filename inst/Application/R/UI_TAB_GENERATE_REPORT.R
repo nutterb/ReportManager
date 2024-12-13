@@ -194,11 +194,11 @@ UI_TAB_GENERATE_REPORT <-
                          )
                        ),
                        hr(style = "border-top:solid black 1pt"), 
-                       actionButton(inputId = "btn_genReport_reportInstanceSubmit_submitToClient", 
-                                    label = "Submit to Client"),
-                       actionButton(inputId = "btn_genReport_reportInstanceSubmit_startRevision", 
-                                    label = "Start Revision", 
-                                    style = "float:right")
+                       disabled(actionButton(inputId = "btn_genReport_reportInstanceSubmit_submitToClient", 
+                                             label = "Submit to Client")),
+                       disabled(actionButton(inputId = "btn_genReport_reportInstanceSubmit_startRevision", 
+                                             label = "Start Revision", 
+                                             style = "float:right"))
                      )
                    ), 
                    column(
@@ -211,11 +211,48 @@ UI_TAB_GENERATE_REPORT <-
                  collapsibleDiv(title = "Distribution",
                                 id = "cd_genReport_reportInstanceSubmit_archiveReviseHistory",
                                 checked = TRUE,
-                                actionButton(inputId = "btn_genReport_reportInstanceSubmission_editDistributionList", 
-                                             label = "Edit Distribution List", 
-                                             style = "float:right"), 
+                                fluidRow(
+                                  actionButton(inputId = "btn_genReport_reportInstanceSubmission_editDistributionList", 
+                                               label = "Edit Distribution List", 
+                                               style = "float:right", 
+                                               width = "175px")
+                                ), 
+                                fluidRow(
+                                  p("Changes made using the actions below will not peresist beyond this session.",
+                                    style = "float:right;")
+                                ),
+                                fluidRow(
+                                  disabled(actionButton(inputId = "btn_genReport_reportInstanceSubmission_changeTestEmailStatus", 
+                                                        label = "Toggle Test on Selected", 
+                                                        style = "float:right;", 
+                                                        width = "175px")),
+                                  actionButton(inputId = "btn_genReport_reportInstanceSubmission_removeAllIncludeInTest", 
+                                               label = "Remove All From Testing", 
+                                               style = "float:right;", 
+                                               width = "175px"),
+                                  actionButton(inputId = "btn_genReport_reportInstanceSubmission_addAllIncludeInTest", 
+                                               label = "Add All to Testing", 
+                                               style = "float:right;", 
+                                               width = "175px"),
+                                  
+                                ),
+                                fluidRow(
+                                  disabled(actionButton(inputId = "btn_genReport_reportInstanceSubmission_changeActiveStatus", 
+                                                        label = "Toggle Active on Selected", 
+                                                        style = "float:right;", 
+                                                        width = "175px")),
+                                  actionButton(inputId = "btn_genReport_reportInstanceSubmission_deactivateAll", 
+                                               label = "Deactivate All", 
+                                               style = "float:right;", 
+                                               width = "175px"),
+                                  actionButton(inputId = "btn_genReport_reportInstanceSubmission_activateAll", 
+                                               label = "Activate All", 
+                                               style = "float:right;", 
+                                               width = "175px"),
+                                  
+                                ),
                                 radioDataTableOutput(outputId = "dt_genReport_reportInstanceSubmit_distribution", 
-                                                     radioId = "rd_genReport_reportInstanceSubmit_distribution"))
+                                                     radioId = "rdo_genReport_reportInstanceSubmit_distribution"))
                )
              )
     ),
