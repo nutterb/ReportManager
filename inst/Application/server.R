@@ -697,18 +697,18 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_genReport_reportInstanceSubmission_editDistributionList,
     {
-      hide(id = "btn_templateDistribution_addEdit")
-      show(id = "btn_instanceDistribution_addEdit")
+      shinyjs::hide(id = "btn_templateDistribution_addEdit")
+      shinyjs::show(id = "btn_instanceDistribution_addEdit")
       
       Selected <- 
         queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
-      
+
       SelectedUser <- Selected[Selected$DistributeBy == "Indiv.", ]
       SelectedUser <- SelectedUser[SelectedUser$IsActive, ]
       
       SelectedRole <- Selected[Selected$DistributeBy == "Role", ]
       SelectedRole <- SelectedRole[SelectedRole$IsActive, ]
-      
+
       replaceMultiSelect(session = session,
                          inputId = "templateDistributionUser",
                          choices = as.character(rv_User$User$OID),
@@ -717,7 +717,7 @@ shinyServer(function(input, output, session){
                                          rv_User$User$LastName, 
                                          rv_User$User$FirstName, 
                                          rv_User$User$LoginId))
-      
+
       replaceMultiSelect(session = session,
                          inputId = "templateDistributionRole",
                          choices = as.character(rv_Roles$Roles$OID),
@@ -875,25 +875,23 @@ shinyServer(function(input, output, session){
       instanceDistributionRole <- input$templateDistributionRole
       
       InstanceDist <- queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
-      
+    
       DistributionUser <- jsonlite::fromJSON(instanceDistributionUser)
+      
       InputUser <- DistributionUser[c("choices", "selected")]
       names(InputUser) <- c("ParentUser", "IsActive")
       InputUser$ParentRole <- rep(NA_real_, nrow(InputUser))
       InputUser <- merge(InputUser,
-                         InstanceDist[InstanceDist$DistributeBy == "Indiv." ,
-                                      c("ReportInstanceDistributionOID", 
-                                        "ParentUser", "ParentReportTemplate", 
+                         InstanceDist[InstanceDist$DistributeBy == "Indiv.",
+                                      c("ReportInstanceDistributionOID",
+                                        "ParentUser", "ParentReportTemplate",
                                         "IsActiveInstance", "IsActiveTemplate")],
                          by = c("ParentUser"),
                          all.x = TRUE,
                          all.y = TRUE)
       InputUser <- InputUser[!is.na(InputUser$IsActiveInstance) | 
-                               vapply(InputUser$IsActive == InputUser$IsActiveTemplate, 
-                                      isFALSE, 
-                                      logical(1)), ]
-      
-      print(InputUser)
+                               compareInstanceTemplateDistribution(InputUser$IsActive, 
+                                                                   InputUser$IsActiveTemplate), ]
 
       DistributionRole <- jsonlite::fromJSON(instanceDistributionRole)
       InputRole <- DistributionRole[c("choices", "selected")]
@@ -908,30 +906,36 @@ shinyServer(function(input, output, session){
                          all.x = TRUE,
                          all.y = TRUE)
       InputRole <- InputRole[!is.na(InputRole$IsActiveInstance) | 
-                               vapply(InputRole$IsActive == InputRole$IsActiveTemplate, 
-                                      isFALSE, 
-                                      logical(1)), ]                    # Existing records
+                               compareInstanceTemplateDistribution(InputRole$IsActive, 
+                                                                   InputRole$IsActiveTemplate), ]                    # Existing records
 
       Input <- rbind(InputUser[c("ReportInstanceDistributionOID", "ParentUser", "ParentRole", "IsActive")],
                      InputRole[c("ReportInstanceDistributionOID", "ParentUser", "ParentRole", "IsActive")])
 
-      print(Input)
-      # for(i in seq_len(nrow(Input))){
-      #   addEditReportTemplateDistribution(
-      #     oid = if (is.na(Input$OID[i])) numeric(0) else Input$OID[i],
-      #     parent_report_template = as.numeric(rdo_template),
-      #     parent_user = if (is.na(Input$ParentUser[i])) numeric(0) else as.numeric(Input$ParentUser[i]),
-      #     parent_role = if (is.na(Input$ParentRole[i])) numeric(0) else as.numeric(Input$ParentRole[i]),
-      #     is_active = isTRUE(Input$IsActive[i]),
-      #     event_user = current_user_oid
-      #   )
-      # }
-      # New <- queryReportTemplateDistribution(parent_report_template = as.numeric(rdo_template))
-      # rv_Template$SelectedTemplateDistribution <- New
-      # 
-      # toggleModal(session = session, 
-      #             modalId = "modal_templateDistribution_edit", 
-      #             toggle = "close")
+      for(i in seq_len(nrow(Input))){
+        addEditReportInstanceDistribution(
+          oid = if (is.na(Input$ReportInstanceDistributionOID[i])) numeric(0) else Input$ReportInstanceDistributionOID[i],
+          parent_report_instance = selected_instance_oid(),
+          parent_user = if (is.na(Input$ParentUser[i])) numeric(0) else as.numeric(Input$ParentUser[i]),
+          parent_role = if (is.na(Input$ParentRole[i])) numeric(0) else as.numeric(Input$ParentRole[i]),
+          is_active = isTRUE(Input$IsActive[i]),
+          event_user = CURRENT_USER_OID()
+        )
+      }
+      InstanceDistribution <- makeReportInstanceDistributionData(report_instance_oid = selected_instance_oid())
+      
+      rv_GenerateReport$ReportInstanceDistribution <- InstanceDistribution
+      
+      replaceData(proxy = proxy_dt_genReport_reportInstanceSubmit_distribution, 
+                  data = radioDataTable(InstanceDistribution, 
+                                        "RefId", 
+                                        "rdo_genReport_reportInstanceSubmit_distribution"), 
+                  resetPaging = FALSE,
+                  rownames = FALSE)
+
+      toggleModal(session = session,
+                  modalId = "modal_templateDistribution_edit",
+                  toggle = "close")
       
     })
   

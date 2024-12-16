@@ -32,14 +32,16 @@ AS
 	SELECT RID.OID AS ReportInstanceDistributionOID, 
 		RTD.OID AS ReportTemplateDistributionOID,
 		RTD.ParentReportTemplate, 
-		RTD.ParentUser, 
-		RTD.ParentRole, 
+		CASE WHEN RTD.ParentUser IS NULL THEN RID.ParentUser ELSE RTD.ParentUser END ParentUser, 
+		CASE WHEN RTD.ParentRole IS NULL THEN RID.ParentRole ELSE RTD.ParentRole END ParentRole,  
 		RTD.IsActive AS IsActiveTemplate, 
 		RID.IsActive AS IsActiveInstance, 
-		CASE WHEN RID.IsActive IS NULL THEN RTD.IsActive
+		CONVERT(BIT, CASE WHEN RTD.IsActive IS NULL AND RID.IsActive IS NULL THEN 0 
+		     WHEN RTD.IsActive IS NOT NULL AND RID.IsActive IS NULL THEN RTD.IsActive
+			 WHEN RTD.IsActive IS NULL AND RID.IsActive IS NOT NULL THEN RID.IsActive
 			 WHEN RID.IsActive <> RTD.IsActive THEN RID.IsActive
-			 ELSE RTD.IsActive END AS IsActive,
-		CASE WHEN RTD.ParentUser IS NOT NULL THEN 'Indiv.' ELSE 'Role' END AS DistributeBy
+			 ELSE RTD.IsActive END) AS IsActive,
+		CASE WHEN RTD.ParentRole IS NULL AND RID.ParentRole IS NULL THEN 'Indiv.' ELSE 'Role' END AS DistributeBy
 	FROM ", schema, "ReportInstanceDistribution RID
 	  LEFT JOIN ", schema, "ReportInstance RI
 		ON RID.ParentReportInstance = RI.OID
