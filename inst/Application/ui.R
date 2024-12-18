@@ -19,6 +19,7 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    MODAL_REPORT_INSTANCE_DISTRIBUTE,
     MODAL_REPORT_TEMPLATE,
     MODAL_REPORT_TEMPLATE_DISCLAIMER,
     MODAL_REPORT_TEMPLATE_FOOTER,

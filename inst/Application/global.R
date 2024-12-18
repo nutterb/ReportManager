@@ -6,6 +6,7 @@ library(shinyjs)
 library(DT)
 library(magrittr)
 library(ReportManager)
+library(sendmailR)
 
 TEMPLATE_FOLDERS <- system.file(package = "ReportManager")
 TEMPLATE_FOLDERS <- file.path(TEMPLATE_FOLDERS, "ReportTemplate")

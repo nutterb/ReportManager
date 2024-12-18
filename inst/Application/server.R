@@ -59,6 +59,8 @@ shinyServer(function(input, output, session){
     
     Preview = NULL, 
     
+    # ReportFiles = character(0),
+    # ReportInstanceGeneration = NULL,
     ReportInstanceDistribution = makeReportInstanceDistributionData(report_instance_oid = -1),
     
     FileArchive = queryFileArchive(parent_report_template = -1)
@@ -119,7 +121,7 @@ shinyServer(function(input, output, session){
     {
       req(selected_instance_oid())
       
-      rv_GenerateReport$SelectedReportInstance <- 
+      rv_GenerateReport$SelectedInstance <- 
         queryReportInstance(report_instance_oid = selected_instance_oid())
       
       # Report Instance Notes ---------------------------------------
@@ -541,9 +543,9 @@ shinyServer(function(input, output, session){
       
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
-        report_template_oid = rv_GenerateReport$SelectedTemplate$OID,
-        start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
-        end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+        report_template_oid = rv_GenerateReport$SelectedTemplate,
+        start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
+        end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
         report_format = "preview", 
         include_data = FALSE, 
         is_preview = TRUE, 
@@ -561,8 +563,8 @@ shinyServer(function(input, output, session){
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
         report_template_oid = rv_GenerateReport$SelectedTemplate,
-        start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
-        end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+        start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
+        end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
         report_format = "shiny", 
         include_data = FALSE, 
         is_preview = TRUE, 
@@ -593,8 +595,8 @@ shinyServer(function(input, output, session){
         addReportInstanceGeneration(
           report_instance_oid = selected_instance_oid(), 
           report_template_oid = rv_GenerateReport$SelectedTemplate,
-          start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
-          end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+          start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
+          end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
           report_format = "html", 
           include_data = FALSE, 
           is_preview = TRUE, 
@@ -623,8 +625,8 @@ shinyServer(function(input, output, session){
         addReportInstanceGeneration(
           report_instance_oid = selected_instance_oid(), 
           report_template_oid = rv_GenerateReport$SelectedTemplate,
-          start_date_time = rv_GenerateReport$SelectedReportInstance$StartDateTime, 
-          end_date_time = rv_GenerateReport$SelectedReportInstance$EndDateTime, 
+          start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
+          end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
           report_format = "pdf", 
           include_data = FALSE, 
           is_preview = FALSE, 
@@ -665,20 +667,94 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_genReport_reportInstanceSubmit_archiveDistribute, 
     {
-      if (length(input$chk_genReport_reportInstanceSubmit_archiveDistribute) == 0){
+      disable("btn_genReport_reportInstanceSubmit_archiveDistribute")
+      dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      if (length(dist_opt) == 0){
         alert("Neither 'Add to Archive' nor 'Distribute Internally' was selected. No action performed.")
         return(NULL)
       }
-       
+      
+      is_add_to_archive <- "add to archive" %in% dist_opt
+      is_distribute <- "distribute internally" %in% dist_opt
+      
+      if (!is_distribute){
+        hide("rdo_genReport_reportInstance_embedHtml")
+        hide("txt_genReport_reportInstance_emailMessage")
+      } else {
+        show("rdo_genReport_reportInstance_embedHtml")
+        show("txt_genReport_reportInstance_emailMessage")
+        
+        message <- .sendEmail_makeMessage(
+          report_template = rv_GenerateReport$SelectedTemplateData, 
+          report_instance = rv_GenerateReport$SelectedInstance)
+        
+        updateTextAreaInput(session = session, 
+                            inputId = "txt_genReport_reportInstance_emailMessage", 
+                            value = message)
+      }
+      
+      toggleModal(session = session, 
+                  modalId = "modal_genReport_reportInstance_distribute",
+                  toggle = "open")
+      
+      
+      
+      hide("p_genReport_reportInstanceSubmit_makingReport", 
+           anim = TRUE, 
+           animType = "fade", 
+           time = 2)
+      enable("btn_genReport_reportInstanceSubmit_archiveDistribute")
+    }
+  )
+  
+  observeEvent(
+    input$rdo_genReport_reportInstance_format, 
+    {
+      toggleState("rdo_genReport_reportInstance_embedHtml", 
+                  condition = input$rdo_genReport_reportInstance_format == "HTML")
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstance_sendReport,
+    {
+      show("p_genReport_reportInstanceSubmit_makingReport")
+      
+      disable("rdo_genReport_reportInstance_format")
+      disable("rdo_genReport_reportInstance_embedHtml")
+      disable("txt_genReport_reportInstance_emailMessage")
+      disable("btn_genReport_reportInstance_sendReport")
+      dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      
+      is_add_to_archive <- "add to archive" %in% dist_opt
+      is_distribute <- "distribute internally" %in% dist_opt
+      
+      report_format <- tolower(input$rdo_genReport_reportInstance_format)
+      
       report_files <- 
         makeReportForArchive(report_instance_oid = selected_instance_oid(), 
-                             include_data = rv_GenerateReport$SelectedReportData$IsIncludeData,
+                             include_data = rv_GenerateReport$SelectedTemplateData$IsIncludeData,
                              is_submission = FALSE,
                              build_dir = tempdir(), 
                              params = list(), 
-                             report_format = "html")
+                             report_format = report_format)
       
-      if ("add to archive" %in% tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)){
+      InstanceGeneration <- 
+        addReportInstanceGeneration(
+          report_instance_oid = selected_instance_oid(), 
+          report_template_oid = rv_GenerateReport$SelectedTemplate,
+          start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
+          end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
+          report_format = report_format, 
+          include_data = FALSE, 
+          is_preview = TRUE, 
+          is_distributed = FALSE, 
+          is_archived = FALSE, 
+          is_submission = FALSE, 
+          user_oid = CURRENT_USER_OID()
+        )
+      
+      if (is_add_to_archive){
         for (rf in report_files){
           addFileArchive(parent_report_template = rv_GenerateReport$SelectedTemplate,
                          parent_report_instance = selected_instance_oid(), 
@@ -686,11 +762,32 @@ shinyServer(function(input, output, session){
         }
       }
       
-      if ("distribute internally" %in% tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)){
-        print("DISTRIBUTE CODE HERE")
+      if (is_distribute){
+        Distribution <- queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
+        Distribution <- Distribution[Distribution$IsActive, ]
+        
+        sendEmail(from_user_oid = CURRENT_USER_OID(),
+                  to_address = Distribution$EmailAddress,
+                  report_template = rv_GenerateReport$SelectedTemplateData,
+                  report_instance_oid = selected_instance_oid(),
+                  message = input$txt_genReport_reportInstance_emailMessage,
+                  filename = report_files, 
+                  embed_html = "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml))
+        
+        addReportInstanceGenerationRecipient(report_instance_generation_oid = InstanceGeneration$OID, 
+                                             user_oid = Distribution$ParentUser)
       }
       
+      enable("rdo_genReport_reportInstance_format")
+      toggleState("rdo_genReport_reportInstance_embedHtml", 
+                  condition = input$rdo_genReport_reportInstance_format == "HTML")
+      enable("btn_genReport_reportInstance_sendReport")
+      enable("txt_genReport_reportInstance_emailMessage")
       
+      hide("p_genReport_reportInstanceSubmit_makingReport")
+      toggleModal(session = session, 
+                  modalId = "modal_genReport_reportInstance_distribute",
+                  toggle = "close")
     }
   )
   
@@ -940,6 +1037,40 @@ shinyServer(function(input, output, session){
     })
   
   # Generate Report - Archival and Submission - Output --------------
+  
+  output$txt_genReport_reportInstance_distributeTitle <- 
+    renderText({
+      req(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      
+      is_add_to_archive <- "add to archive" %in% dist_opt
+      is_distribute <- "distribute internally" %in% dist_opt
+      
+      if (is_add_to_archive & !is_distribute){
+        "Archive Report"
+      } else if (!is_add_to_archive & is_distribute){
+        "Distribute Report"
+      } else {
+        "Archive and Distribute Report"
+      }
+    })
+  
+  output$txt_genReport_reportInstance_sendReportButtonLabel <- 
+    renderText({
+      req(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
+      
+      is_add_to_archive <- "add to archive" %in% dist_opt
+      is_distribute <- "distribute internally" %in% dist_opt
+      
+      if (is_add_to_archive & !is_distribute){
+        "Archive"
+      } else if (!is_add_to_archive & is_distribute){
+        "Distribute"
+      } else {
+        "Archive / Distribute"
+      }
+    })
   
   output$dt_genReport_reportInstanceSubmit_distribution <- 
     DT::renderDataTable({
