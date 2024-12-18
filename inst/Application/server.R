@@ -30,6 +30,14 @@ shinyServer(function(input, output, session){
                         current_user_role = CURRENT_USER_ROLE())
     })
   
+  USER_IS_REPORT_SUBMIT <- 
+    reactive({
+      req(CURRENT_USER_ROLE())
+      SubmitRole <- CURRENT_USER_ROLE()
+      SubmitRole <- SubmitRole[SubmitRole$RoleName == "ReportSubmission", ]
+      isTRUE(SubmitRole$IsActiveRole)
+    })
+  
   # Global - Passive Observer ---------------------------------------
   # Global - Event Observer -----------------------------------------
   
@@ -59,9 +67,8 @@ shinyServer(function(input, output, session){
     
     Preview = NULL, 
     
-    # ReportFiles = character(0),
-    # ReportInstanceGeneration = NULL,
     ReportInstanceDistribution = makeReportInstanceDistributionData(report_instance_oid = -1),
+    UseSubmissionDialog = FALSE,
     
     FileArchive = queryFileArchive(parent_report_template = -1)
   )
@@ -662,6 +669,19 @@ shinyServer(function(input, output, session){
                 condition = length(input$rdo_genReport_reportInstanceSubmit_distribution) > 0)
   })
   
+  observe({
+    all_signed <- isTRUE(all(rv_GenerateReport$ReportInstanceSignature$IsSigned))
+    
+    Permission <- rv_GenerateReport$ReportTemplatePermission
+    Permission <- Permission[Permission$ParentUser == CURRENT_USER_OID(), ]
+    
+    user_template_submit <- isTRUE(Permission$CanSubmit)
+    
+    toggleState("btn_genReport_reportInstanceSubmit_submitToClient", 
+                condition = all_signed & 
+                  (USER_IS_REPORT_SUBMIT() | user_template_submit))
+  })
+  
   # Generate Report - Archival and Submission - Event Observer ------
   
   observeEvent(
@@ -716,6 +736,33 @@ shinyServer(function(input, output, session){
   )
   
   observeEvent(
+    input$btn_genReport_reportInstanceSubmit_submitToClient, 
+    {
+      hide("rdo_genReport_reportInstance_format")
+      hide("rdo_genReport_reportInstance_embedHtml")
+      show("txt_genReport_reportInstance_emailMessage")
+      
+      message <- .sendEmail_makeMessage(
+        report_template = rv_GenerateReport$SelectedTemplateData, 
+        report_instance = rv_GenerateReport$SelectedInstance)
+      
+      updateRadioButtons(session = session, 
+                         inputId = "rdo_genReport_reportInstance_format", 
+                         selected = "PDF")
+      
+      updateRadioButtons(session = session, 
+                         inputId = "rdo_genReport_reportInstance_embedHTML", 
+                         selected = "Attached")
+      
+      updateTextAreaInput(session = session, 
+                          inputId = "txt_genReport_reportInstance_emailMessage", 
+                          value = message)
+      
+      rv_GenerateReport$UseSubmissionDialog <- FALSE
+    }
+  )
+  
+  observeEvent(
     input$btn_genReport_reportInstance_sendReport,
     {
       show("p_genReport_reportInstanceSubmit_makingReport")
@@ -726,15 +773,18 @@ shinyServer(function(input, output, session){
       disable("btn_genReport_reportInstance_sendReport")
       dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       
-      is_add_to_archive <- "add to archive" %in% dist_opt
-      is_distribute <- "distribute internally" %in% dist_opt
+      is_submission <- rv_GenerateReport$UseSubmissionDialog
       
-      report_format <- tolower(input$rdo_genReport_reportInstance_format)
+      is_add_to_archive <- if (is_submission) TRUE else "add to archive" %in% dist_opt
+      is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
+      is_embed_html <- if (is_submission) FALSE else "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml)
+      
+      report_format <- if (is_submission) "pdf" else tolower(input$rdo_genReport_reportInstance_format)
       
       report_files <- 
         makeReportForArchive(report_instance_oid = selected_instance_oid(), 
                              include_data = rv_GenerateReport$SelectedTemplateData$IsIncludeData,
-                             is_submission = FALSE,
+                             is_submission = is_submission,
                              build_dir = tempdir(), 
                              params = list(), 
                              report_format = report_format)
@@ -746,11 +796,11 @@ shinyServer(function(input, output, session){
           start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
           end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
           report_format = report_format, 
-          include_data = FALSE, 
-          is_preview = TRUE, 
-          is_distributed = FALSE, 
-          is_archived = FALSE, 
-          is_submission = FALSE, 
+          include_data = rv_GenerateReport$SelectedTemplateData$IsIncludeData, 
+          is_preview = FALSE, 
+          is_distributed = is_distribute, 
+          is_archived = is_add_to_archive, 
+          is_submission = is_submission, 
           user_oid = CURRENT_USER_OID()
         )
       
@@ -766,13 +816,17 @@ shinyServer(function(input, output, session){
         Distribution <- queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
         Distribution <- Distribution[Distribution$IsActive, ]
         
+        if (!is_submission){
+          Distribution <- Distribution[Distribution$IsInternal, ]
+        }
+        
         sendEmail(from_user_oid = CURRENT_USER_OID(),
                   to_address = Distribution$EmailAddress,
                   report_template = rv_GenerateReport$SelectedTemplateData,
                   report_instance_oid = selected_instance_oid(),
                   message = input$txt_genReport_reportInstance_emailMessage,
                   filename = report_files, 
-                  embed_html = "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml))
+                  embed_html = is_embed_html)
         
         addReportInstanceGenerationRecipient(report_instance_generation_oid = InstanceGeneration$OID, 
                                              user_oid = Distribution$ParentUser)
