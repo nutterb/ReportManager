@@ -5,15 +5,20 @@ makeReportInstanceDistributionData <- function(report_instance_oid){
   InstanceDistribution <- 
     queryInstanceDistributionSelection(report_instance_oid)
   
-  InstanceDistribution <- split(InstanceDistribution, 
-                                InstanceDistribution$ParentUser)
-  
-  InstanceDistribution <- lapply(InstanceDistribution, 
-                                 .mRIDD_determineDistribution)
-  
-  InstanceDistribution <- do.call("rbind", 
-                                  InstanceDistribution)
-  
+  if (nrow(InstanceDistribution) > 0){
+    InstanceDistribution <- split(InstanceDistribution, 
+                                  InstanceDistribution$ParentUser)
+    
+    InstanceDistribution <- lapply(InstanceDistribution, 
+                                   .mRIDD_determineDistribution)
+    
+    InstanceDistribution <- do.call("rbind", 
+                                    InstanceDistribution)  
+  } else {
+    InstanceDistribution$DistributeByTemplate <- character(0)
+    InstanceDistribution$DistributeByInstance <- character(0)
+  }
+
   InstanceDistribution$RefId <- seq_len(nrow(InstanceDistribution))
   
   InstanceDistribution$IncludeInTest <- rep(FALSE, 
