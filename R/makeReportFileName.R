@@ -49,6 +49,12 @@ makeReportFileName <- function(report_instance_oid,
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   
+  rev_number <- 0
+  
+  if (is_submission){
+    rev_number <- queryCurrentRevisionNumber(report_instance_oid)
+  }
+  
   statement <- switch(getOption("RM_sql_flavor"), 
                       "sqlite" = .makeReportFileStatement_sqlite, 
                       "sql_server" = .makeReportFileStatement_sqlServer,
@@ -77,7 +83,7 @@ makeReportFileName <- function(report_instance_oid,
           format(TemplateInfo$EndDateTime, format = "%Y-%m-%d"), 
           if (is_preview) "-Preview" else "", 
           TemplateInfo$TemplateName, 
-          if (is_submission) "INCORPORATE REVISION" else "", 
+          if (is_submission) paste0(" Rev. ", rev_number) else "", 
           file_extension)
 }
 

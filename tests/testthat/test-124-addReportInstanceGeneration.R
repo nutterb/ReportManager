@@ -440,7 +440,7 @@ for (flavor in FLAVOR){
   }
   
   test_that(
-    "Record a ReportInstnaceGenerationRecipient", 
+    "Record a ReportInstanceGenerationRecipient", 
     {
       conn <- connectToReportManager()
       on.exit({ DBI::dbDisconnect(conn) })

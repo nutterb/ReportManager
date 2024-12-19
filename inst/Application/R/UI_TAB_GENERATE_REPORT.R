@@ -204,7 +204,8 @@ UI_TAB_GENERATE_REPORT <-
                    column(
                      width = 7, 
                      div(
-                       style = "border:solid black 1px;border-radius:10px;padding-left:10px;padding-right:10px;height:2.2in;overflow-y:scroll; max-height:200px; width:100%;"
+                       style = "border:solid black 1px;border-radius:10px;padding-left:10px;padding-right:10px;height:2.2in;overflow-y:scroll; max-height:200px; width:100%;", 
+                       DT::dataTableOutput("dt_genReport_reportInstanceSubmit_revisionHistory")
                      )
                    )
                  ), 

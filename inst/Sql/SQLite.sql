@@ -630,3 +630,16 @@ CREATE TABLE [ReportInstanceDistributionEvent] (
                                                                           'Activate', 
                                                                           'Deactivate'))
 );
+
+/* ReportInstanceRevision ******************************************/
+
+CREATE TABLE [ReportInstanceRevision] (
+  OID INTEGER PRIMARY KEY,
+  ParentReportInstance INT NOT NULL, 
+  ParentUser INT NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  Reason TEXT NOT NULL, 
+  
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);

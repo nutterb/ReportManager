@@ -6,6 +6,7 @@ sendEmail <- function(from_user_oid,
                       filename = character(0),
                       control = list(smtpServer = getOption("RM_smtpServer")),
                       embed_html = FALSE,
+                      is_revision = FALSE,
                       ...){
   dots <- list(...)
   attach <- NULL
@@ -74,7 +75,8 @@ sendEmail <- function(from_user_oid,
   sendmailR::sendmail(from = FromUser$EmailAddress, 
                       to = to_address,  
                       subject = .sendEmail_makeSubject(report_template, 
-                                                       report_instance), 
+                                                       report_instance, 
+                                                       is_revision), 
                       msg = message,
                       control = control, 
                       ...)
@@ -82,8 +84,10 @@ sendEmail <- function(from_user_oid,
 
 
 .sendEmail_makeSubject <- function(report_template, 
-                                   report_instance){
-  sprintf("%s - %s - %s", 
+                                   report_instance, 
+                                   is_revision){
+  sprintf("%s%s - %s - %s", 
+          if (is_revision) "Revision: " else "",
           report_template$Title, 
           format(report_instance$StartDateTime,
                  format = "%Y-%m-%d %H:%M:%S"),
@@ -106,5 +110,30 @@ sendEmail <- function(from_user_oid,
   paste0(c(msg1, 
            instance_msg, 
            report_template$DefaultEmailText), 
+         collapse = "\n\n")
+}
+
+.sendEmail_makeRevisionMessage <- function(report_template, 
+                                           report_instance, 
+                                           user_oid, 
+                                           reason){
+  msg1 <- "A revision has been initiated for a previously submitted report. See the details below."
+  
+  User <- queryUser(user_oid)
+  user_name <- sprintf("%s, %s", 
+                       User$LastName, 
+                       User$FirstName)
+  
+  instance_msg <- 
+    sprintf("Report Title: %s \nStart Date/Time: %s \nEnd Date/Time: %s\nRevision Initiated By: %s\n\nReason: \n\n", 
+            report_template$Title, 
+            format(report_instance$StartDateTime,
+                   format = "%Y-%m-%d %H:%M:%S"),
+            format(report_instance$EndDateTime, 
+                   format = "%Y-%m-%d %H:%M:%S"), 
+            user_name)
+  
+  paste0(c(msg1, 
+           instance_msg), 
          collapse = "\n\n")
 }

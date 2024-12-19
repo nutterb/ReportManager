@@ -67,6 +67,7 @@ shinyServer(function(input, output, session){
     
     Preview = NULL, 
     
+    ReportInstanceSubmissionHistory = getRevisionHistory(-1),
     ReportInstanceDistribution = makeReportInstanceDistributionData(report_instance_oid = -1),
     UseSubmissionDialog = FALSE,
     
@@ -199,6 +200,9 @@ shinyServer(function(input, output, session){
       updateRadioButtons(session = session, 
                          inputId = "rdo_genReport_reportInstanceSubmit_distribution", 
                          selected = character(0))
+      
+      rv_GenerateReport$ReportInstanceSubmissionHistory <- 
+        getRevisionHistory(selected_instance_oid())
     })
 
   observeEvent(
@@ -670,16 +674,50 @@ shinyServer(function(input, output, session){
   })
   
   observe({
-    all_signed <- isTRUE(all(rv_GenerateReport$ReportInstanceSignature$IsSigned))
+    req(rv_GenerateReport$ReportInstanceSignature)
+    Signature <- rv_GenerateReport$ReportInstanceSignature
+    Signature <- split(Signature, 
+                       Signature$ParentRole)
+    Signature <- lapply(Signature, 
+                        function(S){
+                          S <- S[order(S$SignatureDateTime, 
+                                       decreasing = TRUE), ]
+                          head(S, 1)
+                        })
+    Signature <- do.call("rbind", Signature)
+
+    all_signed <- isTRUE(all(Signature$IsSigned))
     
     Permission <- rv_GenerateReport$ReportTemplatePermission
     Permission <- Permission[Permission$ParentUser == CURRENT_USER_OID(), ]
     
     user_template_submit <- isTRUE(Permission$CanSubmit)
     
+    is_submitted <- isTRUE(rv_GenerateReport$SelectedInstance$IsSubmitted)
+
     toggleState("btn_genReport_reportInstanceSubmit_submitToClient", 
                 condition = all_signed & 
-                  (USER_IS_REPORT_SUBMIT() | user_template_submit))
+                  (USER_IS_REPORT_SUBMIT() | user_template_submit) & 
+                  !is_submitted)
+  })
+  
+  observe({
+
+    Permission <- rv_GenerateReport$ReportTemplatePermission
+    Permission <- Permission[Permission$ParentUser == CURRENT_USER_OID(), ]
+    
+    user_template_revise <- isTRUE(Permission$CanStartRevision)
+    
+    is_submitted <- isTRUE(rv_GenerateReport$SelectedInstance$IsSubmitted)
+    
+    toggleState("btn_genReport_reportInstanceSubmit_startRevision", 
+                condition = (USER_IS_REPORT_SUBMIT() | user_template_revise) & 
+                  is_submitted)
+  })
+  
+  observe({
+    toggleState("btn_genReport_instanceSubmit_confirmRevision", 
+                condition = trimws(input$txt_genReport_instanceSubmit_reasonRevise) != "")
   })
   
   # Generate Report - Archival and Submission - Event Observer ------
@@ -688,6 +726,9 @@ shinyServer(function(input, output, session){
     input$btn_genReport_reportInstanceSubmit_archiveDistribute, 
     {
       disable("btn_genReport_reportInstanceSubmit_archiveDistribute")
+      
+      rv_GenerateReport$UseSubmissionDialog <- FALSE
+      
       dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       if (length(dist_opt) == 0){
         alert("Neither 'Add to Archive' nor 'Distribute Internally' was selected. No action performed.")
@@ -758,7 +799,11 @@ shinyServer(function(input, output, session){
                           inputId = "txt_genReport_reportInstance_emailMessage", 
                           value = message)
       
-      rv_GenerateReport$UseSubmissionDialog <- FALSE
+      rv_GenerateReport$UseSubmissionDialog <- TRUE
+      
+      toggleModal(session = session, 
+                  modalId = "modal_genReport_reportInstance_distribute",
+                  toggle = "open")
     }
   )
   
@@ -779,7 +824,7 @@ shinyServer(function(input, output, session){
       is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
       is_embed_html <- if (is_submission) FALSE else "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml)
       
-      report_format <- if (is_submission) "pdf" else tolower(input$rdo_genReport_reportInstance_format)
+      report_format <- if (is_submission) "html" else tolower(input$rdo_genReport_reportInstance_format)
       
       report_files <- 
         makeReportForArchive(report_instance_oid = selected_instance_oid(), 
@@ -828,8 +873,28 @@ shinyServer(function(input, output, session){
                   filename = report_files, 
                   embed_html = is_embed_html)
         
-        addReportInstanceGenerationRecipient(report_instance_generation_oid = InstanceGeneration$OID, 
-                                             user_oid = Distribution$ParentUser)
+        if (is_submission){
+          addReportInstanceGenerationRecipient(report_instance_generation_oid = InstanceGeneration$OID, 
+                                               user_oid = Distribution$ParentUser)
+          updateInstanceIsSubmitted(report_instance_oid = selected_instance_oid(), 
+                                    is_submitted = TRUE, 
+                                    current_user_oid = CURRENT_USER_OID())
+          
+          ReportInstance <- queryReportInstance(report_template_oid = rv_GenerateReport$SelectedTemplate)
+          
+          rv_GenerateReport$ScheduledReportInstance <-
+            ReportInstance[ReportInstance$IsScheduled, ]
+          
+          rv_GenerateReport$UnscheduledReportInstance <-
+            ReportInstance[!ReportInstance$IsScheduled, ]
+          
+          rv_GenerateReport$SelectedInstance <- 
+            queryReportInstance(report_instance_oid = selected_instance_oid())
+          
+          rv_GenerateReport$ReportInstanceSubmissionHistory <- 
+            getRevisionHistory(selected_instance_oid())
+        }
+        
       }
       
       enable("rdo_genReport_reportInstance_format")
@@ -842,6 +907,104 @@ shinyServer(function(input, output, session){
       toggleModal(session = session, 
                   modalId = "modal_genReport_reportInstance_distribute",
                   toggle = "close")
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_reportInstanceSubmit_startRevision, 
+    {
+      updateTextAreaInput(session = session, 
+                          inputId = "txt_genReport_instanceSubmit_reasonRevise", 
+                          value = "")
+      toggleModal(session = session, 
+                  modalId = "modal_genReport_instanceSubmit_startRevision", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_genReport_instanceSubmit_confirmRevision, 
+    {
+      disable("txt_genReport_instanceSubmit_reasonRevise")
+      disable("btn_genReport_instanceSubmit_confirmRevision")
+      revision_time <- Sys.time()
+      
+      # Update the revision generation and isSubmitted flag
+      addReportInstanceRevision(report_instance_oid = selected_instance_oid(),
+                                parent_user = CURRENT_USER_OID(),
+                                revision_date_time = revision_time,
+                                reason = input$txt_genReport_instanceSubmit_reasonRevise)
+
+      updateInstanceIsSubmitted(report_instance_oid = selected_instance_oid(),
+                                is_submitted = FALSE,
+                                current_user_oid = CURRENT_USER_OID(),
+                                event_date_time = revision_time)
+    
+      # Remove all signatures from the report  
+      sig_remove <- 
+        unique(rv_GenerateReport$ReportInstanceSignature$ParentReportTemplateSignature)
+      
+      lapply(sig_remove,
+             function(rts){
+               addReportInstanceSignature(report_instance_oid = selected_instance_oid(),
+                                          report_template_signature = rts,
+                                          signed = FALSE,
+                                          event_user = CURRENT_USER_OID())
+             })
+      
+      # Email users with the signatory roles
+      
+      SignUserRole <- lapply(unique(rv_GenerateReport$ReportInstanceSignature$ParentRole), 
+                             function(sr) queryUserRole(role_oid = sr))
+      SignUserRole <- do.call("rbind", SignUserRole)
+      SignUserRole <- SignUserRole[SignUserRole$IsActive, ]
+      
+      SignUser <- lapply(unique(SignUserRole$ParentUser), 
+                         function(u){queryUser(oid = u)})
+      SignUser <- do.call("rbind", SignUser)
+      SignUser <- SignUser[SignUser$IsActive, ]
+      
+      msg <- 
+        .sendEmail_makeRevisionMessage(
+          report_template = rv_GenerateReport$SelectedTemplateData, 
+          report_instance = rv_GenerateReport$SelectedInstance, 
+          user_oid = CURRENT_USER_OID()
+        )
+      
+      msg <- paste(trimws(msg), 
+                   input$txt_genReport_instanceSubmit_reasonRevise,
+                   sep = "\n")
+      
+      sendEmail(from_user_oid = CURRENT_USER_OID(), 
+                to_address = unique(SignUser$EmailAddress), 
+                message = msg, 
+                report_template = rv_GenerateReport$SelectedTemplateData,
+                report_instance_oid = selected_instance_oid(), 
+                is_revision = TRUE)
+      
+      # Update ReportInstance reactives
+      ReportInstance <- queryReportInstance(report_template_oid = rv_GenerateReport$SelectedTemplate)
+      
+      rv_GenerateReport$ScheduledReportInstance <-
+        ReportInstance[ReportInstance$IsScheduled, ]
+      
+      rv_GenerateReport$UnscheduledReportInstance <-
+        ReportInstance[!ReportInstance$IsScheduled, ]
+
+      rv_GenerateReport$SelectedInstance <-
+        queryReportInstance(report_instance_oid = selected_instance_oid())
+
+      rv_GenerateReport$ReportInstanceSignature <-
+        queryReportInstanceSignature(report_instance_oid = selected_instance_oid())
+      
+      rv_GenerateReport$ReportInstanceSubmissionHistory <- 
+        getRevisionHistory(selected_instance_oid())
+
+      toggleModal(session = session,
+                  modalId = "modal_genReport_instanceSubmit_startRevision",
+                  toggle = "close")
+      enable("txt_genReport_instanceSubmit_reasonRevise")
+      enable("btn_genReport_instanceSubmit_confirmRevision")
     }
   )
   
@@ -1092,15 +1255,35 @@ shinyServer(function(input, output, session){
   
   # Generate Report - Archival and Submission - Output --------------
   
+  output$dt_genReport_reportInstanceSubmit_revisionHistory <- 
+    DT::renderDataTable({
+      RM_datatable(rv_GenerateReport$ReportInstanceSubmissionHistory) %>% 
+        DT::formatDate(c("EventDateTime"),
+                       method = 'toLocaleTimeString',
+                       params = list('en-gb',
+                                     list(year = 'numeric',
+                                          month = 'short',
+                                          day = 'numeric',
+                                          hour = 'numeric',
+                                          minute = 'numeric',
+                                          second = 'numeric',
+                                          timeZone = 'UTC')))
+    })
+  
+  proxy_dt_genReport_reportInstanceSubmit_revisionHistory <- 
+    DT::dataTableProxy("dt_genReport_reportInstanceSubmit_revisionHistory")
+  
   output$txt_genReport_reportInstance_distributeTitle <- 
     renderText({
-      req(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       
+      is_submission <- isTRUE(rv_GenerateReport$UseSubmissionDialog)
       is_add_to_archive <- "add to archive" %in% dist_opt
       is_distribute <- "distribute internally" %in% dist_opt
       
-      if (is_add_to_archive & !is_distribute){
+      if (is_submission){
+        "Submit Completed Report"
+      } else if (is_add_to_archive & !is_distribute){
         "Archive Report"
       } else if (!is_add_to_archive & is_distribute){
         "Distribute Report"
@@ -1111,13 +1294,15 @@ shinyServer(function(input, output, session){
   
   output$txt_genReport_reportInstance_sendReportButtonLabel <- 
     renderText({
-      req(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       dist_opt <- tolower(input$chk_genReport_reportInstanceSubmit_archiveDistribute)
       
+      is_submission <- isTRUE(rv_GenerateReport$UseSubmissionDialog)
       is_add_to_archive <- "add to archive" %in% dist_opt
       is_distribute <- "distribute internally" %in% dist_opt
       
-      if (is_add_to_archive & !is_distribute){
+      if (is_submission){
+        "Submit"
+      } else if (is_add_to_archive & !is_distribute){
         "Archive"
       } else if (!is_add_to_archive & is_distribute){
         "Distribute"
@@ -2475,6 +2660,14 @@ shinyServer(function(input, output, session){
     })
 
   # Stop App when Session Ends --------------------------------------
+  
+  observe({
+    lapply(
+      c("dt_genReport_reportInstanceSubmit_revisionHistory"),
+      function(x) outputOptions(output, x, suspendWhenHidden = FALSE)
+    )
+  })
+  
   session$onSessionEnded(function(){ 
     stopApp()
   })

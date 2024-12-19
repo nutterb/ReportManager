@@ -658,7 +658,7 @@ CREATE TABLE dbo.[ReportInstanceDistribution](
 
 /* ReportInstanceDistributionEvent ************************************/
 
-CREATE TABLE [ReportInstanceDistributionEvent] (
+CREATE TABLE dbo.[ReportInstanceDistributionEvent] (
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentReportInstanceDistribution INT NOT NULL, 
   EventUser INT NOT NULL, 
@@ -672,4 +672,18 @@ CREATE TABLE [ReportInstanceDistributionEvent] (
   CONSTRAINT chk_ReportInstanceDistributionEventType CHECK (EventType IN ('Add', 
                                                                           'Activate', 
                                                                           'Deactivate'))
+);
+
+/* ReportInstanceRevision ******************************************/
+
+CREATE TABLE dbo.[ReportInstanceRevision] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL,
+  ParentReportInstance INT NOT NULL, 
+  ParentUser INT NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  Reason TEXT NOT NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
 );
