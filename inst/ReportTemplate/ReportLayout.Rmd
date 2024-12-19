@@ -8,11 +8,24 @@ output:
 params:
   report_template_oid: 1
   report_instance_oid: 1
+  output_dir: ''
 toc-title: 'Contents'
 title: 'Title'
 signature: 'Signature Block'
 narrative: 'Narrative Block'
 ---
 
-```{r, child = 'SampleReport/00-Template.Rmd'}
+```{r, echo = FALSE}
+ReportInstance <- 
+  queryReportInstance(report_instance_oid = params$report_instance_oid)
+ReportTemplate <- 
+  queryReportTemplate(oid = params$report_template_oid)
+```
+
+```{r, echo = FALSE}
+TEMPLATE_FILE <- file.path(ReportTemplate$TemplateDirectory, 
+                           ReportTemplate$TemplateFile)
+```
+
+```{r, child = TEMPLATE_FILE}
 ```

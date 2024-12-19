@@ -1,7 +1,7 @@
 MODAL_REPORT_TEMPLATE_DISTRIBUTION <- 
   bsModal(
     id = "modal_templateDistribution_edit", 
-    title = "Edit Template Distribution", 
+    title = "Edit Distribution List", 
     trigger = "trg_none", 
     size = "large", 
     tabsetPanel(
@@ -27,5 +27,7 @@ MODAL_REPORT_TEMPLATE_DISTRIBUTION <-
     br(),
     br(),
     actionButton(inputId = "btn_templateDistribution_addEdit", 
-                 label = "Save")
+                 label = "Save"), 
+    hidden(actionButton(inputId = "btn_instanceDistribution_addEdit", 
+                        label = "Save"))
   )

@@ -19,6 +19,8 @@ dashboardPage(
     
     # Modals --------------------------------------------------------
     
+    MODAL_REPORT_INSTANCE_DISTRIBUTE,
+    MODAL_START_REVISION,
     MODAL_REPORT_TEMPLATE,
     MODAL_REPORT_TEMPLATE_DISCLAIMER,
     MODAL_REPORT_TEMPLATE_FOOTER,
@@ -58,11 +60,12 @@ dashboardPage(
     
     # Menu Pages ----------------------------------------------------
     
+    add_busy_spinner(spin = "fading-circle", 
+                     position = "top-right"),
+    
     # Generate a Report ---------------------------------------------
     tabItems(
-      tabItem(
-        "tab_generateReport" 
-      ), 
+      tabItem("tab_generateReport", UI_TAB_GENERATE_REPORT), 
       
       tabItem("tab_reportTemplate", UI_TAB_REPORT_TEMPLATE_PAGE), 
       

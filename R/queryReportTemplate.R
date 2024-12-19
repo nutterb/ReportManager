@@ -52,6 +52,7 @@ queryReportTemplate <- function(oid = numeric(0)){
     ReportTemplate$IsSignatureRequired <- as.logical(ReportTemplate$IsSignatureRequired)
     ReportTemplate$IsActive <- as.logical(ReportTemplate$IsActive)
     ReportTemplate$IncludeTableOfContents <- as.logical(ReportTemplate$IncludeTableOfContents)
+    ReportTemplate$IsIncludeData <- as.logical(ReportTemplate$IsIncludeData)
   }
   
   ReportTemplate
@@ -63,13 +64,17 @@ queryReportTemplate <- function(oid = numeric(0)){
   SELECT [OID], 
          [Title],
          [TitleSize],
+         [TemplateName],
          [TemplateDirectory], 
          [TemplateFile], 
          [IncludeTableOfContents],
          [DefaultEmailText],
          [IsSignatureRequired], 
          [IsActive],
-         [LogoFileArchive]
+         [LogoFileArchive], 
+         [DateReportingFormat], 
+         [SupportingDataFile], 
+         [IsIncludeData]
   FROM [ReportTemplate]
 "
 
@@ -77,12 +82,16 @@ queryReportTemplate <- function(oid = numeric(0)){
   SELECT [OID], 
          [Title],
          [TitleSize],
+         [TemplateName],
          [TemplateDirectory], 
          [TemplateFile], 
          [IncludeTableOfContents],
          [DefaultEmailText],
          [IsSignatureRequired], 
          [IsActive], 
-         [LogoFileArchive]
+         [LogoFileArchive], 
+         [DateReportingFormat],
+         [SupportingDataFile], 
+         [IsIncludeData]
   FROM dbo.[ReportTemplate]
 "

@@ -14,6 +14,7 @@
                         is_active = input$chk_template_isActive, 
                         logo_oid = as.numeric(input$sel_template_logo), 
                         default_email = input$txt_template_defaultEmailText,
+                        date_reporting_format = as.numeric(input$sel_template_dateReportingFormat),
                         event_user = current_user_oid)
   RM_replaceData(query_fun = queryReportTemplate, 
                  reactive_list = rv_Template, 

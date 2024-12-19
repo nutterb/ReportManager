@@ -8,7 +8,9 @@ MODAL_REPORT_TEMPLATE <-
       column(
         width = 6,
         textInput(inputId = "txt_template_title", 
-                  label = "Title"), 
+                  label = "Title (as printed on the report)"), 
+        textInput(inputId = "txt_template_name", 
+                  label = "Template Name (Internal use)"),
         selectInput(inputId = "sel_template_directory", 
                     label = "Template Directory", 
                     choices = TEMPLATE_FOLDERS), 
@@ -19,6 +21,10 @@ MODAL_REPORT_TEMPLATE <-
                       label = "Include Table of Contents"),
         checkboxInput(inputId = "chk_template_isSignatureRequired", 
                       label = "Signature Required"), 
+        selectInput(inputId = "sel_template_dateReportingFormat",
+                    label = "Date Reporting Format",
+                    width = "100%",
+                    choices = character(0)),
         checkboxInput(inputId = "chk_template_isActive", 
                       label = "Active", 
                       value = TRUE), 
@@ -35,10 +41,13 @@ MODAL_REPORT_TEMPLATE <-
                     label = "Title Size", 
                     choices = FONT_SIZES, 
                     selected = "LARGE"), 
+        textInput(inputId = "txt_template_supportingDataFile", 
+                  label = "Supporting Data File", 
+                  value = "SupportingData.csv"),
         selectInput(inputId = "sel_template_logo", 
                     label = "Logo", 
                     choices = character(0)), 
-        imageOutput("img_template_logo_preview")
+        imageOutput("img_template_logo_preview"), 
       )
     )
   )

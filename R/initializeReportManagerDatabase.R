@@ -238,6 +238,7 @@ initializeUiTestingDatabase <- function(filename,
   
   if ("ReportTemplate" %in% include){
     mapply(addEditReportTemplate, 
+           template_name = TestReportTemplate$TemplateName,
            title = TestReportTemplate$Title, 
            template_directory = TestReportTemplate$TemplateDirectory, 
            template_file = TestReportTemplate$TemplateFile, 
@@ -378,7 +379,7 @@ TestUser$email[7] <- "oversight@government.gov"
 TestRole <- 
   data.frame(
     role_name = c("Management", 
-                  "Production Report Pepare", 
+                  "Production Report Prepare", 
                   "Production Shift Managers",
                   "Quality Report Review", 
                   "Administrative Support", 
@@ -408,6 +409,7 @@ TestUserRole <-
 TestReportTemplate <- 
   data.frame(Title = c("First Report Template", "Second Report Template"),
              TitleSize = c("Large", "Huge"), 
+             TemplateName = c("ReportTemplate1", "ReportTemplate2"),
              TemplateDirectory = c("SampleReport", "SampleReport"),
              TemplateFile = c("00-Template.Rmd", "00-Template.Rmd"),
              IncludeTableOfContents = c(TRUE, FALSE), 

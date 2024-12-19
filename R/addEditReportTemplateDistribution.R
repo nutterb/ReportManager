@@ -149,8 +149,7 @@ addEditReportTemplateDistribution <- function(oid = numeric(0),
   EventList <- EventList[!EventList$EventType == "Add", ]
   ThisRTD <- queryReportTemplateDistribution(oid)
   
-  CurrentValue <- c(ThisRTD$Order,
-                    ThisRTD$IsActive)
+  CurrentValue <- c(ThisRTD$IsActive)
   
   EventList[compareValues(CurrentValue, EventList$NewValue), ]
 }

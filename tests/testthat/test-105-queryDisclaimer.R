@@ -14,7 +14,7 @@ test_that(
 # Report Users for SQL Server ---------------------------------------
 
 for (flavor in FLAVOR){
-  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  message(sprintf("Testing for SQL Flavor: %s\n", flavor))
   .ready <- READY[flavor]
   .message <- MESSAGE[flavor]
   

@@ -29,6 +29,9 @@
   updateTextInput(session = session, 
                   inputId = "txt_template_defaultEmailText", 
                   value = "")
+  updateTextInput(session = session, 
+                  inputId = "txt_template_supportingDataFile", 
+                  value = "SupportingData.csv")
   output$img_template_logo_preview <- NULL
   toggleModal(session = session, 
               modalId = "modal_template_addEdit", 

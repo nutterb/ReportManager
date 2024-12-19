@@ -11,7 +11,6 @@
   if (!val$is_ok()){
     alert(val$report())
   } else {
-    print(oid)
     addEditDateReportingFormat(oid = oid, 
                                format_name = input$txt_dateFormat_formatName, 
                                description = input$txt_dateFormat_description, 

@@ -8,6 +8,7 @@ test_that(
   "Return an error if oid is not integerish(0/1)", 
   {
     expect_error(addEditReportTemplate(oid = "1", 
+                                       template_name = "name",
                                        template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
@@ -18,6 +19,7 @@ test_that(
                  "'oid': Must be of type 'integerish'")
     
     expect_error(addEditReportTemplate(oid = 1:2, 
+                                       template_name = "name",
                                        template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
@@ -30,9 +32,45 @@ test_that(
 )
 
 test_that(
+  "Return an error when template_name is not character(1)",
+  {
+    expect_error(addEditReportTemplate(template_name = 123,
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       event_user = 1), 
+                 "'template_name': Must be of type 'string'")
+    
+    expect_error(addEditReportTemplate(template_name = letters, 
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       event_user = 1), 
+                 "'template_name': Must have length 1")
+    
+    expect_error(addEditReportTemplate(template_name = randomVarchar(51),
+                                       template_directory = "dir",
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       event_user = 1), 
+                 "'template_name': All elements must have at most 50")
+  }
+)
+
+test_that(
   "Return an error when template_directory is not character(1)",
   {
-    expect_error(addEditReportTemplate(template_directory = 123, 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = 123, 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -41,7 +79,8 @@ test_that(
                                        event_user = 1), 
                  "'template_directory': Must be of type 'string'")
     
-    expect_error(addEditReportTemplate(template_directory = letters, 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = letters, 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -50,7 +89,8 @@ test_that(
                                        event_user = 1), 
                  "'template_directory': Must have length 1")
     
-    expect_error(addEditReportTemplate(template_directory = randomVarchar(51), 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = randomVarchar(51), 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -64,7 +104,8 @@ test_that(
 test_that(
   "Return an error when template_file is not character(1)",
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = 123, 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -73,7 +114,8 @@ test_that(
                                        event_user = 1), 
                  "'template_file': Must be of type 'string'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = letters, 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -82,7 +124,8 @@ test_that(
                                        event_user = 1), 
                  "'template_file': Must have length 1")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = randomVarchar(51), 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -96,7 +139,8 @@ test_that(
 test_that(
   "Return an error when title is not character(1)",
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = 123, 
                                        title_size = "LARGE", 
@@ -105,7 +149,8 @@ test_that(
                                        event_user = 1), 
                  "'title': Must be of type 'string'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = letters, 
                                        title_size = "LARGE", 
@@ -114,7 +159,8 @@ test_that(
                                        event_user = 1), 
                  "'title': Must have length 1")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = randomVarchar(201), 
                                        title_size = "LARGE", 
@@ -128,7 +174,8 @@ test_that(
 test_that(
   "Return an error if title_size is not an acceptable value", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "something or other", 
@@ -142,7 +189,8 @@ test_that(
 test_that(
   "Return an error if include_toc is not logical(1)", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -151,7 +199,8 @@ test_that(
                                        event_user = 1), 
                  "'include_toc': Must be of type 'logical'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -165,7 +214,8 @@ test_that(
 test_that(
   "Return an error when default_email is not character(1)",
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "Title", 
                                        title_size = "LARGE", 
@@ -174,7 +224,8 @@ test_that(
                                        event_user = 1), 
                  "'default_email': Must be of type 'string'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "Title", 
                                        title_size = "LARGE", 
@@ -183,7 +234,8 @@ test_that(
                                        event_user = 1), 
                  "'default_email': Must have length 1")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "Title", 
                                        title_size = "LARGE", 
@@ -197,7 +249,8 @@ test_that(
 test_that(
   "Return an error if is_signature_required is not logical(1)", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -207,7 +260,8 @@ test_that(
                                        event_user = 1), 
                  "'is_signature_required': Must be of type 'logical'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -222,7 +276,8 @@ test_that(
 test_that(
   "Return an error if is_active is not logical(1)", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -232,7 +287,8 @@ test_that(
                                        event_user = 1), 
                  "'is_active': Must be of type 'logical'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -247,7 +303,8 @@ test_that(
 test_that(
   "Return an error if logo_oid is not integerish(0/1)", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -257,7 +314,8 @@ test_that(
                                        logo_oid = "1"), 
                  "'logo_oid': Must be of type 'integerish'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -270,9 +328,104 @@ test_that(
 )
 
 test_that(
+  "Return an error if date_reporting_format is not integerish(1)", 
+  {
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       date_reporting_format = "1",
+                                       event_user = 1), 
+                 "'date_reporting_format': Must be of type 'integerish'")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       date_reporting_format = 1:2,
+                                       event_user = 1), 
+                 "'date_reporting_format': Must have length 1")
+  }
+)
+
+test_that(
+  "Return an error when supporting_data_file is not character(1)",
+  {
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email",
+                                       supporting_data_file = 123,
+                                       event_user = 1), 
+                 "'supporting_data_file': Must be of type 'string'")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email",
+                                       supporting_data_file = letters,
+                                       event_user = 1), 
+                 "'supporting_data_file': Must have length 1")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "Title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "email", 
+                                       supporting_data_file = randomVarchar(151),
+                                       event_user = 1), 
+                 "'supporting_data_file': All elements must have at most 150")
+  }
+)
+
+test_that(
+  "Return an error if is_include_data is not logical(1)", 
+  {
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       is_active = TRUE, 
+                                       is_include_data = "TRUE",
+                                       event_user = 1), 
+                 "'is_include_data': Must be of type 'logical'")
+    
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
+                                       template_file = "file", 
+                                       title = "title", 
+                                       title_size = "LARGE", 
+                                       include_toc = FALSE, 
+                                       default_email = "",
+                                       is_active = TRUE, 
+                                       is_include_data = c(FALSE, TRUE),
+                                       event_user = 1), 
+                 "'is_include_data': Must have length 1")
+  }
+)
+
+test_that(
   "Return an error if event_user is not integerish(1)", 
   {
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -281,7 +434,8 @@ test_that(
                                        event_user = "1"), 
                  "'event_user': Must be of type 'integerish'")
     
-    expect_error(addEditReportTemplate(template_directory = "dir", 
+    expect_error(addEditReportTemplate(template_name = "name",
+                                       template_directory = "dir", 
                                        template_file = "file", 
                                        title = "title", 
                                        title_size = "LARGE", 
@@ -295,7 +449,7 @@ test_that(
 # Functionality - SQL Server ----------------------------------------
 
 for (flavor in FLAVOR){
-  message(sprintf("Testing for SQL Flavor: %s", flavor))
+  message(sprintf("Testing for SQL Flavor: %s\n", flavor))
   .ready <- READY[flavor]
   .message <- MESSAGE[flavor]
   
@@ -323,7 +477,8 @@ for (flavor in FLAVOR){
       
       # Add a new Date Reporting Template
       
-      addEditReportTemplate(template_directory = "TestDirectory", 
+      addEditReportTemplate(template_name = "Test Template", 
+                            template_directory = "TestDirectory", 
                             template_file = "Filename",
                             title = "Report Title", 
                             title_size = "Large", 
@@ -343,6 +498,7 @@ for (flavor in FLAVOR){
       # Edit an existing Report Template
       
       addEditReportTemplate(oid = NewTemplate$OID, 
+                            template_name = "Test Template",
                             template_directory = "TestDirectory2", 
                             template_file = "Filename2",
                             title = "Report Title2", 
@@ -383,7 +539,8 @@ for (flavor in FLAVOR){
       last_template_oid <- max(queryReportTemplate()$OID)
       next_template_oid <- last_template_oid + 1
       
-      addEditReportTemplate(template_directory = "TestDirectory2", 
+      addEditReportTemplate(template_name = "Test Template 2", 
+                            template_directory = "TestDirectory2", 
                             template_file = "Filename2",
                             title = "Report Title2", 
                             title_size = "LARGE", 
@@ -405,12 +562,17 @@ for (flavor in FLAVOR){
       expect_equal(TemplateEvent$EventType,
                    c("Add", "SetIncludeTocTrue", 
                      "SetSignatureRequiredTrue", "Deactivate", 
-                     "EditTemplateFolder", "EditTemplateFile", 
+                     "EditTemplateFolder", "EditTemplateFile",
                      "EditTitle", "EditTitleSize", 
-                     "EditDefaultEmailText", "EditLogoFile"))
+                     "EditDefaultEmailText", "EditLogoFile", 
+                     "EditDateReportingFormat", 
+                     "EditTemplateName", 
+                     "EditSupportingDataFile", 
+                     "EditIsIncludeData"))
       expect_true(all(table(TemplateEvent$EventType) == 1))
       
       addEditReportTemplate(oid = next_template_oid, 
+                            template_name = "Test Template 2",
                             template_directory = "TestDirectoryEdit", 
                             template_file = "FilenameEdit",
                             title = "Report Title Edit", 
@@ -436,10 +598,14 @@ for (flavor in FLAVOR){
               c("Activate" = 1, 
                 "Add" = 1, 
                 "Deactivate" = 1, 
+                "EditDateReportingFormat" = 1,
                 "EditDefaultEmailText" = 2,
+                "EditIsIncludeData" = 1,
                 "EditLogoFile" = 2, 
+                "EditSupportingDataFile" = 1,
                 "EditTemplateFile" = 2, 
                 "EditTemplateFolder" = 2, 
+                "EditTemplateName" = 1,
                 "EditTitle" = 2, 
                 "EditTitleSize" = 2, 
                 "SetIncludeTocFalse" = 1, 
@@ -449,7 +615,7 @@ for (flavor in FLAVOR){
       )
       
       dbDisconnect(conn)
-    }
+     }
   )
 } 
 
