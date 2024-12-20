@@ -643,3 +643,60 @@ CREATE TABLE [ReportInstanceRevision] (
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
   FOREIGN KEY (ParentUser) REFERENCES [User](OID)
 );
+
+/* AutoDistribution ************************************************/
+
+CREATE TABLE [AutoDistribution] (
+  OID INTEGER PRIMARY KEY, 
+  ParentReportTemplate INT NOT NULL, 
+  ParentSchedule INT NOT NULL, 
+  StartDateTime DATETIME NOT NULL, 
+  IsActive BIT NOT NULL, 
+  DelayAfterInstanceEnd INT NOT NULL, 
+  DelayUnits VARCHAR(50) NOT NULL, 
+  CurrentOrLastInstance VARCHAR(20) NOT NULL, 
+  IsAddToArchive BIT NOT NULL, 
+  ReportFormat VARCHAR(10) NOT NULL,
+  IsDistributeInternalOnly BIT NOT NULL, 
+  IsEmbedHtml BIT NOT NULL, 
+  
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID), 
+  CONSTRAINT chk_AutoDistributionCurrentOrLast CHECK (CurrentOrLastInstance IN ('Current', 
+                                                                                'LastCompleted'))
+  
+);
+
+CREATE TABLE [AutoDistributionEvent](
+  OID INTEGER PRIMARY KEY, 
+  ParentAutoDistribution INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(30) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  FOREIGN KEY (ParentAutoDistribution) REFERENCES [AutoDistribution](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_AutoDistributionEventType CHECK (EventType IN ('Add', 
+                                                                'Activate', 
+                                                                'Deactivate', 
+                                                                'EditSchedule', 
+                                                                'EditStartDateTime', 
+                                                                'EditDelayAfterInstanceEnd', 
+                                                                'EditDelayUnits', 
+                                                                'EditCurrentOrLastInstance', 
+                                                                'EditIsAddToArchive', 
+                                                                'EditReportFormat', 
+                                                                'EditIsDistributeInternalOnly', 
+                                                                'EditIsEmbedHtml'))
+);
+
+/* ReportInstanceAutoDistribution **********************************/
+
+CREATE TABLE [ReportInstanceAutoDistribution] (
+  OID INTEGER PRIMARY KEY,
+  ParentReportInstance INT NOT NULL, 
+  AutoDistributeDateTime DATETIME NOT NULL, 
+  
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
+);
