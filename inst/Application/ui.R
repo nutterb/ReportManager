@@ -77,7 +77,7 @@ dashboardPage(
       
       tabItem("tab_users", UI_TAB_REPORT_USER), 
       
-      tabItem("tab_autoDistribute")
+      tabItem("tab_autoDistribute", UI_TAB_AUTODISTRIBUTE)
     )
   )
 )

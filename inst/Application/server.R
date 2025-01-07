@@ -2659,6 +2659,15 @@ shinyServer(function(input, output, session){
       }
     })
 
+  # AutoDistribute --------------------------------------------------
+  # AutoDistribute - Reactive Values --------------------------------
+  
+  rv_AutoDist <- reactiveValues(
+    Config = NULL, 
+    SelectedConfig = numeric(0), 
+    ConfigAddEdit = "Add"
+  )
+  
   # Stop App when Session Ends --------------------------------------
   
   observe({
