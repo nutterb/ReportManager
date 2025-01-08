@@ -8,7 +8,6 @@
 #'   being edited. If a zero-length value, a new object is created.
 #' @param parent_report_template `integerish(1)`. The OID of the report
 #'   template.
-#' @param parent_schedule `integerish(1)`. The OID of the reporting schedule.
 #' @param start_date_time `POSIXct(1)`. The date and time for the
 #'   report template to begin distribution.
 #' @param is_active `logical(1)`. When `TRUE`, the configuration is active
@@ -36,7 +35,6 @@
 
 addEditAutoDistribution <- function(oid = numeric(0), 
                                     parent_report_template, 
-                                    parent_schedule, 
                                     start_date_time, 
                                     is_active, 
                                     delay_after_instance_end, 
@@ -56,10 +54,6 @@ addEditAutoDistribution <- function(oid = numeric(0),
                               add = coll)
   
   checkmate::assertIntegerish(x = parent_report_template, 
-                              len = 1, 
-                              add = coll)
-  
-  checkmate::assertIntegerish(x = parent_schedule, 
                               len = 1, 
                               add = coll)
   
@@ -114,7 +108,6 @@ addEditAutoDistribution <- function(oid = numeric(0),
   on.exit({ DBI::dbDisconnect(conn) })
   
   AddEditData <- data.frame(ParentReportTemplate = parent_report_template, 
-                            ParentSchedule = parent_schedule, 
                             StartDateTime = start_date_time, 
                             IsActive = is_active, 
                             DelayAfterInstanceEnd = delay_after_instance_end, 
@@ -128,10 +121,9 @@ addEditAutoDistribution <- function(oid = numeric(0),
   event_time <- Sys.time()
   
   EventList <- 
-    data.frame(EventUser = rep(event_user, 11), 
+    data.frame(EventUser = rep(event_user, 10), 
                EventType = c("Add", 
                              if (is_active) "Activate" else "Deactivate", 
-                             "EditSchedule", 
                              "EditStartDateTime", 
                              "EditDelayAfterInstanceEnd", 
                              "EditDelayUnits", 
@@ -141,10 +133,9 @@ addEditAutoDistribution <- function(oid = numeric(0),
                              "EditIsDistributeInternalOnly", 
                              "EditIsEmbedHtml"), 
                EventDateTime = rep(format(event_time, 
-                                          format = "%Y-%m-%d %H:%M:%S"), 11), 
+                                          format = "%Y-%m-%d %H:%M:%S"), 10), 
                NewValue = c("", 
                             is_active, 
-                            parent_schedule, 
                             format(start_date_time, 
                                    format = "%Y-%m-%d %H:%M:%S"), 
                             delay_after_instance_end, 
@@ -194,7 +185,6 @@ addEditAutoDistribution <- function(oid = numeric(0),
   ThisAD <- queryAutoDistribution(oid)
   
   CurrentValue <- c(ThisAD$IsActive, 
-                    ThisAD$ParentSchedule, 
                     ThisAD$StartDateTime, 
                     ThisAD$DelayAfterInstanceEnd, 
                     ThisAD$DelayUnits, 

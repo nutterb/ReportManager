@@ -2663,10 +2663,276 @@ shinyServer(function(input, output, session){
   # AutoDistribute - Reactive Values --------------------------------
   
   rv_AutoDist <- reactiveValues(
-    Config = NULL, 
-    SelectedConfig = numeric(0), 
+    Config = queryAutoDistribution(), 
+    SelectedConfig = data.frame(), 
     ConfigAddEdit = "Add"
   )
+  
+  # AutoDistribute - Passive Observers ------------------------------
+  
+  observe({
+    toggleState("btn_autodistribution_add", 
+                condition = USER_IS_REPORT_ADMIN())
+    
+    toggleState("btn_autodistribution_edit", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_autodistribution) > 0)
+  })
+  
+  observe({
+    req(nrow(rv_AutoDist$SelectedConfig) > 0)
+    toggleState("btn_autodistribution_deactivate", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_autodistribution) > 0 & 
+                  rv_AutoDist$SelectedConfig$IsActive)
+    
+    toggleState("btn_autodistribution_activate", 
+                condition = USER_IS_REPORT_ADMIN() & 
+                  length(input$rdo_autodistribution) > 0 & 
+                  !rv_AutoDist$SelectedConfig$IsActive)
+  })
+  
+  observe({
+    toggle("chk_autodistribution_isEmbedHtml", 
+           condition = input$sel_autodistribution_reportFormat == "html")
+  })
+  
+  # AutoDistribute - Event Observers --------------------------------
+  
+  observeEvent(
+    input$rdo_autodistribution, 
+    {
+      rv_AutoDist$SelectedConfig <- 
+        rv_AutoDist$Config[rv_AutoDist$Config$OID == as.numeric(input$rdo_autodistribution), ]  
+    }
+  )
+  
+  observeEvent(
+    input$btn_autodistribution_add, 
+    {
+      rv_AutoDist$ConfigAddEdit <- "Add"
+      
+      template <- rv_Template$Template$OID
+      names(template) <- rv_Template$Template$TemplateName
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_parentReportTemplate", 
+                        choices = template)
+      
+      updateTextInput(session = session, 
+                      inputId = "dttm_autodistribution_startDateTime", 
+                      value = format(Sys.time(), 
+                                     format = "%Y-%m-%d 00:00"))
+      
+      updateNumericInput(session = session, 
+                         inputId = "num_autodistribution_delayAfterInstanceEnd", 
+                         value = 0)
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_delayUnits", 
+                        selected = "Hour")
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_currentOrLastInstance", 
+                        selected = "LastCompleted")
+      
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isActive", 
+                          value = TRUE)
+      
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isAddToArchive", 
+                          value = FALSE)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isDistributeInternalOnly", 
+                          value = TRUE)
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_reportFormat", 
+                        selected = "pdf")
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isEmbedHtml", 
+                          value = TRUE)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_autodistribution_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_autodistribution_edit, 
+    {
+      rv_AutoDist$ConfigAddEdit <- "Edit"
+      
+      template <- rv_Template$Template$OID
+      names(template) <- rv_Template$Template$TemplateName
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_parentReportTemplate", 
+                        choices = template, 
+                        selected = rv_AutoDist$SelectedConfig$ParentReportTemplate)
+      
+      updateTextInput(session = session, 
+                      inputId = "dttm_autodistribution_startDateTime", 
+                      value = format(rv_AutoDist$SelectedConfig$StartDateTime, 
+                                     format = "%Y-%m-%d %H:%m"))
+      
+      updateNumericInput(session = session, 
+                         inputId = "num_autodistribution_delayAfterInstanceEnd", 
+                         value = rv_AutoDist$SelectedConfig$DelayAfterInstanceEnd)
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_delayUnits", 
+                        selected = rv_AutoDist$SelectedConfig$DelayUnits)
+      
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_currentOrLastInstance", 
+                        selected = rv_AutoDist$SelectedConfig$CurrentOrLastInstance)
+      
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isActive", 
+                          value = rv_AutoDist$SelectedConfig$IsActive)
+      
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isAddToArchive", 
+                          value = rv_AutoDist$SelectedConfig$IsAddToArchive)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isDistributeInternalOnly", 
+                          value = rv_AutoDist$SelectedConfig$IsDistributeInternalOnly)
+      updateSelectInput(session = session, 
+                        inputId = "sel_autodistribution_reportFormat", 
+                        selected = rv_AutoDist$SelectedConfig$ReportFormat)
+      updateCheckboxInput(session = session, 
+                          inputId = "chk_autodistribution_isEmbedHtml", 
+                          value = rv_AutoDist$SelectedConfig$IsEmbedHtml)
+      
+      toggleModal(session = session, 
+                  modalId = "modal_autodistribution_addEdit", 
+                  toggle = "open")
+    }
+  )
+  
+  observeEvent(
+    input$btn_autodistribution_saveConfig,
+    {
+      oid <- switch(rv_AutoDist$ConfigAddEdit,
+                    "Add" = numeric(0), 
+                    as.numeric(input$rdo_autodistribution))
+      
+      addEditAutoDistribution(oid = oid,
+                              parent_report_template = as.numeric(input$sel_autodistribution_parentReportTemplate),
+                              start_date_time = as.POSIXct(input$dttm_autodistribution_startDateTime,
+                                                           format = "%Y-%m-%d %H:%M",
+                                                           tz = "UTC"),
+                              is_active = input$chk_autodistribution_isActive,
+                              delay_after_instance_end = input$num_autodistribution_delayAfterInstanceEnd,
+                              delay_units = input$sel_autodistribution_delayUnits,
+                              current_or_last_instance = input$sel_autodistribution_currentOrLastInstance,
+                              is_add_to_archive = input$chk_autodistribution_isAddToArchive,
+                              report_format = input$sel_autodistribution_reportFormat,
+                              is_distribute_internal_only = input$chk_autodistribution_isDistributeInternalOnly,
+                              is_embed_html = input$chk_autodistribution_isEmbedHtml,
+                              event_user = CURRENT_USER_OID())
+      
+      NewData <- queryAutoDistribution()
+      
+      rv_AutoDist$Config <- NewData
+      
+      NewData %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_autodistribution", 
+                       checked = as.numeric(input$rdo_autodistribution)) %>% 
+        DT::replaceData(proxy_dt_autodistribution,
+                        ., 
+                        resetPaging = FALSE,
+                        rownames = FALSE)
+      
+      rv_AutoDist$SelectedConfig <- 
+        rv_AutoDist$Config[rv_AutoDist$Config$OID == as.numeric(input$rdo_autodistribution), ]  
+      
+      toggleModal(session = session, 
+                  modalId = "modal_autodistribution_addEdit", 
+                  toggle = "close")
+    }
+  )
+  
+  observeEvent(
+    input$btn_autodistribution_deactivate, 
+    {
+      activateRecord(oid = as.numeric(input$rdo_autodistribution), 
+                     active = FALSE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "AutoDistribution", 
+                     event_table_name = "AutoDistributionEvent", 
+                     parent_field_name = "ParentAutoDistribution")
+      
+      NewData <- queryAutoDistribution()
+      
+      rv_AutoDist$Config <- NewData
+      
+      NewData %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_autodistribution", 
+                       checked = as.numeric(input$rdo_autodistribution)) %>% 
+        DT::replaceData(proxy_dt_autodistribution,
+                        ., 
+                        resetPaging = FALSE,
+                        rownames = FALSE)
+      
+      rv_AutoDist$SelectedConfig <- 
+        rv_AutoDist$Config[rv_AutoDist$Config$OID == as.numeric(input$rdo_autodistribution), ]  
+    }
+  )
+  
+  observeEvent(
+    input$btn_autodistribution_activate, 
+    {
+      activateRecord(oid = as.numeric(input$rdo_autodistribution), 
+                     active = TRUE, 
+                     event_user = CURRENT_USER_OID(), 
+                     table_name = "AutoDistribution", 
+                     event_table_name = "AutoDistributionEvent", 
+                     parent_field_name = "ParentAutoDistribution")
+      
+      NewData <- queryAutoDistribution()
+      
+      rv_AutoDist$Config <- NewData
+      
+      NewData %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_autodistribution", 
+                       checked = as.numeric(input$rdo_autodistribution)) %>% 
+        DT::replaceData(proxy_dt_autodistribution,
+                        ., 
+                        resetPaging = FALSE,
+                        rownames = FALSE)
+      
+      rv_AutoDist$SelectedConfig <- 
+        rv_AutoDist$Config[rv_AutoDist$Config$OID == as.numeric(input$rdo_autodistribution), ]  
+    }
+  )
+  
+  # AutoDistribute - Output -----------------------------------------
+  
+  output$dt_autodistribution <- 
+    DT::renderDataTable({
+      queryAutoDistribution() %>% 
+        radioDataTable(id_variable = "OID", 
+                       element_name = "rdo_autodistribution") %>% 
+        RM_datatable(escape = -1) %>% 
+        DT::formatDate(columns = c("StartDateTime"),
+                       method  = 'toLocaleTimeString',
+                       params  = list('en-gb',
+                                      list(year     = 'numeric',
+                                           month    = 'short',
+                                           day      = 'numeric',
+                                           hour     = 'numeric',
+                                           minute   = 'numeric',
+                                           second   = 'numeric',
+                                           timeZone = 'UTC')))
+    })
+  
+  proxy_dt_autodistribution <- DT::dataTableProxy("dt_autodistribution")
   
   # Stop App when Session Ends --------------------------------------
   

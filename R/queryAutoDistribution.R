@@ -39,11 +39,11 @@ queryAutoDistribution <- function(oid = numeric(0),
                         getOption("RM_sql_flavor"))))
   
   if (length(oid) > 0){
-    statement <- paste0(statement, " AND [OID] = ?")
+    statement <- paste0(statement, " AND [AD].[OID] = ?")
   }
   
   if (length(report_template_oid) > 0){
-    statement <- paste0(statement, " AND [ParentReportTemplate] = ?")
+    statement <- paste0(statement, " AND [AD].[ParentReportTemplate] = ?")
   }
   
   param_list <- list(oid, report_template_oid)
@@ -75,35 +75,39 @@ queryAutoDistribution <- function(oid = numeric(0),
 }
 
 .queryAutoDistribution_sqlite <- "
-SELECT [OID], 
-  [ParentReportTemplate],
-  [ParentSchedule], 
-  [StartDateTime], 
-  [IsActive], 
-  [DelayAfterInstanceEnd], 
-  [DelayUnits],
-  [CurrentOrLastInstance], 
-  [IsAddToArchive], 
-  [ReportFormat], 
-  [IsDistributeInternalOnly], 
-  [IsEmbedHtml]
-FROM [AutoDistribution]
+SELECT [AD].[OID], 
+  [RT].[TemplateName],
+  [AD].[StartDateTime], 
+  [AD].[IsActive], 
+  [AD].[DelayAfterInstanceEnd], 
+  [AD].[DelayUnits],
+  [AD].[CurrentOrLastInstance], 
+  [AD].[IsAddToArchive], 
+  [AD].[ReportFormat], 
+  [AD].[IsDistributeInternalOnly], 
+  [AD].[IsEmbedHtml],
+  [AD].[ParentReportTemplate]
+FROM [AutoDistribution] AD
+  LEFT JOIN [ReportTemplate] RT
+    ON [AD].[ParentReportTemplate] = [RT].[OID]
  WHERE 1=1
 "
 
 .queryAutoDistribution_sqlServer <- "
-SELECT [OID], 
-  [ParentReportTemplate],
-  [ParentSchedule], 
-  [StartDateTime], 
-  [IsActive], 
-  [DelayAfterInstanceEnd], 
-  [DelayUnits],
-  [CurrentOrLastInstance], 
-  [IsAddToArchive], 
-  [ReportFormat], 
-  [IsDistributeInternalOnly], 
-  [IsEmbedHtml]
-FROM [dbo].[AutoDistribution]
+SELECT [AD].[OID], 
+  [RT].[TemplateName],
+  [AD].[StartDateTime], 
+  [AD].[IsActive], 
+  [AD].[DelayAfterInstanceEnd], 
+  [AD].[DelayUnits],
+  [AD].[CurrentOrLastInstance], 
+  [AD].[IsAddToArchive], 
+  [AD].[ReportFormat], 
+  [AD].[IsDistributeInternalOnly], 
+  [AD].[IsEmbedHtml],
+  [AD].[ParentReportTemplate]
+FROM [dbo].[AutoDistribution] AD
+  LEFT JOIN [dbo].[ReportTemplate] RT
+    ON [AD].[ParentReportTemplate] = [RT].[OID]
  WHERE 1=1
 "

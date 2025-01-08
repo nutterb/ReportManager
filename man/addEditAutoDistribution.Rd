@@ -7,7 +7,6 @@
 addEditAutoDistribution(
   oid = numeric(0),
   parent_report_template,
-  parent_schedule,
   start_date_time,
   is_active,
   delay_after_instance_end,
@@ -26,8 +25,6 @@ being edited. If a zero-length value, a new object is created.}
 
 \item{parent_report_template}{\code{integerish(1)}. The OID of the report
 template.}
-
-\item{parent_schedule}{\code{integerish(1)}. The OID of the reporting schedule.}
 
 \item{start_date_time}{\code{POSIXct(1)}. The date and time for the
 report template to begin distribution.}

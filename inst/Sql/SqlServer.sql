@@ -693,7 +693,6 @@ CREATE TABLE dbo.[ReportInstanceRevision] (
 CREATE TABLE dbo.[AutoDistribution] (
   OID INTEGER IDENTITY(1, 1) NOT NULL, 
   ParentReportTemplate INT NOT NULL, 
-  ParentSchedule INT NOT NULL, 
   StartDateTime DATETIME NOT NULL, 
   IsActive BIT NOT NULL, 
   DelayAfterInstanceEnd INT NOT NULL, 
@@ -706,7 +705,6 @@ CREATE TABLE dbo.[AutoDistribution] (
   
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
-  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID), 
   CONSTRAINT chk_AutoDistributionCurrentOrLast CHECK (CurrentOrLastInstance IN ('Current', 
                                                                                 'LastCompleted'))
   
@@ -726,7 +724,6 @@ CREATE TABLE dbo.[AutoDistributionEvent](
   CONSTRAINT chk_AutoDistributionEventType CHECK (EventType IN ('Add', 
                                                                 'Activate', 
                                                                 'Deactivate', 
-                                                                'EditSchedule', 
                                                                 'EditStartDateTime', 
                                                                 'EditDelayAfterInstanceEnd', 
                                                                 'EditDelayUnits', 

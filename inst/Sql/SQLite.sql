@@ -649,7 +649,6 @@ CREATE TABLE [ReportInstanceRevision] (
 CREATE TABLE [AutoDistribution] (
   OID INTEGER PRIMARY KEY, 
   ParentReportTemplate INT NOT NULL, 
-  ParentSchedule INT NOT NULL, 
   StartDateTime DATETIME NOT NULL, 
   IsActive BIT NOT NULL, 
   DelayAfterInstanceEnd INT NOT NULL, 
@@ -661,7 +660,6 @@ CREATE TABLE [AutoDistribution] (
   IsEmbedHtml BIT NOT NULL, 
   
   FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
-  FOREIGN KEY (ParentSchedule) REFERENCES [Schedule](OID), 
   CONSTRAINT chk_AutoDistributionCurrentOrLast CHECK (CurrentOrLastInstance IN ('Current', 
                                                                                 'LastCompleted'))
   
@@ -680,7 +678,6 @@ CREATE TABLE [AutoDistributionEvent](
   CONSTRAINT chk_AutoDistributionEventType CHECK (EventType IN ('Add', 
                                                                 'Activate', 
                                                                 'Deactivate', 
-                                                                'EditSchedule', 
                                                                 'EditStartDateTime', 
                                                                 'EditDelayAfterInstanceEnd', 
                                                                 'EditDelayUnits', 

@@ -4,9 +4,11 @@
 \alias{queryAutoDistribution}
 \title{Retrieve Auto Distribution Configuration from the Database}
 \usage{
-queryAutoDistribution(report_template_oid)
+queryAutoDistribution(oid = numeric(0), report_template_oid = numeric(0))
 }
 \arguments{
+\item{oid}{\code{integerish(0/1)}. The OID of the AutoDistribution object.}
+
 \item{report_template_oid}{\code{integerish(0/1)}. The OID of the report template.
 If none is provided, all records are returned.}
 }

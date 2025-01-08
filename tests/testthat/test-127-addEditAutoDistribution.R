@@ -6,7 +6,6 @@ test_that(
     expect_error(
       addEditAutoDistribution(oid = "1", 
                             parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -22,7 +21,6 @@ test_that(
     expect_error(
       addEditAutoDistribution(oid = 1:2, 
                             parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -42,7 +40,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = "1", 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -57,7 +54,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1:2, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -73,46 +69,10 @@ test_that(
 )
 
 test_that(
-  "Return an error if parent_schedule is not integerish(1)", 
-  {
-    expect_error(
-      addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = "1", 
-                            start_date_time = Sys.time(), 
-                            is_active = TRUE, 
-                            delay_after_instance_end = 1, 
-                            delay_units = "Second", 
-                            current_or_last_instance = "Current", 
-                            is_add_to_archive = FALSE, 
-                            report_format = "html", 
-                            is_distribute_internal_only = TRUE,  
-                            is_embed_html = TRUE, 
-                            event_user = 1), 
-      "'parent_schedule': Must be of type 'integerish'")
-    
-    expect_error(
-      addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1:2, 
-                            start_date_time = Sys.time(), 
-                            is_active = TRUE, 
-                            delay_after_instance_end = 1, 
-                            delay_units = "Second", 
-                            current_or_last_instance = "Current", 
-                            is_add_to_archive = FALSE, 
-                            report_format = "html", 
-                            is_distribute_internal_only = TRUE,  
-                            is_embed_html = TRUE, 
-                            event_user = 1), 
-      "'parent_schedule': Must have length 1")
-  }
-)
-
-test_that(
   "Return an error if start_date_time is not POSIXct(1)", 
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = format(Sys.time()), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -127,7 +87,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = rep(Sys.time(), 2), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -147,7 +106,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = "TRUE", 
                             delay_after_instance_end = 1, 
@@ -162,7 +120,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = c(FALSE, TRUE), 
                             delay_after_instance_end = 1, 
@@ -182,7 +139,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = "1", 
@@ -197,7 +153,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1:2, 
@@ -217,7 +172,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                            parent_schedule = 1, 
                             start_date_time = Sys.time(), 
                             is_active = TRUE, 
                             delay_after_instance_end = 1, 
@@ -237,7 +191,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -257,7 +210,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -272,7 +224,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = FALSE, 
                               delay_after_instance_end = 1, 
@@ -292,7 +243,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -312,7 +262,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -327,7 +276,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = FALSE, 
                               delay_after_instance_end = 1, 
@@ -347,7 +295,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -362,7 +309,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = FALSE, 
                               delay_after_instance_end = 1, 
@@ -382,7 +328,6 @@ test_that(
   {
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -397,7 +342,6 @@ test_that(
     
     expect_error(
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -430,7 +374,6 @@ for (flavor in FLAVOR){
                   .message)
       
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -447,12 +390,11 @@ for (flavor in FLAVOR){
       next_oid <- nrow(CurrentObjects) + 1
       
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 2, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
                               delay_units = "Second", 
-                              current_or_last_instance = "Current", 
+                              current_or_last_instance = "LastCompleted", 
                               is_add_to_archive = FALSE, 
                               report_format = "html", 
                               is_distribute_internal_only = TRUE,  
@@ -465,8 +407,8 @@ for (flavor in FLAVOR){
                         nrows = 1)
       expect_equal(New$ParentReportTemplate, 
                    1)
-      expect_equal(New$ParentSchedule, 
-                   2)
+      expect_equal(New$CurrentOrLastInstance, 
+                   "LastCompleted")
     }
   )
   
@@ -479,7 +421,6 @@ for (flavor in FLAVOR){
       
       addEditAutoDistribution(oid = 1, 
                               parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = FALSE, 
                               delay_after_instance_end = 2, 
@@ -513,7 +454,6 @@ for (flavor in FLAVOR){
       next_oid <- last_oid + 1
       
       addEditAutoDistribution(parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = TRUE, 
                               delay_after_instance_end = 1, 
@@ -536,7 +476,6 @@ for (flavor in FLAVOR){
       expect_equal(InstanceEvent$EventType,
                    c("Add", 
                      "Activate", 
-                     "EditSchedule", 
                      "EditStartDateTime", 
                      "EditDelayAfterInstanceEnd", 
                      "EditDelayUnits", 
@@ -549,7 +488,6 @@ for (flavor in FLAVOR){
 
       addEditAutoDistribution(oid = next_oid, 
                               parent_report_template = 1, 
-                              parent_schedule = 1, 
                               start_date_time = Sys.time(), 
                               is_active = FALSE, 
                               delay_after_instance_end = 1, 
@@ -582,7 +520,6 @@ for (flavor in FLAVOR){
                 "EditIsDistributeInternalOnly" = 1, 
                 "EditIsEmbedHtml" = 1, 
                 "EditReportFormat" = 1, 
-                "EditSchedule" = 1, 
                 "EditStartDateTime" = 2))
       )
       

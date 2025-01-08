@@ -58,6 +58,54 @@ dashboardPage(
                    label = "Save")
     ),
     
+    bsModal(
+      id = "modal_autodistribution_addEdit", 
+      title = "Add/Edit Auto Distribution Configuration", 
+      trigger = "trg_none", 
+      size = "large", 
+      fluidRow(
+        column(
+          width = 6, 
+          selectInput(inputId = "sel_autodistribution_parentReportTemplate", 
+                      label = "Report Template", 
+                      choices = character(0)), 
+          dateTimeInput(inputId = "dttm_autodistribution_startDateTime", 
+                        label = "Date/Time to Start Distribution"), 
+          numericInput(inputId = "num_autodistribution_delayAfterInstanceEnd", 
+                       label = "Delay After End of Instance", 
+                       value = 0),
+          selectInput(inputId = "sel_autodistribution_delayUnits", 
+                      label = "Delay Units", 
+                      choices = UNIT_OF_TIME, 
+                      selected = "Hour"),
+          selectInput(inputId = "sel_autodistribution_currentOrLastInstance", 
+                      label = "Current or Last Completed Instance", 
+                      choices = c("Current", "LastCompleted"), 
+                      selected = "LastCompleted"),
+          checkboxInput(inputId = "chk_autodistribution_isActive", 
+                        label = "Is Active", 
+                        value = TRUE), 
+          actionButton(inputId = "btn_autodistribution_saveConfig", 
+                       label = "Save")
+        ), 
+        column(
+          width = 6, 
+          checkboxInput(inputId = "chk_autodistribution_isAddToArchive", 
+                        label = "Add to Archive"), 
+          checkboxInput(inputId = "chk_autodistribution_isDistributeInternalOnly", 
+                        label = "Distribute Internally Only", 
+                        value = TRUE),
+          selectInput(inputId = "sel_autodistribution_reportFormat", 
+                      label = "Report Format", 
+                      choices = c("html", "pdf"), 
+                      selected = "pdf"), 
+          checkboxInput(inputId = "chk_autodistribution_isEmbedHtml", 
+                        label = "Embed HTML into Email", 
+                        value = TRUE)
+        )
+      )
+    ),
+    
     # Menu Pages ----------------------------------------------------
     
     add_busy_spinner(spin = "fading-circle", 
