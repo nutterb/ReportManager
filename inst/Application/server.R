@@ -2934,6 +2934,90 @@ shinyServer(function(input, output, session){
   
   proxy_dt_autodistribution <- DT::dataTableProxy("dt_autodistribution")
   
+  # Settings - Reactive Values --------------------------------------
+  
+  rv_Settings <- reactiveValues(
+    Settings = SETTINGS
+  )
+  
+  # Settings - Passive Observers ------------------------------------
+  
+  observe({
+    toggleState(id = "btn_setting_openEdit", 
+                condition = USER_IS_REPORT_ADMIN())
+  })
+  
+  # Settings - Event Observers --------------------------------------
+  
+  observeEvent(
+    rv_Settings$Settings,
+    {
+      # Update SMTP Server
+      
+      SMTP <- SETTINGS$SettingValue[SETTINGS$SettingKey == "smtpServer"]
+      
+      if (!is.na(SMTP)){
+        options(RM_smtpServer = SMTP)
+      }
+      
+      # Update ZIP Executable 
+      
+      ZIP <- SETTINGS$SettingValue[SETTINGS$SettingKey == "zipExecutable"]
+      
+      if (!is.na(ZIP) && trimws(ZIP) != ""){
+        Sys.setenv("R_ZIPCMD" = ZIP)
+      } else {
+        Sys.setenv("R_ZIPCMD" ="zip")
+      }
+    }
+  )
+  
+  observeEvent(
+    input$btn_setting_openEdit, 
+    {
+      disable(id = "btn_setting_openEdit")
+      enable(id = "txt_setting_smtpServer")
+      enable(id = "sel_setting_defaultReportFormat")
+      enable(id = "sel_setting_htmlEmbed")
+      enable(id = "txt_setting_zipExecutable")
+      enable(id = "btn_setting_saveSettings")
+    }
+  )
+  
+  observeEvent(
+    input$btn_setting_saveSettings, 
+    {
+      SettingData <- data.frame(SettingKey = c("smtpServer", 
+                                               "defaultReportFormat", 
+                                               "htmlEmbed", 
+                                               "zipExecutable"), 
+                                SettingValue = c(input$txt_setting_smtpServer, 
+                                                 input$sel_setting_defaultReportFormat, 
+                                                 input$sel_setting_htmlEmbed, 
+                                                 input$txt_setting_zipExecutable), 
+                                stringsAsFactors = FALSE)
+      
+      for (i in seq_len(nrow(SettingData))){
+        this_oid <-  queryApplicationSettingByKey(SettingData$SettingKey[i])$OID
+        addEditApplicationSetting(oid = this_oid, 
+                                  setting_key = SettingData$SettingKey[i], 
+                                  setting_value = SettingData$SettingValue[i], 
+                                  event_user = CURRENT_USER_OID())
+      }
+      
+      rv_Settings$Settings <- queryApplicationSetting()
+      
+      toggleState(id = "btn_setting_openEdit",
+                  condition = USER_IS_REPORT_ADMIN())
+      disable(id = "txt_setting_smtpServer")
+      disable(id = "sel_setting_defaultReportFormat")
+      disable(id = "sel_setting_htmlEmbed")
+      disable(id = "txt_setting_zipExecutable")
+      disable(id = "btn_setting_saveSettings")
+    }
+  )
+  
+  # Settings - Output -----------------------------------------------
   # Stop App when Session Ends --------------------------------------
   
   observe({

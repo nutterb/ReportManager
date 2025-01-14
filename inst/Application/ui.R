@@ -125,7 +125,32 @@ dashboardPage(
       
       tabItem("tab_users", UI_TAB_REPORT_USER), 
       
-      tabItem("tab_autoDistribute", UI_TAB_AUTODISTRIBUTE)
+      tabItem("tab_autoDistribute", UI_TAB_AUTODISTRIBUTE), 
+      
+      tabItem("tab_setting", 
+              tagList(
+                disabled(actionButton(inputId = "btn_setting_openEdit", 
+                                      label = "Edit Settings")),
+                disabled(textInput(inputId = "txt_setting_smtpServer", 
+                                   label = "SMTP server", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "smtpServer"])), 
+                disabled(selectInput(inputId = "sel_setting_defaultReportFormat", 
+                                     label = "Default Report Format", 
+                                     choices = c("pdf" = "PDF", 
+                                                 "html" = "HTML"),
+                                     selected = SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])), 
+                disabled(selectInput(inputId = "sel_setting_htmlEmbed", 
+                                     label = "E-mail HTML files as:", 
+                                     choices = c("embed" = "Embedded in Email", 
+                                                 "attach" = "Attached to Email"),
+                                     selected = SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])), 
+                disabled(textInput(inputId = "txt_setting_zipExecutable", 
+                                   label = "Location of ZIP Executable", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "zipExecutable"],
+                                   placeholder = "Leave blank if ZIP is on the System PATH")), 
+                disabled(actionButton(inputId = "btn_setting_saveSettings", 
+                                      label = "Save")))
+      )
     )
   )
 )

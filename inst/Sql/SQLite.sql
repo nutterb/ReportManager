@@ -697,3 +697,27 @@ CREATE TABLE [ReportInstanceAutoDistribution] (
   
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
 );
+
+
+/* Settings ********************************************************/
+
+CREATE TABLE [ApplicationSetting] (
+  OID INTEGER PRIMARY KEY, 
+  SettingKey VARCHAR(50) NOT NULL, 
+  SettingValue VARCHAR(500) NULL, 
+  
+  CONSTRAINT unq_SettingKey UNIQUE (SettingKey)
+);
+
+CREATE TABLE [ApplicationSettingEvent] (
+  OID INTEGER PRIMARY KEY, 
+  ParentApplicationSetting INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(10) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(500) NULL, 
+  
+  FOREIGN KEY (ParentApplicationSetting) REFERENCES [ApplicationSetting](OID),
+  CONSTRAINT chk_ApplicationSettingEventType CHECK (EventType IN ('EditKey', 
+                                                                  'EditValue'))
+);

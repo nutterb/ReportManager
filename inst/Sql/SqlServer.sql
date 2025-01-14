@@ -744,3 +744,29 @@ CREATE TABLE dbo.[ReportInstanceAutoDistribution] (
   PRIMARY KEY (OID), 
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
 );
+
+
+/* Settings ********************************************************/
+
+CREATE TABLE dbo.[ApplicationSetting] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  SettingKey VARCHAR(50) NOT NULL, 
+  SettingValue VARCHAR(500) NULL, 
+  
+  PRIMARY KEY (OID), 
+  CONSTRAINT unq_SettingKey UNIQUE (SettingKey)
+);
+
+CREATE TABLE dbo.[ApplicationSettingEvent] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentApplicationSetting INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(10) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(500) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentApplicationSetting) REFERENCES [ApplicationSetting](OID),
+  CONSTRAINT chk_ApplicationSettingEventType CHECK (EventType IN ('EditKey', 
+                                                                  'EditValue'))
+);
