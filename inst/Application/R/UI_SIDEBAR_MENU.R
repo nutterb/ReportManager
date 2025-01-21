@@ -6,5 +6,6 @@ UI_SIDEBAR_MENU <-
     menuItem("Report Layout Options", tabName = "tab_reportLayout"),
     menuItem("User Roles", tabName = "tab_roles"), 
     menuItem("Users", tabName = "tab_users"), 
-    menuItem("Auto Distribution", tabName = "tab_autoDistribute")
+    menuItem("Auto Distribution", tabName = "tab_autoDistribute"), 
+    menuItem("Settings", tabName = "tab_setting")
   )

@@ -130,14 +130,12 @@ for (flavor in FLAVOR){
   test_that(
     "Test options for submissions", 
     {
-      skip("Tests should be developed after incorporating revision numbers")
-      
       filename <- makeReportFileName(report_instance_oid = 1, 
                                      is_preview = FALSE, 
                                      is_submission = TRUE, 
                                      file_extension = "pdf")
       
-      expect_true(grepl("\\d{4}-\\d{2}-\\d{2} - \\d{4}-\\d{2}-\\d{2}-ReportTemplate2[RevNumber].pdf", 
+      expect_true(grepl("\\d{4}-\\d{2}-\\d{2} - \\d{4}-\\d{2}-\\d{2}-ReportTemplate2 Rev. 0.pdf", 
                         filename))
     }
   )

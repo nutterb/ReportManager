@@ -182,6 +182,24 @@ initializeReportManagerDatabase <- function(filename,
                 event_user = 1)
   addEditFooter(footer = "Becomes a record upon completion.", 
                 event_user = 1)
+  
+  # Initialize Application Settings ---------------------------------
+  
+  addEditApplicationSetting(setting_key = "smtpServer", 
+                            setting_value = NA_character_, 
+                            event_user = 1)
+  addEditApplicationSetting(setting_key = "defaultReportFormat", 
+                            setting_value = "pdf", 
+                            event_user = 1)
+  addEditApplicationSetting(setting_key = "htmlEmbed", 
+                            setting_value = "embed", 
+                            event_user = 1)
+  addEditApplicationSetting(setting_key = "zipExecutable", 
+                            setting_value = NA_character_, 
+                            event_user = 1)
+  addEditApplicationSetting(setting_key = "pandocDirectory", 
+                            setting_value = NA_character_, 
+                            event_user = 1)
 }
 
 #' @rdname initializeReportManagerDatabase
