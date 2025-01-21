@@ -148,6 +148,10 @@ dashboardPage(
                                    label = "Location of ZIP Executable", 
                                    value = SETTINGS$SettingValue[SETTINGS$SettingKey == "zipExecutable"],
                                    placeholder = "Leave blank if ZIP is on the System PATH")), 
+                disabled(textInput(inputId = "txt_setting_pandocDirectory", 
+                                   label = "Directory of Pandoc", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"],
+                                   placeholder = "Leave blank if PANDOC is on the System PATH")),
                 disabled(actionButton(inputId = "btn_setting_saveSettings", 
                                       label = "Save")))
       )

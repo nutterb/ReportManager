@@ -197,6 +197,9 @@ initializeReportManagerDatabase <- function(filename,
   addEditApplicationSetting(setting_key = "zipExecutable", 
                             setting_value = NA_character_, 
                             event_user = 1)
+  addEditApplicationSetting(setting_key = "pandocDirectory", 
+                            setting_value = NA_character_, 
+                            event_user = 1)
 }
 
 #' @rdname initializeReportManagerDatabase

@@ -2969,6 +2969,13 @@ shinyServer(function(input, output, session){
       } else {
         Sys.setenv("R_ZIPCMD" ="zip")
       }
+      
+      # Update PANDOC directory
+      PANDOC <- trimws(SETTINGS$SettingsValue[SETTINGS$SettingKey == "pandocDirectory"])
+      
+      if (isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
+        Sys.setenv(PATH = PANDOC)
+      }
     }
   )
   
@@ -2980,6 +2987,7 @@ shinyServer(function(input, output, session){
       enable(id = "sel_setting_defaultReportFormat")
       enable(id = "sel_setting_htmlEmbed")
       enable(id = "txt_setting_zipExecutable")
+      enable(id = "txt_setting_pandocDirectory")
       enable(id = "btn_setting_saveSettings")
     }
   )
@@ -2990,11 +2998,13 @@ shinyServer(function(input, output, session){
       SettingData <- data.frame(SettingKey = c("smtpServer", 
                                                "defaultReportFormat", 
                                                "htmlEmbed", 
-                                               "zipExecutable"), 
+                                               "zipExecutable", 
+                                               "pandocDirectory"), 
                                 SettingValue = c(input$txt_setting_smtpServer, 
                                                  input$sel_setting_defaultReportFormat, 
                                                  input$sel_setting_htmlEmbed, 
-                                                 input$txt_setting_zipExecutable), 
+                                                 input$txt_setting_zipExecutable, 
+                                                 input$txt_setting_pandocDirectory), 
                                 stringsAsFactors = FALSE)
       
       for (i in seq_len(nrow(SettingData))){
@@ -3013,6 +3023,7 @@ shinyServer(function(input, output, session){
       disable(id = "sel_setting_defaultReportFormat")
       disable(id = "sel_setting_htmlEmbed")
       disable(id = "txt_setting_zipExecutable")
+      disable(id = "txt_setting_pandocDirectory")
       disable(id = "btn_setting_saveSettings")
     }
   )
