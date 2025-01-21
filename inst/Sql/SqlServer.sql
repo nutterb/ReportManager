@@ -687,3 +687,86 @@ CREATE TABLE dbo.[ReportInstanceRevision] (
   FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID), 
   FOREIGN KEY (ParentUser) REFERENCES [User](OID)
 );
+
+/* AutoDistribution ************************************************/
+
+CREATE TABLE dbo.[AutoDistribution] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentReportTemplate INT NOT NULL, 
+  StartDateTime DATETIME NOT NULL, 
+  IsActive BIT NOT NULL, 
+  DelayAfterInstanceEnd INT NOT NULL, 
+  DelayUnits VARCHAR(50) NOT NULL, 
+  CurrentOrLastInstance VARCHAR(20) NOT NULL, 
+  IsAddToArchive BIT NOT NULL, 
+  ReportFormat VARCHAR(10) NOT NULL,
+  IsDistributeInternalOnly BIT NOT NULL, 
+  IsEmbedHtml BIT NOT NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportTemplate) REFERENCES [ReportTemplate](OID), 
+  CONSTRAINT chk_AutoDistributionCurrentOrLast CHECK (CurrentOrLastInstance IN ('Current', 
+                                                                                'LastCompleted'))
+  
+);
+
+CREATE TABLE dbo.[AutoDistributionEvent](
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentAutoDistribution INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(30) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(250) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentAutoDistribution) REFERENCES [AutoDistribution](OID), 
+  FOREIGN KEY (EventUser) REFERENCES [User](OID), 
+  CONSTRAINT chk_AutoDistributionEventType CHECK (EventType IN ('Add', 
+                                                                'Activate', 
+                                                                'Deactivate', 
+                                                                'EditStartDateTime', 
+                                                                'EditDelayAfterInstanceEnd', 
+                                                                'EditDelayUnits', 
+                                                                'EditCurrentOrLastInstance', 
+                                                                'EditIsAddToArchive', 
+                                                                'EditReportFormat', 
+                                                                'EditIsDistributeInternalOnly', 
+                                                                'EditIsEmbedHtml'))
+);
+
+/* ReportInstanceAutoDistribution **********************************/
+
+CREATE TABLE dbo.[ReportInstanceAutoDistribution] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL,
+  ParentReportInstance INT NOT NULL, 
+  AutoDistributeDateTime DATETIME NOT NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentReportInstance) REFERENCES [ReportInstance](OID)
+);
+
+
+/* Settings ********************************************************/
+
+CREATE TABLE dbo.[ApplicationSetting] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  SettingKey VARCHAR(50) NOT NULL, 
+  SettingValue VARCHAR(500) NULL, 
+  
+  PRIMARY KEY (OID), 
+  CONSTRAINT unq_SettingKey UNIQUE (SettingKey)
+);
+
+CREATE TABLE dbo.[ApplicationSettingEvent] (
+  OID INTEGER IDENTITY(1, 1) NOT NULL, 
+  ParentApplicationSetting INT NOT NULL, 
+  EventUser INT NOT NULL, 
+  EventType VARCHAR(10) NOT NULL, 
+  EventDateTime DATETIME NOT NULL, 
+  NewValue VARCHAR(500) NULL, 
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentApplicationSetting) REFERENCES [ApplicationSetting](OID),
+  CONSTRAINT chk_ApplicationSettingEventType CHECK (EventType IN ('EditKey', 
+                                                                  'EditValue'))
+);

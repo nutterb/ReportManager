@@ -58,6 +58,54 @@ dashboardPage(
                    label = "Save")
     ),
     
+    bsModal(
+      id = "modal_autodistribution_addEdit", 
+      title = "Add/Edit Auto Distribution Configuration", 
+      trigger = "trg_none", 
+      size = "large", 
+      fluidRow(
+        column(
+          width = 6, 
+          selectInput(inputId = "sel_autodistribution_parentReportTemplate", 
+                      label = "Report Template", 
+                      choices = character(0)), 
+          dateTimeInput(inputId = "dttm_autodistribution_startDateTime", 
+                        label = "Date/Time to Start Distribution"), 
+          numericInput(inputId = "num_autodistribution_delayAfterInstanceEnd", 
+                       label = "Delay After End of Instance", 
+                       value = 0),
+          selectInput(inputId = "sel_autodistribution_delayUnits", 
+                      label = "Delay Units", 
+                      choices = UNIT_OF_TIME, 
+                      selected = "Hour"),
+          selectInput(inputId = "sel_autodistribution_currentOrLastInstance", 
+                      label = "Current or Last Completed Instance", 
+                      choices = c("Current", "LastCompleted"), 
+                      selected = "LastCompleted"),
+          checkboxInput(inputId = "chk_autodistribution_isActive", 
+                        label = "Is Active", 
+                        value = TRUE), 
+          actionButton(inputId = "btn_autodistribution_saveConfig", 
+                       label = "Save")
+        ), 
+        column(
+          width = 6, 
+          checkboxInput(inputId = "chk_autodistribution_isAddToArchive", 
+                        label = "Add to Archive"), 
+          checkboxInput(inputId = "chk_autodistribution_isDistributeInternalOnly", 
+                        label = "Distribute Internally Only", 
+                        value = TRUE),
+          selectInput(inputId = "sel_autodistribution_reportFormat", 
+                      label = "Report Format", 
+                      choices = c("html", "pdf"), 
+                      selected = "pdf"), 
+          checkboxInput(inputId = "chk_autodistribution_isEmbedHtml", 
+                        label = "Embed HTML into Email", 
+                        value = TRUE)
+        )
+      )
+    ),
+    
     # Menu Pages ----------------------------------------------------
     
     add_busy_spinner(spin = "fading-circle", 
@@ -77,7 +125,36 @@ dashboardPage(
       
       tabItem("tab_users", UI_TAB_REPORT_USER), 
       
-      tabItem("tab_autoDistribute")
+      tabItem("tab_autoDistribute", UI_TAB_AUTODISTRIBUTE), 
+      
+      tabItem("tab_setting", 
+              tagList(
+                disabled(actionButton(inputId = "btn_setting_openEdit", 
+                                      label = "Edit Settings")),
+                disabled(textInput(inputId = "txt_setting_smtpServer", 
+                                   label = "SMTP server", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "smtpServer"])), 
+                disabled(selectInput(inputId = "sel_setting_defaultReportFormat", 
+                                     label = "Default Report Format", 
+                                     choices = c("pdf" = "PDF", 
+                                                 "html" = "HTML"),
+                                     selected = SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])), 
+                disabled(selectInput(inputId = "sel_setting_htmlEmbed", 
+                                     label = "E-mail HTML files as:", 
+                                     choices = c("embed" = "Embedded in Email", 
+                                                 "attach" = "Attached to Email"),
+                                     selected = SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])), 
+                disabled(textInput(inputId = "txt_setting_zipExecutable", 
+                                   label = "Location of ZIP Executable", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "zipExecutable"],
+                                   placeholder = "Leave blank if ZIP is on the System PATH")), 
+                disabled(textInput(inputId = "txt_setting_pandocDirectory", 
+                                   label = "Directory of Pandoc", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"],
+                                   placeholder = "Leave blank if PANDOC is on the System PATH")),
+                disabled(actionButton(inputId = "btn_setting_saveSettings", 
+                                      label = "Save")))
+      )
     )
   )
 )
