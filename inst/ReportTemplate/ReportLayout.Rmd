@@ -1,19 +1,59 @@
 ---
 output:
   html_document:
+    self_contained: true
+    template: RMtemplate.html
+    number_sections: false
     toc: true
-  pdf_document: 
-    keep_tex: true
+    pandoc_args: [
+      "--from", "markdown-markdown_in_html_blocks"
+    ]
+  pdf_document:
+    latex_engine: lualatex
+    keep_tex: no
+    template: RMtemplate.latex
+    number_sections: false
     toc: true
 params:
-  report_template_oid: 1
+  report_template_oid: 2
   report_instance_oid: 1
   output_dir: ''
+  rm_flavor: 'sql_server'
+  rm_database_file: ''
+  rm_driver: 'ODBC Driver 17 for SQL Server'
+  rm_server: 'BLGLIMSMPS'
+  rm_database: 'NutterPlayground'
 toc-title: 'Contents'
-title: 'Title'
-signature: 'Signature Block'
-narrative: 'Narrative Block'
 ---
+
+```{r, echo=FALSE, message = FALSE, warning = FALSE, eval = TRUE}
+library(ReportManager)
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      error = TRUE)
+
+HTML_OUTPUT <- isTRUE(knitr::opts_knit$get("rmarkdown.pandoc.to") == "html")
+
+configureReportManager(flavor = params$rm_flavor, 
+                       database_file = params$rm_database_file, 
+                       driver = params$rm_driver, 
+                       server = params$rm_server, 
+                       database = params$rm_database)
+```
+
+```{r}
+sanitize_for_yaml <- function(x, html = FALSE){
+  if (html){
+    x <- gsub("'", "&apos;", x)
+    x <- gsub("#", "&#35;", x)
+  } else {
+    x <- Hmisc::latexTranslate(x)
+    x <- gsub("'", "''", x)
+  }
+  x
+}
+```
 
 ```{r, echo = FALSE}
 ReportInstance <- 
@@ -22,6 +62,171 @@ ReportTemplate <-
   queryReportTemplate(oid = params$report_template_oid)
 ```
 
+```{r}
+# Get the title, title size, and revision number
+TITLE <- sanitize_for_yaml(ReportTemplate$Title)
+TITLE_SIZE <- ReportTemplate$TitleSize
+REV_NUMBER <- queryCurrentRevisionNumber(params$report_instance_oid)
+```
+
+```{r}
+renderSignatureBlock <- function(Signature, html = FALSE){
+  Signature <- Signature[Signature$MostRecentSignature == 1, ]
+  Signature <- Signature[order(Signature$Order), ]
+  Signature$SignatureDateTime <- format(Signature$SignatureDateTime, 
+                                        format = "%d %b %Y %H:%M")
+  
+  Signature$SignatureName <- ifelse(Signature$IsSigned, 
+                                    Signature$SignatureName, 
+                                    NA_character_)
+  Signature$SignatureDateTime <- ifelse(Signature$IsSigned, 
+                                        Signature$SignatureDateTime, 
+                                        "")
+  
+  
+  if (html){
+    sign <- vapply(seq_len(nrow(Signature)), 
+                   function(i){
+                     htmlSignatureRow(Signature[i, ])
+                   }, 
+                   character(1))
+    sign <- paste0(sign, collapse = " ")
+    sign <- sprintf("<table cellpadding = '2'>%s</table>", sign)
+    # Bear with me here: When we pass the signature block to the YAML
+    # in the template, it seems to work best if the YAML entry is formatted as
+    # signature: '`r SIGNATURE`'
+    # Importantly, the single quote works better for facilitating both HTML
+    # and LaTeX. However. when we use single quotes in the HTML styles, the 
+    # YAML gets angry and breaks the template. So we're going to change the 
+    # single quotes in the styles to double quotes
+    # Adapted from https://stackoverflow.com/questions/48853518/replace-a-specific-character-only-between-parenthesis
+    sign <- gsub("\\'(?=[^<>]*\\>)", "\"", sign, perl = TRUE)
+    
+    # Now, any single quotes that were in the content need to be escaped for the YAML
+    sign <- gsub("'", "''", sign)
+  } else {
+    "Print here"
+  }
+  sign
+}
+
+
+htmlSignatureRow <- function(dframe){
+  code_string <- "
+<tr>
+  <td style = 'width:4in;border-bottom:solid black 1px;height:1in;'></td>
+  <td style = 'width:0.25in;'></td>
+  <td style = 'width:1.5in;border-bottom:solid black 1px;vertical-align:bottom'>%s</td>
+</tr>
+<tr>
+  <td>%s</td>
+  <td></td>
+  <td>Date</td>
+</tr> 
+"
+  signatory <- c(dframe$SignatureName, 
+                 dframe$RoleName)
+  signatory <- signatory[!is.na(signatory)]
+  signatory <- paste0(signatory, 
+                      collapse = ", ")
+  out <- sprintf(code_string, 
+                 dframe$SignatureDateTime, 
+                 signatory)
+  out
+}
+```
+
+```{r}
+Signature <- queryReportInstanceSignature(report_instance_oid = params$report_instance_oid)
+
+SIGNATURE <- renderSignatureBlock(Signature, HTML_OUTPUT)
+```
+
+```{r}
+# Get the text of the disclaimers
+ReportTemplateDisclaimer <- 
+  queryReportTemplateDisclaimer(parent_report_template = params$report_template_oid)
+Disclaimer <- queryDisclaimer()
+
+RTD <- 
+  merge(ReportTemplateDisclaimer, 
+        Disclaimer, 
+        by.x = "ParentDisclaimer", 
+        by.y = "OID", 
+        suffixes = c("_rtd", "_d"))
+RTD <- RTD[order(RTD$Order), ]
+RTD <- RTD[RTD$IsActive_rtd & RTD$IsActive_d, ]
+
+DISCLAIMER <- if (nrow(RTD) > 0) RTD$Disclaimer else ""
+DISCLAIMER <- sanitize_for_yaml(DISCLAIMER, HTML_OUTPUT)
+```
+
+```{r}
+# Get the text of the user provided narrative
+Narrative <- queryReportInstanceNarrative(report_instance_oid = params$report_instance_oid)
+
+NARRATIVE <- if (nrow(Narrative) == 0) "" else Narrative$Narrative
+NARRATIVE <- gsub("\\n", 
+                  if (HTML_OUTPUT) "<br/>" else "\\\\newline", 
+                  NARRATIVE)
+NARRATIVE <- sanitize_for_yaml(NARRATIVE, HTML_OUTPUT)
+```
+
+```{r}
+# Get the report footer
+ReportTemplateFooter <- queryReportTemplateFooter(parent_report_template = params$report_template_oid)
+Footer <- queryFooter()
+
+RTF <- 
+  merge(ReportTemplateFooter, 
+        Footer, 
+        by.x = "ParentFooter", 
+        by.y = "OID", 
+        suffixes = c("_rtf", "_f"))
+RTF <- RTF[order(RTF$Order), ]
+RTF <- RTF[RTF$IsActive_rtf & RTF$IsActive_f, ]
+
+FOOTER <- if (nrow(RTF) > 0) RTF$Footer else ""
+FOOTER <- sanitize_for_yaml(FOOTER, HTML_OUTPUT)
+```
+
+```{r}
+# Adjustments for HTML vs. LaTeX reports
+if (HTML_OUTPUT){
+  TITLE_SIZE <- switch(TITLE_SIZE, 
+                      "Huge" = "2.488", #24.88
+                      "huge" = "2.074", #20.74
+                      "LARGE" = "1.728", #17.28
+                      "Large" = "1.44", # 14.4
+                      "large" = "1.2", #12pt
+                      "normalsize" = "1", #10pt - the default in bgcappReport.latex
+                      "small" = "0.9", #9pt
+                      "footnotesize" = "0.8", #8pt
+                      "scriptsize" = "0.7", #7pt
+                      "tiny" = "0.5")
+  
+  DISCLAIMER <- paste0(DISCLAIMER, collapse = "<br><br>")
+  FOOTER <- paste0(FOOTER, collapse = "<br><br>")
+} else {
+  DISCLAIMER <- paste0(DISCLAIMER, collapse = "\\newline \\newline ")
+  FOOTER <- paste0(FOOTER, collapse = "\\newline \\newline")
+}
+```
+
+```{r}
+NARRATIVE <- sanitize_for_yaml(NARRATIVE, HTML_OUTPUT)
+```
+
+---
+title: '`r TITLE`'
+revision: '`r REV_NUMBER`'
+title-size: '`r TITLE_SIZE`'
+signature: '`r SIGNATURE`'
+disclaimer: '`r DISCLAIMER`'
+narrative: '`r NARRATIVE`'
+footer: '`r FOOTER`'
+---
+
 ```{r, echo = FALSE}
 TEMPLATE_FILE <- file.path(ReportTemplate$TemplateDirectory, 
                            ReportTemplate$TemplateFile)
@@ -29,3 +234,5 @@ TEMPLATE_FILE <- file.path(ReportTemplate$TemplateDirectory,
 
 ```{r, child = TEMPLATE_FILE}
 ```
+
+
