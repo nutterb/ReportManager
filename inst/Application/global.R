@@ -33,8 +33,11 @@ if (!is.na(ZIP) && trimws(ZIP) != ""){
 
 # Set the Pandoc directory location on startup
 
-PANDOC <- trimws(SETTINGS$SettingsValue[SETTINGS$SettingKey == "pandocDirectory"])
+PANDOC <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"])
 
-if (isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
+if (!isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
+  rmarkdown::find_pandoc(dir = PANDOC, 
+                         cache = FALSE)
   Sys.setenv(PATH = PANDOC)
+  Sys.setenv(RSTUDIO_PANDOC = PANDOC)
 }

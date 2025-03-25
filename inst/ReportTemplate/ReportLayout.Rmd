@@ -5,6 +5,9 @@ output:
     template: RMtemplate.html
     number_sections: false
     toc: true
+    pandoc_args: [
+      "--from", "markdown-markdown_in_html_blocks"
+    ]
   pdf_document:
     latex_engine: lualatex
     keep_tex: no
@@ -111,9 +114,9 @@ renderSignatureBlock <- function(Signature, html = FALSE){
 htmlSignatureRow <- function(dframe){
   code_string <- "
 <tr>
-  <td style = 'width:75%%;border-bottom:solid black 1px;height:1in;'></td>
-  <td style = 'width:5%%;'></td>
-  <td style = 'width:20%%;border-bottom:solid black 1px;vertical-align:bottom'>%s</td>
+  <td style = 'width:4in;border-bottom:solid black 1px;height:1in;'></td>
+  <td style = 'width:0.25in;'></td>
+  <td style = 'width:1.5in;border-bottom:solid black 1px;vertical-align:bottom'>%s</td>
 </tr>
 <tr>
   <td>%s</td>
