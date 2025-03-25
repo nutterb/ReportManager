@@ -2818,11 +2818,18 @@ shinyServer(function(input, output, session){
       oid <- switch(rv_AutoDist$ConfigAddEdit,
                     "Add" = numeric(0), 
                     as.numeric(input$rdo_autodistribution))
+
+      date_format <- 
+        if (grepl("^\\d{4}", input$dttm_autodistribution_startDateTime)){
+          "%Y-%m-%d %H:%M"
+        } else {
+          "%d-%b-%Y %H:%M"
+        }
       
       addEditAutoDistribution(oid = oid,
                               parent_report_template = as.numeric(input$sel_autodistribution_parentReportTemplate),
                               start_date_time = as.POSIXct(input$dttm_autodistribution_startDateTime,
-                                                           format = "%Y-%m-%d %H:%M",
+                                                           format = date_format,
                                                            tz = "UTC"),
                               is_active = input$chk_autodistribution_isActive,
                               delay_after_instance_end = input$num_autodistribution_delayAfterInstanceEnd,
