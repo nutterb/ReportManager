@@ -826,75 +826,30 @@ shinyServer(function(input, output, session){
       
       report_format <- if (is_submission) "html" else tolower(input$rdo_genReport_reportInstance_format)
       
-      report_files <- 
-        makeReportForArchive(report_instance_oid = selected_instance_oid(), 
-                             include_data = rv_GenerateReport$SelectedTemplateData$IsIncludeData,
-                             is_submission = is_submission,
-                             build_dir = tempdir(), 
-                             params = list(), 
-                             report_format = report_format)
+      submitReport(report_instance_oid = selected_instance_oid(), 
+                   is_submission = is_submission, 
+                   is_distribute = is_distribute, 
+                   is_distribute_internal_only = "distribute internally" %in% dist_opt, 
+                   is_add_to_archive = is_add_to_archive, 
+                   is_embed_html = is_embed_html, 
+                   params = list(), 
+                   report_format = report_format, 
+                   current_user_oid = CURRENT_USER_OID())
       
-      InstanceGeneration <- 
-        addReportInstanceGeneration(
-          report_instance_oid = selected_instance_oid(), 
-          report_template_oid = rv_GenerateReport$SelectedTemplate,
-          start_date_time = rv_GenerateReport$SelectedInstance$StartDateTime, 
-          end_date_time = rv_GenerateReport$SelectedInstance$EndDateTime, 
-          report_format = report_format, 
-          include_data = rv_GenerateReport$SelectedTemplateData$IsIncludeData, 
-          is_preview = FALSE, 
-          is_distributed = is_distribute, 
-          is_archived = is_add_to_archive, 
-          is_submission = is_submission, 
-          user_oid = CURRENT_USER_OID()
-        )
-      
-      if (is_add_to_archive){
-        for (rf in report_files){
-          addFileArchive(parent_report_template = rv_GenerateReport$SelectedTemplate,
-                         parent_report_instance = selected_instance_oid(), 
-                         file_path = rf)
-        }
-      }
-      
-      if (is_distribute){
-        Distribution <- queryInstanceDistributionSelection(report_instance_oid = selected_instance_oid())
-        Distribution <- Distribution[Distribution$IsActive, ]
+      if (is_submission){
+        ReportInstance <- queryReportInstance(report_template_oid = rv_GenerateReport$SelectedTemplate)
         
-        if (!is_submission){
-          Distribution <- Distribution[Distribution$IsInternal, ]
-        }
+        rv_GenerateReport$ScheduledReportInstance <-
+          ReportInstance[ReportInstance$IsScheduled, ]
         
-        sendEmail(from_user_oid = CURRENT_USER_OID(),
-                  to_address = Distribution$EmailAddress,
-                  report_template = rv_GenerateReport$SelectedTemplateData,
-                  report_instance_oid = selected_instance_oid(),
-                  message = input$txt_genReport_reportInstance_emailMessage,
-                  filename = report_files, 
-                  embed_html = is_embed_html)
+        rv_GenerateReport$UnscheduledReportInstance <-
+          ReportInstance[!ReportInstance$IsScheduled, ]
         
-        if (is_submission){
-          addReportInstanceGenerationRecipient(report_instance_generation_oid = InstanceGeneration$OID, 
-                                               user_oid = Distribution$ParentUser)
-          updateInstanceIsSubmitted(report_instance_oid = selected_instance_oid(), 
-                                    is_submitted = TRUE, 
-                                    current_user_oid = CURRENT_USER_OID())
-          
-          ReportInstance <- queryReportInstance(report_template_oid = rv_GenerateReport$SelectedTemplate)
-          
-          rv_GenerateReport$ScheduledReportInstance <-
-            ReportInstance[ReportInstance$IsScheduled, ]
-          
-          rv_GenerateReport$UnscheduledReportInstance <-
-            ReportInstance[!ReportInstance$IsScheduled, ]
-          
-          rv_GenerateReport$SelectedInstance <- 
-            queryReportInstance(report_instance_oid = selected_instance_oid())
-          
-          rv_GenerateReport$ReportInstanceSubmissionHistory <- 
-            getRevisionHistory(selected_instance_oid())
-        }
+        rv_GenerateReport$SelectedInstance <-
+          queryReportInstance(report_instance_oid = selected_instance_oid())
         
+        rv_GenerateReport$ReportInstanceSubmissionHistory <-
+          getRevisionHistory(selected_instance_oid())
       }
       
       enable("rdo_genReport_reportInstance_format")
@@ -2818,11 +2773,18 @@ shinyServer(function(input, output, session){
       oid <- switch(rv_AutoDist$ConfigAddEdit,
                     "Add" = numeric(0), 
                     as.numeric(input$rdo_autodistribution))
+
+      date_format <- 
+        if (grepl("^\\d{4}", input$dttm_autodistribution_startDateTime)){
+          "%Y-%m-%d %H:%M"
+        } else {
+          "%d-%b-%Y %H:%M"
+        }
       
       addEditAutoDistribution(oid = oid,
                               parent_report_template = as.numeric(input$sel_autodistribution_parentReportTemplate),
                               start_date_time = as.POSIXct(input$dttm_autodistribution_startDateTime,
-                                                           format = "%Y-%m-%d %H:%M",
+                                                           format = date_format,
                                                            tz = "UTC"),
                               is_active = input$chk_autodistribution_isActive,
                               delay_after_instance_end = input$num_autodistribution_delayAfterInstanceEnd,

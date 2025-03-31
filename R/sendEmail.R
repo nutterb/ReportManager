@@ -1,3 +1,25 @@
+#' @name sendEmail
+#' @title Send an Email from the Application
+#' 
+#' @description Sends and e-mail from the Report Manager Application
+#' 
+#' @param from_user_oid `intgerish(1)`. The OID of the user initiating the
+#'   send action.
+#' @param to_address `character(n)`. The email address to which the e-mail 
+#'   will be sent.
+#' @param message `character(1)`. The message included in the body of the e-mail.
+#' @param report_template `data.frame` of the Report Template settings.
+#' @param report_instance_oid `integerish(1)`. The OID of the report instance
+#'   being sent.
+#' @param filename `character(n)`. The files to attach to the e-mail.
+#' @param control `list` control parameters to pass to the argument of the 
+#'   same name in \code{\link[sendmailR]{sendmail}}.
+#' @param embed_html `logical(1)`. Controls if the content is embedded into the 
+#'   email or attached as a file.
+#' @param is_revision `logical(1)`. Indicates if the e-mail is being sent 
+#'   regarding a revision.
+#' @param ... Other arguments to pass to \code{\link[sendmailR]{sendmail}}.
+
 sendEmail <- function(from_user_oid, 
                       to_address, 
                       message,
@@ -8,6 +30,45 @@ sendEmail <- function(from_user_oid,
                       embed_html = FALSE,
                       is_revision = FALSE,
                       ...){
+  # Argument Validation ---------------------------------------------
+  
+  coll <- checkmate::makeAssertCollection()
+  
+  checkmate::assertIntegerish(x = from_user_oid, 
+                               len = 1, 
+                               add = coll)
+  
+  checkmate::assertCharacter(x = to_address, 
+                              add = coll)
+  
+  checkmate::assertCharacter(x = message, 
+                              len = 1, 
+                              add = coll)
+  
+  checkmate::assertDataFrame(x = report_template, 
+                             add = coll)
+  
+  checkmate::assertIntegerish(x = report_instance_oid, 
+                              len = 1, 
+                              add = coll)
+  
+  checkmate::assertCharacter(x = filename, 
+                             add = coll)
+  
+  checkmate::assertList(x = control, 
+                        add = coll)
+  
+  checkmate::assertLogical(x = embed_html, 
+                           len = 1, 
+                           add = coll)
+  
+  checkmate::assertLogical(x = is_revision, 
+                           len = 1, 
+                           add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  
   dots <- list(...)
   attach <- NULL
   
@@ -72,14 +133,19 @@ sendEmail <- function(from_user_oid,
   message <- c(list(message), attach)
   
   # Send the Email --------------------------------------------------  
-  sendmailR::sendmail(from = FromUser$EmailAddress, 
-                      to = to_address,  
-                      subject = .sendEmail_makeSubject(report_template, 
-                                                       report_instance, 
-                                                       is_revision), 
-                      msg = message,
-                      control = control, 
-                      ...)
+  
+  if (length(to_address) > 0){
+    sendmailR::sendmail(from = FromUser$EmailAddress, 
+                        to = to_address,  
+                        subject = .sendEmail_makeSubject(report_template, 
+                                                         report_instance, 
+                                                         is_revision), 
+                        msg = message,
+                        control = control, 
+                        ...)
+  } else {
+    message("No recipients listed for the TO field--no e-mail sent.")
+  }
 }
 
 
