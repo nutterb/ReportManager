@@ -1,4 +1,29 @@
+#' @name queryInstanceDistributionSelection
+#' @title Retrieve the Distribution List for a Report Instance
+#' 
+#' @description While the distribution may be set at a template level, 
+#'   each instance of the report template may modify that distribution list. 
+#'   This function executes a query to combine the template-level and 
+#'   instance-level distribution list.
+#'   
+#' @param report_instance_oid `integerish(1).` The OID of the report instance.
+#' 
+#' @export
+
 queryInstanceDistributionSelection <- function(report_instance_oid){
+  
+  # Argument Validation ---------------------------------------------
+  
+  coll <- checkmate::makeAssertCollection()
+  
+  checkmate::assertIntegerish(x = report_instance_oid, 
+                              len = 1, 
+                              add = coll)
+  
+  checkmate::reportAssertions(coll)
+  
+  # Functionality ---------------------------------------------------
+  
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
   

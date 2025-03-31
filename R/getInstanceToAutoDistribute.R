@@ -68,7 +68,8 @@ getInstanceToAutoDistribute <- function(distribution_run_time = Sys.time()){
                   "CurrentOrLastInstance", 
                   "ReportFormat",  
                   "IsAddToArchive", 
-                  "IsDistributeInternalOnly")
+                  "IsDistributeInternalOnly", 
+                  "IsEmbedHtml")
   
   Config <- AutoDistributeConfig[config_col]
   Config <- Config[!duplicated(Config), ]
@@ -128,7 +129,8 @@ getInstanceToAutoDistribute <- function(distribution_run_time = Sys.time()){
                      "ReportFormat",
                      "AutoDistributeDate", 
                      "ReportInstanceOID", 
-                     "IsDistributeInternalOnly")]
+                     "IsDistributeInternalOnly", 
+                     "IsEmbedHtml")]
   
   Config
 }
@@ -199,7 +201,8 @@ SELECT
   RIAD.AutoDistributeDateTime, 
   RI.OID as ReportInstanceOID, 
   AD.ReportFormat, 
-  AD.IsDistributeInternalOnly
+  AD.IsDistributeInternalOnly, 
+  AD.IsEmbedHtml
 FROM dbo.AutoDistribution AD
   LEFT JOIN dbo.ReportInstance RI
   	ON AD.ParentReportTemplate = RI.ParentReportTemplate
@@ -232,7 +235,8 @@ SELECT
   RIAD.AutoDistributeDateTime, 
   RI.OID as ReportInstanceOID, 
   AD.ReportFormat, 
-  AD.IsDistributeInternalOnly
+  AD.IsDistributeInternalOnly, 
+  AD.IsEmbedHtml
 FROM AutoDistribution AD
   LEFT JOIN ReportInstance RI
   	ON AD.ParentReportTemplate = RI.ParentReportTemplate

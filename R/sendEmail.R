@@ -133,14 +133,19 @@ sendEmail <- function(from_user_oid,
   message <- c(list(message), attach)
   
   # Send the Email --------------------------------------------------  
-  sendmailR::sendmail(from = FromUser$EmailAddress, 
-                      to = to_address,  
-                      subject = .sendEmail_makeSubject(report_template, 
-                                                       report_instance, 
-                                                       is_revision), 
-                      msg = message,
-                      control = control, 
-                      ...)
+  
+  if (length(to_address) > 0){
+    sendmailR::sendmail(from = FromUser$EmailAddress, 
+                        to = to_address,  
+                        subject = .sendEmail_makeSubject(report_template, 
+                                                         report_instance, 
+                                                         is_revision), 
+                        msg = message,
+                        control = control, 
+                        ...)
+  } else {
+    message("No recipients listed for the TO field--no e-mail sent.")
+  }
 }
 
 
