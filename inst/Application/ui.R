@@ -152,6 +152,10 @@ dashboardPage(
                                    label = "Directory of Pandoc", 
                                    value = SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"],
                                    placeholder = "Leave blank if PANDOC is on the System PATH")),
+                disabled(textInput(inputId = "txt_setting_latexDirectory", 
+                                   label = "Directory of LaTeX", 
+                                   value = SETTINGS$SettingValue[SETTINGS$SettingKey == "latexDirectory"],
+                                   placeholder = "Leave blank if LaTeX is on the System PATH")),
                 disabled(actionButton(inputId = "btn_setting_saveSettings", 
                                       label = "Save")))
       )

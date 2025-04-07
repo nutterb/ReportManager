@@ -105,7 +105,17 @@ renderSignatureBlock <- function(Signature, html = FALSE){
     # Now, any single quotes that were in the content need to be escaped for the YAML
     sign <- gsub("'", "''", sign)
   } else {
-    "Print here"
+    sign <- vapply(seq_len(nrow(Signature)), 
+                   function(i){
+                     latexSignatureRow(Signature[i, ])
+                   }, 
+                   character(1))
+    
+    sign <- paste0(sign, collapse = "\n")
+    sign <- paste("\\begin{longtable}{>{\\centering}b{9cm} b{3mm} b{4cm}}",
+                  sign,
+                  "\\end{longtable}",
+                  sep = "\n")
   }
   sign
 }
@@ -133,6 +143,20 @@ htmlSignatureRow <- function(dframe){
                  dframe$SignatureDateTime, 
                  signatory)
   out
+}
+
+latexSignatureRow <- function(dframe){
+  string_struct <- 
+    "\\parbox[b]{9cm}{\\begin{overpic}[width=8cm,height=1.75cm]{\\detokenize{%s}}\\put(125,11){\\makebox(0,0){\\rule{9cm}{.1mm}}}\\put(125,4){\\makebox(0,0){%s, %s}}\\end{overpic}} &
+  \\hspace{3mm} & 
+  \\parbox[b]{3cm}{%s \\rule{3cm}{.1mm}\ Date}\\\\"
+  
+  row <- sprintf(string_struct, 
+                 "C:/Users/bnutter/Documents/R/R-4.0.3/library/bgcapp/signatures/Signature-Blank.png", 
+                 dframe$SignatureName, 
+                 dframe$RoleName,
+                 dframe$SignatureDateTime)
+  row
 }
 ```
 

@@ -26,7 +26,6 @@
 \usepackage[margin=1in]{geometry}
 \setlength{\parskip}{6pt}
 \setlength\parindent{0pt}
-% Define Segoe font and apply it to watermark, sections, and captions
 \SetWatermarkText{$if(watermark)$$watermark$$endif$}
 \SetWatermarkScale{1}
 \allsectionsfont{}
@@ -61,7 +60,6 @@ $else$
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 $endif$
 \begin{document}
-\Segoe
 
 % This block of code sets up the BGCAPP Laboratory Header and Footer 
 % on the first page of the document.  The first page requires special treatment

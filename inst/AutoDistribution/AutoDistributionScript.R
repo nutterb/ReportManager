@@ -2,6 +2,12 @@ args <- commandArgs(trailingOnly = TRUE)
 
 library(ReportManager)
 
+configureReportManager(flavor = "sql_server",
+                       database_file = "C:/Users/bnutter/Documents/ReportManager.sqlite",
+                       driver = "ODBC Driver 17 for SQL Server", 
+                       server = "BLGLIMSMPS", 
+                       database = "NutterPlayground")
+
 SETTINGS <- queryApplicationSetting()
 
 SMTP <- SETTINGS$SettingValue[SETTINGS$SettingKey == "smtpServer"]
@@ -25,9 +31,20 @@ PANDOC <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"]
 if (!isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
   rmarkdown::find_pandoc(dir = PANDOC, 
                          cache = FALSE)
-  Sys.setenv(PATH = PANDOC)
+  Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                             PANDOC), 
+                           collapse = ";"))
   Sys.setenv(RSTUDIO_PANDOC = PANDOC)
 }
+
+LATEX <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "latexDirectory"])
+
+if (!isTRUE(length(LATEX) == 0 | LATEX %in% c(NA, ""))){
+  Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                             LATEX), 
+                           collapse = ";"))
+}
+
 
 # Get the current user
 

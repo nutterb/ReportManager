@@ -38,6 +38,16 @@ PANDOC <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"]
 if (!isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
   rmarkdown::find_pandoc(dir = PANDOC, 
                          cache = FALSE)
-  Sys.setenv(PATH = PANDOC)
+  Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                             PANDOC), 
+                           collapse = ";"))
   Sys.setenv(RSTUDIO_PANDOC = PANDOC)
+}
+
+LATEX <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "latexDirectory"])
+
+if (!isTRUE(length(LATEX) == 0 | LATEX %in% c(NA, ""))){
+  Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                             LATEX), 
+                           collapse = ";"))
 }
