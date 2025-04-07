@@ -19,6 +19,8 @@
 #' @param is_revision `logical(1)`. Indicates if the e-mail is being sent 
 #'   regarding a revision.
 #' @param ... Other arguments to pass to \code{\link[sendmailR]{sendmail}}.
+#' 
+#' @export
 
 sendEmail <- function(from_user_oid, 
                       to_address, 

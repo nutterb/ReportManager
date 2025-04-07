@@ -19,15 +19,11 @@ getRevisionHistory <- function(report_instance_oid){
       )
     )
 
-  Revision$IsSubmission <- as.logical(Revision$IsSubmission)
-  
-  Revision$Revision <- cumsum(Revision$IsSubmission)
-  Revision$Revision[!Revision$IsSubmission] <- NA_real_
-  Revision$EventType <- ifelse(Revision$IsSubmission, 
+  Revision$EventType <- ifelse(!is.na(Revision$Revision), 
                                "Submission", 
                                "Revision")
-  Revision <- Revision[c("EventType", "User", "EventDateTime", "Revision")]
   
+  Revision <- Revision[c("EventType", "User", "EventDateTime", "Revision")]
   Revision <- Revision[order(Revision$EventDateTime, 
                              decreasing = TRUE), ]
   Revision
@@ -41,7 +37,7 @@ AS
 (
 	SELECT U.LastName + ', ' + U.FirstName AS [User],
 		RIG.PreviewDateTime AS EventDateTime, 
-		1 AS IsSubmission
+		ROW_NUMBER() OVER(PARTITION BY RI.OID ORDER BY RIG.PreviewDateTime) - 1 AS Revision
 	FROM dbo.ReportInstance RI
 		LEFT JOIN dbo.ReportInstanceGeneration RIG
 			ON RI.OID = RIG.ParentReportInstance
@@ -49,19 +45,21 @@ AS
 		LEFT JOIN dbo.[User] U
 			ON RIG.ParentUser = U.OID
 	WHERE RI.OID = @report_instance_oid
+		AND RIG.PreviewDateTime IS NOT NULL
 ), 
 Revision 
 AS
 (
 	SELECT U.LastName + ', ' + U.FirstName AS [User], 
 		RIR.EventDateTime, 
-		0 AS IsSubmission
+		NULL AS Revision
 	FROM dbo.ReportInstance RI
 		LEFT JOIN dbo.ReportInstanceRevision RIR
 			ON RI.OID = RIR.ParentReportInstance
 		LEFT JOIN dbo.[User] U
 			ON RIR.ParentUser = U.OID
 	WHERE RI.OID = @report_instance_oid
+		AND RIR.EventDateTime IS NOT NULL
 )
 
 (SELECT * FROM Submission
@@ -78,7 +76,7 @@ AS
 (
 	SELECT U.LastName + ', ' + U.FirstName AS [User],
 		RIG.PreviewDateTime AS EventDateTime, 
-		1 AS IsSubmission
+		ROW_NUMBER() OVER(PARTITION BY RI.OID ORDER BY RIG.PreviewDateTime) - 1 AS Revision
 	FROM ReportInstance RI
 		LEFT JOIN ReportInstanceGeneration RIG
 			ON RI.OID = RIG.ParentReportInstance
@@ -86,19 +84,21 @@ AS
 		LEFT JOIN [User] U
 			ON RIG.ParentUser = U.OID
 	WHERE RI.OID = @report_instance_oid
+		AND RIG.PreviewDateTime IS NOT NULL
 ), 
 Revision 
 AS
 (
 	SELECT U.LastName + ', ' + U.FirstName AS [User], 
 		RIR.EventDateTime, 
-		0 AS IsSubmission
+		NULL AS Revision
 	FROM ReportInstance RI
 		LEFT JOIN ReportInstanceRevision RIR
 			ON RI.OID = RIR.ParentReportInstance
 		LEFT JOIN [User] U
 			ON RIR.ParentUser = U.OID
 	WHERE RI.OID = @report_instance_oid
+		AND RIR.EventDateTime IS NOT NULL
 )
 
 (SELECT * FROM Submission

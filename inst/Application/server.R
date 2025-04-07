@@ -99,7 +99,6 @@ shinyServer(function(input, output, session){
         current_user_oid       = CURRENT_USER_OID(),
         rv_GenerateReport      = rv_GenerateReport
       )
-      
       # When a new template is selected, we want to clear the preview.
       rv_GenerateReport$Preview <- NULL
       rv_GenerateReport$FileArchive <- 
@@ -131,7 +130,6 @@ shinyServer(function(input, output, session){
       
       rv_GenerateReport$SelectedInstance <- 
         queryReportInstance(report_instance_oid = selected_instance_oid())
-      
       # Report Instance Notes ---------------------------------------
       toggle(id        = "h3_genReport_reportInstanceNote_noInstanceSelected",
              condition = length(selected_instance_oid()) == 0)
@@ -200,9 +198,10 @@ shinyServer(function(input, output, session){
       updateRadioButtons(session = session, 
                          inputId = "rdo_genReport_reportInstanceSubmit_distribution", 
                          selected = character(0))
-      
+
       rv_GenerateReport$ReportInstanceSubmissionHistory <- 
         getRevisionHistory(selected_instance_oid())
+
     })
 
   observeEvent(
@@ -434,6 +433,14 @@ shinyServer(function(input, output, session){
   
   # Generate Report - Signatures ------------------------------------
   # Generate Report - Event Observers -------------------------------
+  
+  observe({
+    sign_btn <- names(input)[grepl("btn_reportInstanceSignature_remove", 
+                                   names(input))]
+    lapply(sign_btn, 
+           toggleState, 
+           condition = !rv_GenerateReport$SelectedInstance$IsSubmitted)
+  })
   
   observe({
     sign_btn <- names(input)[grepl("btn_reportInstanceSignature_sign", 
@@ -745,7 +752,7 @@ shinyServer(function(input, output, session){
         show("rdo_genReport_reportInstance_embedHtml")
         show("txt_genReport_reportInstance_emailMessage")
         
-        message <- .sendEmail_makeMessage(
+        message <- ReportManager:::.sendEmail_makeMessage(
           report_template = rv_GenerateReport$SelectedTemplateData, 
           report_instance = rv_GenerateReport$SelectedInstance)
         
