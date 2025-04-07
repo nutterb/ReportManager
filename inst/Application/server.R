@@ -2950,6 +2950,7 @@ shinyServer(function(input, output, session){
       enable(id = "sel_setting_htmlEmbed")
       enable(id = "txt_setting_zipExecutable")
       enable(id = "txt_setting_pandocDirectory")
+      enable(id = "txt_setting_latexDirectory")
       enable(id = "btn_setting_saveSettings")
     }
   )
@@ -2961,12 +2962,14 @@ shinyServer(function(input, output, session){
                                                "defaultReportFormat", 
                                                "htmlEmbed", 
                                                "zipExecutable", 
-                                               "pandocDirectory"), 
+                                               "pandocDirectory", 
+                                               "latexDirectory"), 
                                 SettingValue = c(input$txt_setting_smtpServer, 
                                                  input$sel_setting_defaultReportFormat, 
                                                  input$sel_setting_htmlEmbed, 
                                                  input$txt_setting_zipExecutable, 
-                                                 input$txt_setting_pandocDirectory), 
+                                                 input$txt_setting_pandocDirectory, 
+                                                 input$txt_setting_latexDirectory), 
                                 stringsAsFactors = FALSE)
       
       for (i in seq_len(nrow(SettingData))){
@@ -2986,6 +2989,7 @@ shinyServer(function(input, output, session){
       disable(id = "sel_setting_htmlEmbed")
       disable(id = "txt_setting_zipExecutable")
       disable(id = "txt_setting_pandocDirectory")
+      disable(id = "txt_setting_latexDirectory")
       disable(id = "btn_setting_saveSettings")
     }
   )
