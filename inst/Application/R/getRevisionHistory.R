@@ -69,8 +69,6 @@ ORDER BY EventDateTime
 "
 	 
 .getRevisionHistory_sqlite <- "
-DECLARE @report_instance_oid INT = ?report_instance_oid;
-
 WITH Submission 
 AS
 (
@@ -83,7 +81,7 @@ AS
 				AND RIG.IsSubmission = 1
 		LEFT JOIN [User] U
 			ON RIG.ParentUser = U.OID
-	WHERE RI.OID = @report_instance_oid
+	WHERE RI.OID = ?report_instance_oid
 		AND RIG.PreviewDateTime IS NOT NULL
 ), 
 Revision 
@@ -97,7 +95,7 @@ AS
 			ON RI.OID = RIR.ParentReportInstance
 		LEFT JOIN [User] U
 			ON RIR.ParentUser = U.OID
-	WHERE RI.OID = @report_instance_oid
+	WHERE RI.OID = ?report_instance_oid
 		AND RIR.EventDateTime IS NOT NULL
 )
 
