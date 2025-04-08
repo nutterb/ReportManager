@@ -179,6 +179,16 @@ shinyServer(function(input, output, session){
       toggle(id        = "div_genReport_reportInstancePreview",
              condition = length(selected_instance_oid()) > 0)
       
+      # activate the shiny/configuration button
+      template_dir <- rv_GenerateReport$SelectedTemplateData$TemplateDirectory
+      template_dir <- system.file(file.path("ReportTemplate", template_dir), 
+                                  package = "ReportManager")
+      has_shiny <- 
+        "shiny" %in% list.dirs(template_dir, 
+                               full.names = FALSE)
+      toggle(id = "btn_genReport_reportInstancePreview_shiny", 
+             condition = has_shiny)
+                 
       # Report Instance Submission ----------------------------------
       toggle(id        = "h3_genReport_reportInstanceSubmit_noInstanceSelected",
              condition = length(selected_instance_oid()) == 0)
@@ -578,6 +588,15 @@ shinyServer(function(input, output, session){
   observeEvent(
     input$btn_genReport_reportInstancePreview_shiny, 
     {
+      btn_reportInstancePreview_shiny(report_instance_oid = selected_instance_oid(), 
+                                      report_template_oid = rv_GenerateReport$SelectedTemplate,
+                                      output_dir = tempdir(), 
+                                      rm_flavor = getOption("RM_sql_flavor"), 
+                                      rm_database_file = getOption("RM_sqlite_flavor"), 
+                                      rm_driver = getOption("RM_SqlServer_driver"), 
+                                      rm_server = getOption("RM_sqlServer_server"), 
+                                      rm_database = getOption("RM_sqlServer_database"))
+     
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
         report_template_oid = rv_GenerateReport$SelectedTemplate,
@@ -2939,11 +2958,31 @@ shinyServer(function(input, output, session){
         Sys.setenv("R_ZIPCMD" ="zip")
       }
       
-      # Update PANDOC directory
-      PANDOC <- trimws(SETTINGS$SettingsValue[SETTINGS$SettingKey == "pandocDirectory"])
+      RSCRIPT <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "rScript"])
       
-      if (isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
-        Sys.setenv(PATH = PANDOC)
+      if (!isTRUE(length(RSCRIPT) == 0 | RSCRIPT %in% c(NA, ""))){
+        Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                                   RSCRIPT), 
+                                 collapse = ";"))
+      }
+      
+      PANDOC <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"])
+      
+      if (!isTRUE(length(PANDOC) == 0 | PANDOC %in% c(NA, ""))){
+        rmarkdown::find_pandoc(dir = PANDOC, 
+                               cache = FALSE)
+        Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                                   PANDOC), 
+                                 collapse = ";"))
+        Sys.setenv(RSTUDIO_PANDOC = PANDOC)
+      }
+      
+      LATEX <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "latexDirectory"])
+      
+      if (!isTRUE(length(LATEX) == 0 | LATEX %in% c(NA, ""))){
+        Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                                   LATEX), 
+                                 collapse = ";"))
       }
     }
   )
@@ -2956,6 +2995,7 @@ shinyServer(function(input, output, session){
       enable(id = "sel_setting_defaultReportFormat")
       enable(id = "sel_setting_htmlEmbed")
       enable(id = "txt_setting_zipExecutable")
+      enable(id = "txt_setting_rScript")
       enable(id = "txt_setting_pandocDirectory")
       enable(id = "txt_setting_latexDirectory")
       enable(id = "btn_setting_saveSettings")
@@ -2970,13 +3010,15 @@ shinyServer(function(input, output, session){
                                                "htmlEmbed", 
                                                "zipExecutable", 
                                                "pandocDirectory", 
-                                               "latexDirectory"), 
+                                               "latexDirectory", 
+                                               "rScript"), 
                                 SettingValue = c(input$txt_setting_smtpServer, 
                                                  input$sel_setting_defaultReportFormat, 
                                                  input$sel_setting_htmlEmbed, 
                                                  input$txt_setting_zipExecutable, 
                                                  input$txt_setting_pandocDirectory, 
-                                                 input$txt_setting_latexDirectory), 
+                                                 input$txt_setting_latexDirectory, 
+                                                 input$txt_setting_rScript), 
                                 stringsAsFactors = FALSE)
       
       for (i in seq_len(nrow(SettingData))){
@@ -2994,6 +3036,7 @@ shinyServer(function(input, output, session){
       disable(id = "txt_setting_smtpServer")
       disable(id = "sel_setting_defaultReportFormat")
       disable(id = "sel_setting_htmlEmbed")
+      disable(id = "txt_setting_rScript")
       disable(id = "txt_setting_zipExecutable")
       disable(id = "txt_setting_pandocDirectory")
       disable(id = "txt_setting_latexDirectory")

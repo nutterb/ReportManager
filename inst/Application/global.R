@@ -31,6 +31,14 @@ if (!is.na(ZIP) && trimws(ZIP) != ""){
   Sys.setenv("R_ZIPCMD" = ZIP)
 }
 
+RSCRIPT <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "rScript"])
+
+if (!isTRUE(length(RSCRIPT) == 0 | RSCRIPT %in% c(NA, ""))){
+  Sys.setenv(PATH = paste0(c(Sys.getenv("PATH"), 
+                             RSCRIPT), 
+                           collapse = ";"))
+}
+
 # Set the Pandoc directory location on startup
 
 PANDOC <- trimws(SETTINGS$SettingValue[SETTINGS$SettingKey == "pandocDirectory"])
