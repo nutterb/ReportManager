@@ -26,7 +26,11 @@ MODAL_USER <-
         width = 6, 
         fileInput(inputId = "file_user_signature", 
                   label = "Signature Image", 
-                  accept = ".png")
+                  accept = ".png"),
+        h4("Current User Signature Image"),
+        imageOutput(outputId = "img_current_signature", 
+                    width = "8cm", 
+                    height = "1.75cm")
       )
     ), 
     actionButton(inputId = "btn_user_addEditUser", 

@@ -2547,9 +2547,11 @@ shinyServer(function(input, output, session){
 
   rv_User <-
     reactiveValues(
-      AddEdit      = "Add",
-      User         = queryUser(),
-      SelectedUser = NULL
+      AddEdit              = "Add",
+      User                 = queryUser(),
+      SelectedUser         = NULL, 
+      SignatureFileInput   = data.frame(), 
+      CurrentUserSignature = NULL
     )
 
   # User - Passive Observer -----------------------------------------
@@ -2593,6 +2595,9 @@ shinyServer(function(input, output, session){
                                rv_User = rv_User,
                                input   = input))
 
+  observeEvent(input$file_user_signature, 
+               rv_User$SignatureFileInput <- input$file_user_signature)
+  
   observeEvent(input$btn_user_addEditUser,
                ..btn_user_addEditUser(session          = session,
                                       rv_User          = rv_User,
@@ -2600,7 +2605,8 @@ shinyServer(function(input, output, session){
                                       current_user_oid = CURRENT_USER_OID(),
                                       proxy            = proxy_dt_user,
                                       is_edit          = rv_User$AddEdit == "Edit",
-                                      this_login_id    = rv_User$SelectedUser$LoginId))
+                                      this_login_id    = rv_User$SelectedUser$LoginId, 
+                                      signature_file   = rv_User$SignatureFileInput))
 
   observeEvent(input$btn_user_activate,
                ..btn_user_activate(active           = TRUE,
@@ -2639,6 +2645,19 @@ shinyServer(function(input, output, session){
                 rv_User$SelectedUser$OID)
       }
     })
+  
+  output$img_current_signature <- 
+    renderImage({
+      Signature <- rv_User$CurrentUserSignature
+      
+      write_to_file <- tempfile(fileext = Signature$FileExtension)
+      writeBin(as.raw(Signature$FileContent[[1]]), 
+               con = write_to_file)
+      list(src = write_to_file, 
+           width = "300px", 
+           height = "75px")
+    }, 
+    deleteFile = TRUE)
 
   # AutoDistribute --------------------------------------------------
   # AutoDistribute - Reactive Values --------------------------------

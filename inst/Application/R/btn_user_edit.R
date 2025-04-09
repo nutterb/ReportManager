@@ -18,6 +18,11 @@
   updateCheckboxInput(session = session, 
                       inputId = "chk_user_isActive", 
                       value = rv_User$SelectedUser$IsActive)
+  reset("file_user_signature")
+  rv_User$SignatureFileInput <- data.frame()
+  
+  rv_User$CurrentUserSignature <- queryUserSignature(rv_User$SelectedUser$OID)
+  
   toggleModal(session = session, 
               modalId = "modal_user_addEdit", 
               toggle = "open")
