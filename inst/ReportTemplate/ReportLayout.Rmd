@@ -16,7 +16,7 @@ output:
     toc: true
 params:
   report_template_oid: 2
-  report_instance_oid: 1
+  report_instance_oid: 27
   output_dir: ''
   rm_flavor: 'sql_server'
   rm_database_file: ''
@@ -82,7 +82,27 @@ renderSignatureBlock <- function(Signature, html = FALSE){
   Signature$SignatureDateTime <- ifelse(Signature$IsSigned, 
                                         Signature$SignatureDateTime, 
                                         "")
+  Signature$FileLocation <- rep(NA_character_, 
+                                nrow(Signature))
   
+  for (i in seq_len(nrow(Signature))){
+    ThisSignatureImage <- queryUserSignature(Signature$ParentUser[i])
+    if (nrow(ThisSignatureImage) == 1 & Signature$IsSigned[i]){
+      temp_dir <- tempdir()
+      temp_dir <- gsub("\\\\", "/", temp_dir)
+      write_to_file <- file.path(temp_dir, 
+                                 sprintf("%s.%s",
+                                         Signature$ParentRole[i], 
+                                         ThisSignatureImage$FileExtension))
+      writeBin(as.raw(ThisSignatureImage$FileContent[[1]]), 
+               con = write_to_file)
+      Signature$FileLocation[i] <- write_to_file
+    } else {
+      Signature$FileLocation[i] <-
+        system.file("ReportTemplate/Signature-Blank.png", 
+                    package = "ReportManager")
+    }
+  }
   
   if (html){
     sign <- vapply(seq_len(nrow(Signature)), 
@@ -124,7 +144,9 @@ renderSignatureBlock <- function(Signature, html = FALSE){
 htmlSignatureRow <- function(dframe){
   code_string <- "
 <tr>
-  <td style = 'width:4in;border-bottom:solid black 1px;height:1in;'></td>
+  <td style = 'width:3.14in;border-bottom:solid black 1px;height:0.69in;'>
+    <img src = '%s', width = '300', height = '100'></img>
+    </td>
   <td style = 'width:0.25in;'></td>
   <td style = 'width:1.5in;border-bottom:solid black 1px;vertical-align:bottom'>%s</td>
 </tr>
@@ -139,7 +161,8 @@ htmlSignatureRow <- function(dframe){
   signatory <- signatory[!is.na(signatory)]
   signatory <- paste0(signatory, 
                       collapse = ", ")
-  out <- sprintf(code_string, 
+  out <- sprintf(code_string,
+                 dframe$FileLocation,
                  dframe$SignatureDateTime, 
                  signatory)
   out
@@ -152,7 +175,7 @@ latexSignatureRow <- function(dframe){
   \\parbox[b]{3cm}{%s \\rule{3cm}{.1mm}\ Date}\\\\"
   
   row <- sprintf(string_struct, 
-                 "C:/Users/bnutter/Documents/R/R-4.0.3/library/bgcapp/signatures/Signature-Blank.png", 
+                 dframe$FileLocation, 
                  dframe$SignatureName, 
                  dframe$RoleName,
                  dframe$SignatureDateTime)

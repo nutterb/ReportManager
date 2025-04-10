@@ -809,7 +809,7 @@ shinyServer(function(input, output, session){
       hide("rdo_genReport_reportInstance_embedHtml")
       show("txt_genReport_reportInstance_emailMessage")
       
-      message <- .sendEmail_makeMessage(
+      message <- ReportManager:::.sendEmail_makeMessage(
         report_template = rv_GenerateReport$SelectedTemplateData, 
         report_instance = rv_GenerateReport$SelectedInstance)
       
@@ -848,9 +848,9 @@ shinyServer(function(input, output, session){
       
       is_add_to_archive <- if (is_submission) TRUE else "add to archive" %in% dist_opt
       is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
-      is_embed_html <- if (is_submission) FALSE else "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml)
+      is_embed_html <- if (is_submission) FALSE else "embed" %in% tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])
       
-      report_format <- if (is_submission) "html" else tolower(input$rdo_genReport_reportInstance_format)
+      report_format <- if (is_submission) "pdf" else tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
       
       submitReport(report_instance_oid = selected_instance_oid(), 
                    is_submission = is_submission, 
@@ -946,7 +946,7 @@ shinyServer(function(input, output, session){
       SignUser <- SignUser[SignUser$IsActive, ]
       
       msg <- 
-        .sendEmail_makeRevisionMessage(
+        ReportManager:::.sendEmail_makeRevisionMessage(
           report_template = rv_GenerateReport$SelectedTemplateData, 
           report_instance = rv_GenerateReport$SelectedInstance, 
           user_oid = CURRENT_USER_OID()
