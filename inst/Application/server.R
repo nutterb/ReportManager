@@ -848,9 +848,9 @@ shinyServer(function(input, output, session){
       
       is_add_to_archive <- if (is_submission) TRUE else "add to archive" %in% dist_opt
       is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
-      is_embed_html <- if (is_submission) FALSE else "embed" %in% tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])
+      is_embed_html <- "embed" %in% tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])
       
-      report_format <- if (is_submission) "pdf" else tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
+      report_format <- tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
       
       submitReport(report_instance_oid = selected_instance_oid(), 
                    is_submission = is_submission, 
@@ -858,6 +858,7 @@ shinyServer(function(input, output, session){
                    is_distribute_internal_only = "distribute internally" %in% dist_opt, 
                    is_add_to_archive = is_add_to_archive, 
                    is_embed_html = is_embed_html, 
+                   input$txt_genReport_reportInstance_emailMessage,
                    params = list(), 
                    report_format = report_format, 
                    current_user_oid = CURRENT_USER_OID())
