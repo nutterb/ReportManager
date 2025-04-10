@@ -30,6 +30,7 @@ submitReport <- function(report_instance_oid,
                          is_distribute_internal_only,
                          is_add_to_archive, 
                          is_embed_html,
+                         message = "",
                          params = list(), 
                          report_format, 
                          current_user_oid){
@@ -60,6 +61,10 @@ submitReport <- function(report_instance_oid,
   checkmate::assertLogical(x = is_embed_html, 
                            len = 1, 
                            add = coll)
+  
+  checkmate::assertCharacter(x = message, 
+                             len = 1, 
+                             add = coll)
   
   checkmate::assertList(x = params, 
                         names = "named", 
@@ -132,7 +137,7 @@ submitReport <- function(report_instance_oid,
               to_address = Distribution$EmailAddress,
               report_template = ReportTemplate,
               report_instance_oid = report_instance_oid,
-              message = "",#input$txt_genReport_reportInstance_emailMessage,
+              message = message,
               filename = report_files, 
               embed_html = is_embed_html)
     

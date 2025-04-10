@@ -7,7 +7,7 @@ CREATE TABLE dbo.[User](
   [LoginId] VARCHAR(50) NOT NULL, 
   [EmailAddress] VARCHAR(100) NULL, 
   [IsInternal] BIT NOT NULL DEFAULT 1, 
-  [IsActive] BIT NOT NULL DEFAULT 1, 
+  [IsActive] BIT NOT NULL DEFAULT 1,
   
   PRIMARY KEY (OID)
 );
@@ -34,6 +34,18 @@ CREATE TABLE dbo.[UserEvent](
                                                           'Deactivate', 
                                                           'Activate', 
                                                           'Add'))
+);
+
+CREATE TABLE [UserSignature] (
+  OID INT IDENTITY(1, 1) NOT NULL, 
+  ParentUser INT NOT NULL, 
+  [FileName] VARCHAR(250) NOT NULL, 
+  [FileExtension] VARCHAR(15) NOT NULL,
+  [FileSize] INT NOT NULL,
+  [FileContent] VARBINARY(MAX) NOT NULL,
+  
+  PRIMARY KEY (OID), 
+  FOREIGN KEY (ParentUser) REFERENCES dbo.[User](OID)
 );
 
 /* Role Table ******************************************************/

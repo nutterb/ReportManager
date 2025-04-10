@@ -809,7 +809,7 @@ shinyServer(function(input, output, session){
       hide("rdo_genReport_reportInstance_embedHtml")
       show("txt_genReport_reportInstance_emailMessage")
       
-      message <- .sendEmail_makeMessage(
+      message <- ReportManager:::.sendEmail_makeMessage(
         report_template = rv_GenerateReport$SelectedTemplateData, 
         report_instance = rv_GenerateReport$SelectedInstance)
       
@@ -848,9 +848,9 @@ shinyServer(function(input, output, session){
       
       is_add_to_archive <- if (is_submission) TRUE else "add to archive" %in% dist_opt
       is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
-      is_embed_html <- if (is_submission) FALSE else "embedded" %in% tolower(input$rdo_genReport_reportInstance_embedHtml)
+      is_embed_html <- "embed" %in% tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])
       
-      report_format <- if (is_submission) "html" else tolower(input$rdo_genReport_reportInstance_format)
+      report_format <- tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
       
       submitReport(report_instance_oid = selected_instance_oid(), 
                    is_submission = is_submission, 
@@ -858,6 +858,7 @@ shinyServer(function(input, output, session){
                    is_distribute_internal_only = "distribute internally" %in% dist_opt, 
                    is_add_to_archive = is_add_to_archive, 
                    is_embed_html = is_embed_html, 
+                   input$txt_genReport_reportInstance_emailMessage,
                    params = list(), 
                    report_format = report_format, 
                    current_user_oid = CURRENT_USER_OID())
@@ -946,7 +947,7 @@ shinyServer(function(input, output, session){
       SignUser <- SignUser[SignUser$IsActive, ]
       
       msg <- 
-        .sendEmail_makeRevisionMessage(
+        ReportManager:::.sendEmail_makeRevisionMessage(
           report_template = rv_GenerateReport$SelectedTemplateData, 
           report_instance = rv_GenerateReport$SelectedInstance, 
           user_oid = CURRENT_USER_OID()
@@ -2547,9 +2548,11 @@ shinyServer(function(input, output, session){
 
   rv_User <-
     reactiveValues(
-      AddEdit      = "Add",
-      User         = queryUser(),
-      SelectedUser = NULL
+      AddEdit              = "Add",
+      User                 = queryUser(),
+      SelectedUser         = NULL, 
+      SignatureFileInput   = data.frame(), 
+      CurrentUserSignature = NULL
     )
 
   # User - Passive Observer -----------------------------------------
@@ -2593,6 +2596,9 @@ shinyServer(function(input, output, session){
                                rv_User = rv_User,
                                input   = input))
 
+  observeEvent(input$file_user_signature, 
+               rv_User$SignatureFileInput <- input$file_user_signature)
+  
   observeEvent(input$btn_user_addEditUser,
                ..btn_user_addEditUser(session          = session,
                                       rv_User          = rv_User,
@@ -2600,7 +2606,8 @@ shinyServer(function(input, output, session){
                                       current_user_oid = CURRENT_USER_OID(),
                                       proxy            = proxy_dt_user,
                                       is_edit          = rv_User$AddEdit == "Edit",
-                                      this_login_id    = rv_User$SelectedUser$LoginId))
+                                      this_login_id    = rv_User$SelectedUser$LoginId, 
+                                      signature_file   = rv_User$SignatureFileInput))
 
   observeEvent(input$btn_user_activate,
                ..btn_user_activate(active           = TRUE,
@@ -2639,6 +2646,19 @@ shinyServer(function(input, output, session){
                 rv_User$SelectedUser$OID)
       }
     })
+  
+  output$img_current_signature <- 
+    renderImage({
+      Signature <- rv_User$CurrentUserSignature
+      
+      write_to_file <- tempfile(fileext = Signature$FileExtension)
+      writeBin(as.raw(Signature$FileContent[[1]]), 
+               con = write_to_file)
+      list(src = write_to_file, 
+           width = "300px", 
+           height = "75px")
+    }, 
+    deleteFile = TRUE)
 
   # AutoDistribute --------------------------------------------------
   # AutoDistribute - Reactive Values --------------------------------

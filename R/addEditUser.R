@@ -26,14 +26,15 @@
 #'   
 #' @export
 
-addEditUser <- function(oid         = numeric(0), 
-                              last_name, 
-                              first_name, 
-                              login_id, 
-                              email, 
-                              is_internal = FALSE, 
-                              is_active   = TRUE, 
-                              event_user){
+addEditUser <- function(oid = numeric(0), 
+                        last_name, 
+                        first_name, 
+                        login_id, 
+                        email, 
+                        is_internal = FALSE, 
+                        is_active   = TRUE, 
+                        event_user, 
+                        signature_file = data.frame()){
   # Argument Validation ---------------------------------------------
   
   coll <- checkmate::makeAssertCollection()
@@ -69,6 +70,10 @@ addEditUser <- function(oid         = numeric(0),
   checkmate::assertIntegerish(x = event_user, 
                               len = 1, 
                               add = coll)
+  
+  checkmate::assertDataFrame(x = signature_file, 
+                             max.rows = 1, 
+                             add = coll)
   
   checkmate::reportAssertions(coll)
   
@@ -134,6 +139,30 @@ addEditUser <- function(oid         = numeric(0),
     insertRecord(EventList, 
                  table_name = "UserEvent", 
                  return_oid = FALSE)
+  }
+  
+  # Add/Replace the Signature Image ---------------------------------
+  if (nrow(signature_file) == 1){
+    if (length(oid) == 0) oid <- OID$OID
+    SignatureData <- data.frame(ParentUser = oid, 
+                                FileName = tools::file_path_sans_ext(signature_file$name), 
+                                FileExtension = tools::file_ext(signature_file$name), 
+                                FileSize = signature_file$size, 
+                                FileContent = I(list(readBin(signature_file$datapath, 
+                                                             what = "raw", 
+                                                             n = signature_file$size))))
+    
+    ThisUserSignature <- queryUserSignature(user_oid = oid)
+    
+    if (nrow(ThisUserSignature) > 0){
+      updateRecord(data = SignatureData, 
+                   table_name = "UserSignature", 
+                   where_data = data.frame(OID = oid))
+    } else {
+      insertRecord(SignatureData, 
+                   table_name = "UserSignature", 
+                   return_oid = FALSE)
+    }
   }
 }
 

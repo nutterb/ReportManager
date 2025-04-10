@@ -33,6 +33,17 @@ CREATE TABLE [UserEvent](
                                                           'Add'))
 );
 
+CREATE TABLE [UserSignature] (
+  OID INTEGER PRIMARY KEY, 
+  ParentUser INT NOT NULL, 
+  FileName VARCHAR(250) NOT NULL, 
+  FileExtension VARCHAR(15) NOT NULL,
+  FileSize INT NOT NULL,
+  FileContent BLOB NOT NULL, 
+  
+  FOREIGN KEY (ParentUser) REFERENCES [User](OID)
+);
+
 /* Role Table ******************************************************/
 
 CREATE TABLE [Role](
