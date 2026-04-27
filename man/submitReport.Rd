@@ -11,6 +11,7 @@ submitReport(
   is_distribute_internal_only,
   is_add_to_archive,
   is_embed_html,
+  message = "",
   params = list(),
   report_format,
   current_user_oid
