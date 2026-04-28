@@ -557,7 +557,11 @@ shinyServer(function(input, output, session){
           report_instance_oid = selected_instance_oid(), 
           is_preview = TRUE,
           is_submission = FALSE,
-          params = list(), 
+          params = list(rm_flavor = getOption("RM_sql_flavor"), 
+                        rm_database_file = getOption("RM_sqlite_file"), 
+                        rm_driver = getOption("RM_sqlServer_driver"), 
+                        rm_server = getOption("RM_sqlServer_server"), 
+                        rm_database = getOption("RM_sqlServer_database")), 
           build_dir = tempdir(), 
           report_format = "html")
       
@@ -568,6 +572,9 @@ shinyServer(function(input, output, session){
       report_code <- sub("[<]/body[>].+", "</div>", report_code)
       
       rv_GenerateReport$Preview <- report_code
+      
+      print(rv_GenerateReport$SelectedInstance$StartDateTime)
+      print(class(rv_GenerateReport$SelectedInstance$StartDateTime))
       
       addReportInstanceGeneration(
         report_instance_oid = selected_instance_oid(), 
@@ -626,7 +633,11 @@ shinyServer(function(input, output, session){
                           include_image = "Images" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile, 
                           include_data = "Data" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile,
                           build_dir = tempdir(), 
-                          params = list(), 
+                          params = list(rm_flavor = getOption("RM_sql_flavor"), 
+                                        rm_database_file = getOption("RM_sqlite_file"), 
+                                        rm_driver = getOption("RM_sqlServer_driver"), 
+                                        rm_server = getOption("RM_sqlServer_server"), 
+                                        rm_database = getOption("RM_sqlServer_database")), 
                           report_format = "html")
         
         addReportInstanceGeneration(
@@ -656,7 +667,11 @@ shinyServer(function(input, output, session){
                           include_image = "Images" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile, 
                           include_data = "Data" %in% input$chkgrp_genReport_reportInstancePreview_supplementalFile,
                           build_dir = tempdir(), 
-                          params = list(), 
+                          params = list(rm_flavor = getOption("RM_sql_flavor"), 
+                                        rm_database_file = getOption("RM_sqlite_file"), 
+                                        rm_driver = getOption("RM_sqlServer_driver"), 
+                                        rm_server = getOption("RM_sqlServer_server"), 
+                                        rm_database = getOption("RM_sqlServer_database")), 
                           report_format = "pdf")
         
         addReportInstanceGeneration(
@@ -850,7 +865,8 @@ shinyServer(function(input, output, session){
       is_distribute <- if (is_submission) TRUE else "distribute internally" %in% dist_opt
       is_embed_html <- "embed" %in% tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "htmlEmbed"])
       
-      report_format <- tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
+      report_format <- tolower(input$rdo_genReport_reportInstance_format)
+      # report_format <- tolower(SETTINGS$SettingValue[SETTINGS$SettingKey == "defaultReportFormat"])
       
       submitReport(report_instance_oid = selected_instance_oid(), 
                    is_submission = is_submission, 
@@ -859,7 +875,11 @@ shinyServer(function(input, output, session){
                    is_add_to_archive = is_add_to_archive, 
                    is_embed_html = is_embed_html, 
                    input$txt_genReport_reportInstance_emailMessage,
-                   params = list(), 
+                   params = list(rm_flavor = getOption("RM_sql_flavor"), 
+                                 rm_database_file = getOption("RM_sqlite_file"), 
+                                 rm_driver = getOption("RM_sqlServer_driver"), 
+                                 rm_server = getOption("RM_sqlServer_server"), 
+                                 rm_database = getOption("RM_sqlServer_database")), 
                    report_format = report_format, 
                    current_user_oid = CURRENT_USER_OID())
       
@@ -1436,12 +1456,14 @@ shinyServer(function(input, output, session){
   observeEvent(input$btn_template_add,
                ..btn_template_add(session      = session,
                                    rv_Template = rv_Template,
+                                   rv_DateFormat = rv_DateFormat,
                                    output      = output))
 
   observeEvent(input$btn_template_edit,
                ..btn_template_edit(session      = session,
                                     output      = output,
-                                    rv_Template = rv_Template))
+                                    rv_Template = rv_Template,
+                                   rv_DateFormat = rv_DateFormat))
 
   observeEvent(input$btn_template_addEdit,
                ..btn_template_add_edit(session           = session,

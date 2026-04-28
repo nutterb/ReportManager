@@ -17,3 +17,19 @@ devtools::install_local(".",
                         upgrade = "never", 
                         force = TRUE, 
                         build_vignettes = TRUE)
+
+
+library(ReportManager)
+
+configureReportManager(flavor = "sqlite", 
+                       database_file = "/home/l102036/Temp/report-example.sqlite")
+
+# initializeReportManagerDatabase(
+#   filename = system.file("Sql/SQLite.sql",
+#                          package = "ReportManager"), 
+#   last_name = "Nutter", 
+#   first_name = "Benjamin", 
+#   login_id = "l102036", 
+#   email = "benjamin.nutter@lilly.com")
+
+startReportManager("benjamin.nutter@lilly.com")

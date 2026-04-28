@@ -1,5 +1,5 @@
 ..rtv_currentUserOid <- function(rv_User){
-  rv_User$User$OID[rv_User$User$LoginId %in% Sys.info()["login"]]
+  rv_User$User$OID[rv_User$User$LoginId %in% Sys.info()["user"]]
 }
 
 ..rtv_currentUserRole <- function(current_user_oid){

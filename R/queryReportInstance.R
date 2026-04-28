@@ -70,6 +70,12 @@ queryReportInstance <- function(report_template_oid = numeric(0),
     ReportInstance$IsSignatureRequired <- as.logical(ReportInstance$IsSignatureRequired)
     ReportInstance$IsScheduled <- as.logical(ReportInstance$IsScheduled)
     ReportInstance$IsSubmitted <- as.logical(ReportInstance$IsSubmitted)
+    ReportInstance$StartDateTime <- as.POSIXct(ReportInstance$StartDateTime, 
+                                               format = "%Y-%m-%d %H:%M:%S", 
+                                               tz = "UTC")
+    ReportInstance$EndDateTime <- as.POSIXct(ReportInstance$EndDateTime, 
+                                               format = "%Y-%m-%d %H:%M:%S", 
+                                               tz = "UTC")
   }
   
   ReportInstance

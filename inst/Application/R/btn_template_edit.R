@@ -1,6 +1,14 @@
 ..btn_template_edit <- function(session, 
                                  output,
-                                 rv_Template){
+                                 rv_Template, 
+                                rv_DateFormat){
+  
+  DForm <- rv_DateFormat$DateFormat
+  sel <- DForm$OID
+  names(sel) <- sprintf("%s (%s)", 
+                        DForm$FormatName, 
+                        DForm$Description)
+  
   rv_Template$AddEdit <- "Edit"
   updateTextInput(session = session, 
                   inputId = "txt_template_title", 
@@ -17,6 +25,10 @@
   updateCheckboxInput(session = session, 
                       inputId = "chk_template_isSignatureRequired", 
                       value = rv_Template$SelectedTemplate$IsSignatureRequired)
+  updateSelectInput(session = session, 
+                    inputId = "sel_template_dateReportingFormat", 
+                    choices = sel,
+                    selected = rv_Template$SelectedTemplate$DateReportingFormat)
   updateCheckboxInput(session = session, 
                       inputId = "chk_template_isActive", 
                       value = rv_Template$SelectedTemplate$IsActive)
