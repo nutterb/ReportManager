@@ -5,6 +5,7 @@
                                      proxy){
   oid <- if (rv_Template$AddEdit == "Add") numeric(0) else as.numeric(input$rdo_template)
   addEditReportTemplate(oid = oid, 
+                        template_name = input$txt_template_name,
                         template_directory = input$sel_template_directory, 
                         template_file = input$sel_template_file, 
                         title = input$txt_template_title, 

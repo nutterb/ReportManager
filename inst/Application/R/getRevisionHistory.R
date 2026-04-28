@@ -1,24 +1,27 @@
 getRevisionHistory <- function(report_instance_oid){
   conn <- connectToReportManager()
   on.exit({ DBI::dbDisconnect(conn) })
-  
+
   statement <- 
     switch(getOption("RM_sql_flavor"), 
            "sqlite" = .getRevisionHistory_sqlite, 
            "sql_server" = .getRevisionHistory_sqlServer, 
            stop(sprintf("Query not defined for SQL flavor '%s'", 
                         getOption("RM_sql_flavor"))))
-  
+
+  statement <- 
+    DBI::sqlInterpolate(
+      conn, 
+      statement, 
+      report_instance_oid = report_instance_oid
+    )
+
   Revision <- 
     DBI::dbGetQuery(
       conn, 
-      DBI::sqlInterpolate(
-        conn, 
-        statement, 
-        report_instance_oid = report_instance_oid
-      )
+      statement
     )
-
+  
   Revision$EventType <- ifelse(!is.na(Revision$Revision), 
                                "Submission", 
                                "Revision")
@@ -62,9 +65,9 @@ AS
 		AND RIR.EventDateTime IS NOT NULL
 )
 
-(SELECT * FROM Submission
+SELECT * FROM Submission
 UNION ALL
-SELECT * FROM Revision)
+SELECT * FROM Revision
 ORDER BY EventDateTime
 "
 	 
@@ -99,8 +102,8 @@ AS
 		AND RIR.EventDateTime IS NOT NULL
 )
 
-(SELECT * FROM Submission
+SELECT * FROM Submission
 UNION ALL
-SELECT * FROM Revision)
+SELECT * FROM Revision
 ORDER BY EventDateTime
 "

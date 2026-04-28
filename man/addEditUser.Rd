@@ -13,7 +13,7 @@ addEditUser(
   is_internal = FALSE,
   is_active = TRUE,
   event_user,
-  signature_file = character(0)
+  signature_file = data.frame()
 )
 }
 \arguments{
